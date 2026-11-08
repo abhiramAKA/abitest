@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (СТАБИЛЬНЫЙ - v5.7.73-STABLE)
+   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (СТАБИЛЬНЫЙ - v5.7.74-STABLE)
    ========================================================================== */
 
 const BOARD_ROWS = 8;
@@ -29,7 +29,6 @@ let selectedDragonLevel = 1;
 window.currentOpenedModeKey = null;
 
 function sanitizeAndMigrateStorage() {
-    // Безопасный сброс для принудительного запуска онбординга, если туториал не пройден честно
     if (localStorage.getItem('khamach_combat_tutorial_done') !== 'true') {
         localStorage.removeItem('khamach_full_onboarding_complete');
         localStorage.setItem('khamach_gold', '0');
@@ -69,8 +68,13 @@ function initDispatcherModule() {
     sanitizeAndMigrateStorage();
 
     const isHubPage = window.location.pathname.includes('hub.html');
+    
+    // ЖЕСТКИЙ UX-ПЕРЕХВАТЧИК: Защита от случайного открытия хаба без обучения
+    if (isHubPage && localStorage.getItem('khamach_combat_tutorial_done') !== 'true') {
+        window.location.href = 'gate.html?t=' + Date.now();
+        return;
+    }
 
-    // Наполняем пустые технические контейнеры Хаба базовой версткой во избежание "темноты"
     if (isHubPage) {
         const mScreen = document.getElementById('missions-screen');
         if (mScreen && mScreen.innerHTML.trim() === '') {
