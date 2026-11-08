@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (СТАБИЛЬНЫЙ - v5.7.72-STABLE)
+   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (СТАБИЛЬНЫЙ - v5.7.73-STABLE)
    ========================================================================== */
 
 const BOARD_ROWS = 8;
@@ -29,14 +29,15 @@ let selectedDragonLevel = 1;
 window.currentOpenedModeKey = null;
 
 function sanitizeAndMigrateStorage() {
-    // Инициализация стартовых флагов с нуля для новых игроков
-    if (localStorage.getItem('khamach_combat_tutorial_done') === null && localStorage.getItem('khamach_full_onboarding_complete') !== 'true') {
+    // Безопасный сброс для принудительного запуска онбординга, если туториал не пройден честно
+    if (localStorage.getItem('khamach_combat_tutorial_done') !== 'true') {
+        localStorage.removeItem('khamach_full_onboarding_complete');
         localStorage.setItem('khamach_gold', '0');
         localStorage.setItem('khamach_max_tier', '1');
         localStorage.setItem('khamach_dragon_essence', '1'); 
     }
 
-    const currentGold = localStorage.getItem('khamach_gold') || '500';
+    const currentGold = localStorage.getItem('khamach_gold') || '0';
     const currentMaxTier = localStorage.getItem('khamach_max_tier') || '1';
     const currentCharisma = localStorage.getItem('khamach_dragon_essence') || '1'; 
 
@@ -68,6 +69,18 @@ function initDispatcherModule() {
     sanitizeAndMigrateStorage();
 
     const isHubPage = window.location.pathname.includes('hub.html');
+
+    // Наполняем пустые технические контейнеры Хаба базовой версткой во избежание "темноты"
+    if (isHubPage) {
+        const mScreen = document.getElementById('missions-screen');
+        if (mScreen && mScreen.innerHTML.trim() === '') {
+            mScreen.innerHTML = `<h2>Доска Поручений</h2><span class="subtitle">Городские Контракты</span><div id="missions-list-container" style="display:flex; flex-direction:column; gap:8px; max-height:55vh; overflow-y:auto; margin-bottom:10px; width:100%;"></div><button id="close-missions-btn" class="menu-btn back-btn" style="width:100%;">Назад</button>`;
+        }
+        const cScreen = document.getElementById('chronicle-screen');
+        if (cScreen && cScreen.innerHTML.trim() === '') {
+            cScreen.innerHTML = `<h2>Летопись Цитадели</h2><span class="subtitle">История великих побед</span><div id="chronicle-list-container" style="text-align:left; max-height:50vh; overflow-y:auto; margin-bottom:15px; font-size:12px; font-family:monospace; line-height:1.4; color:#cdb38c; width:100%;"></div><div style="display:flex; gap:8px; width:100%;"><button id="clear-chronicle-btn" class="menu-btn" style="font-size:12px; padding:6px; background:#3a1414; border-color:#6e3131;">Очистить</button><button id="close-chronicle-btn" class="menu-btn back-btn" style="width:100%; margin-top:0;">Назад</button></div>`;
+        }
+    }
 
     try { if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM(); } catch(e) { console.error(e); }
     try { if (!isHubPage && typeof injectCombatInterfaceBaseDOM === 'function') injectCombatInterfaceBaseDOM(); } catch(e) { console.error(e); }
