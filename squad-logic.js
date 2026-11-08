@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.8.1-BETA)
+   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.8.2-BETA)
    ========================================================================== */
 
 const SQUAD_HERO_LORE = {
@@ -30,7 +30,7 @@ window.updateSquadHeroesSpecScreenDOM = function() {
     const currentCharisma = parseInt(localStorage.getItem('khamach_dragon_essence') || '0');
     
     heroesData.forEach(h => {
-        const lore = SQUAD_HERO_LORE[h.id === 'mage' ? 'damage_mage' : h.id];
+        const lore = SQUAD_HERO_LORE[h.id];
         if (!lore) return;
         
         const heroLvl = window.getHeroLevel(h.id);
@@ -59,7 +59,7 @@ window.updateSquadHeroesSpecScreenDOM = function() {
                 <span style="color:#ffd700;">Ур. ${heroLvl}</span>
             </div>
             <div style="font-size:10px; color:#2ecc71; line-height:1.1; margin-top:2px;">Бонус: ${lore.statBonus}</div>
-            <div style="font-size:10px; color:#e6c280; margin: 6px 0 4px 0; font-weight: bold;">Цена: 2 👑 Харизмы</div>
+            <div style="font-size:10px; color:#e6c280; margin: 6px 0 4px 0; font-weight: bold;">Цена: 2 👑</div>
             <div style="margin-top:auto;">${actionBtnHTML}</div>
         `;
         
