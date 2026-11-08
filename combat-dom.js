@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ БАЗОВОГО РЕНДЕРИНГА БОЕВОГО ИНТЕРФЕЙСА (v5.0.0-STABLE)
+   КХАМАЧ — МОДУЛЬ БАЗОВОГО РЕНДЕРИНГА БОЕВОГО ИНТЕРФЕЙСА (v5.8.2-BETA)
    ========================================================================== */
 
 function injectCombatInterfaceBaseDOM() {
@@ -17,7 +17,7 @@ function injectCombatInterfaceBaseDOM() {
                     <div id="boss-name" style="font-size: 12px; margin: 0;">ДРАКОН НЕКРОСМУТ</div>
                     <div style="display: flex; gap: 4px;">
                         <button id="combat-help-btn" class="info-btn" style="width: 26px; height: 26px; font-size: 12px; box-shadow: none; border-radius: 4px; padding: 0;">❓</button>
-                        <button id="combat-escape-top-btn" class="info-btn back-btn" style="width: 26px; height: 26px; font-size: 11px; box-shadow: none; border-radius: 4px; margin-top: 0; padding: 0;" title="Перегенерировать поле">❌</button>
+                        <button id="combat-escape-top-btn" class="info-btn back-btn" style="width: 26px; height: 26px; font-size: 11px; box-shadow: none; border-radius: 4px; margin-top: 0; padding: 0;" title="Отступить в Цитадель">❌</button>
                     </div>
                 </div>
                 <div class="hp-bar-container" style="height: 10px;">
@@ -46,8 +46,11 @@ function injectCombatInterfaceBaseDOM() {
 
     if (typeof injectCombatPopupsDOM === 'function') injectCombatPopupsDOM();
 
+    // ФИКС КРЕСТИКА: Вместо перезапуска сессии отправляем игрока обратно в Хаб
     document.getElementById('combat-escape-top-btn').onclick = function() {
-        if (typeof startCombatSession === 'function') startCombatSession(activeSessionLevel);
+        if (confirm("Вы уверены, что хотите трусливо сбежать с поля боя в Хаб Цитадели?")) {
+            window.location.href = 'hub.html?t=' + Date.now();
+        }
     };
 }
 
