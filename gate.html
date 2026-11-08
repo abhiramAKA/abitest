@@ -33,6 +33,7 @@
         <div id="dynamic-combat-screen"></div>
         <div id="squad-screen" class="game-window" style="display: none;"></div>
         <div id="squad-heroes-spec-screen" class="game-window" style="display: none; z-index: 100;"></div>
+        <div id="storage-screen" class="game-window" style="display: none;"></div>
         <div id="missions-screen" class="game-window" style="display: none; z-index: 100; flex-direction: column;">
             <h2>Доска Поручений</h2>
             <span class="subtitle">Городские Контракты</span>
@@ -52,7 +53,7 @@
 
     <!-- МОНОЛИТНЫЙ ЗАГРУЗЧИК ЯДРА (ЗАЩИТА ОТ СБОЕВ СЕТИ) -->
     <script>
-        window.GAME_VERSION = "v5.7.64-FIX";
+        window.GAME_VERSION = "v5.7.65-FIX";
 
         function loadGameModulesAndExecute(modeType) {
             if (typeof window.launchOnboardingStep === 'function') {
@@ -93,7 +94,7 @@
         }
     </script>
 
-    <script src="onboarding-data.js?v=v5.7.64-FIX"></script>
-    <script src="onboarding-engine.js?v=v5.7.64-FIX"></script>
+    <script src="onboarding-data.js?v=v5.7.65-FIX"></script>
+    <script src="onboarding-engine.js?v=v5.7.65-FIX"></script>
 </body>
 </html>
