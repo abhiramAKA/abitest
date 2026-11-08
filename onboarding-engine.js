@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.60-FIX)
+   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.61-FIX)
    ========================================================================== */
 
 const ONBOARDING_MISSIONS_LOCAL_POOL = [
@@ -34,7 +34,6 @@ window.launchOnboardingStep = function(modeType) {
         if (specScr) specScr.style.display = 'flex';
     } 
     else if (modeType === 'citadel') {
-        // КРИТИЧЕСКИЙ UX-ФИКС: Инжектируем чистый DOM Цитадели, чтобы игрок зашел внутрь меню построек
         if (typeof injectSquadInterfaceDOM === 'function') injectSquadInterfaceDOM();
         
         const closeBtn = document.getElementById('close-squad-btn');
@@ -43,7 +42,14 @@ window.launchOnboardingStep = function(modeType) {
         const squadScr = document.getElementById('squad-screen');
         if (squadScr) squadScr.style.display = 'flex';
 
-        // На шаге обучения привязываем специальную ручную транзакцию к кнопке подтверждения постройки
+        // Перехватываем клик на Гарнизон, чтобы открывалось окно улучшения
+        const tankBtn = document.getElementById('upgrade-tank-btn');
+        if (tankBtn) {
+            tankBtn.onclick = function() {
+                if (typeof openModeDescription === 'function') openModeDescription('tank');
+            };
+        }
+
         window.executeUnifiedBuildingTransaction = function() {
             localStorage.setItem('khamach_gold', '0'); 
             localStorage.setItem('khamach_build_tank', '1');
@@ -52,6 +58,10 @@ window.launchOnboardingStep = function(modeType) {
 
             alert("Гарнизон успешно возведен! Достигнут 1 уровень.");
             if (squadScr) squadScr.style.display = 'none';
+            
+            const modeDescScr = document.getElementById('mode-desc-screen');
+            if (modeDescScr) modeDescScr.style.display = 'none';
+
             window.location.href = 'gate.html?t=' + Date.now();
         };
     } 
