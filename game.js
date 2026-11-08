@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (ИСПРАВЛЕН - v5.7.67-FIX)
+   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (ИСПРАВЛЕН - v5.7.68-FIX)
    ========================================================================== */
 
 const BOARD_ROWS = 8;
@@ -51,6 +51,11 @@ function updateMenuOnboardingVisibility() {
         <button id="to-chronicle-btn" class="emoji-grid-btn">📜</button>
         <button id="to-clans-btn" class="emoji-grid-btn">👥</button>
     `;
+    
+    // КРИТИЧЕСКИЙ ФИКС ХАБА: Принудительно вешаем прослушиватели кликов сразу после рендеринга HTML-кнопок
+    if (typeof setupAllGameListeners === 'function') {
+        setupAllGameListeners();
+    }
 }
 
 function initDispatcherModule() {
@@ -66,7 +71,6 @@ function initDispatcherModule() {
 
     if (typeof updateTownGoldDisplay === 'function') updateTownGoldDisplay();
 
-    // Запуск прослушивателей только для gate.html. В Хабе это делает финальный коллбэк hub.html
     if (!isHubPage && typeof setupAllGameListeners === 'function') {
         try { setupAllGameListeners(); } catch (e) { console.error(e); }
     }
@@ -92,7 +96,6 @@ function showScreen(screenId) {
     
     if (screenId === 'main-menu') {
         updateMenuOnboardingVisibility();
-        // ИСПРАВЛЕНО: Убран преждевременный сброс слушателей, ломавший кнопки в Хабе
     }
     if (screenId === 'dragon-select-screen' && typeof renderDragonSelectionGrid === 'function') {
         renderDragonSelectionGrid();
