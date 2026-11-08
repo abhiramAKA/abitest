@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ ИНЪЕКЦИЙ ГОРОДСКИХ ИНТЕРФЕЙСОВ И НАСТРОЕК (v5.7.65-FIX)
+   КХАМАЧ — МОДУЛЬ ИНЪЕКЦИЙ ГОРОДСКИХ ИНТЕРФЕЙСОВ И НАСТРОЕК (v5.8.1-BETA)
    ========================================================================== */
 
 function injectTownScreensDOM() {
@@ -37,9 +37,7 @@ function injectTownScreensDOM() {
         storageScr.innerHTML = `
             <h2>Склад Цитадели</h2>
             <span class="subtitle">Ваши накопленные богатства</span>
-            <div id="storage-resources-list" style="text-align: left; margin-bottom: 15px; background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid #544432; display: flex; flex-direction: column; gap: 8px;">
-                <!-- Динамически заполняется через updateTownGoldDisplay -->
-            </div>
+            <div id="storage-resources-list" style="text-align: left; margin-bottom: 15px; background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid #544432; display: flex; flex-direction: column; gap: 8px;"></div>
             <button id="close-storage-btn" class="menu-btn back-btn" style="width: 100%;">Назад в меню</button>
         `;
     }
@@ -70,6 +68,32 @@ function injectTownScreensDOM() {
             <span class="subtitle">Тренировка и развитие характеристик отряда</span>
             <div id="heroes-upgrade-list-container" style="margin-bottom: 15px;"></div>
             <button id="close-heroes-spec-btn" class="menu-btn back-btn" style="width: 100%;">Назад в меню</button>
+        `;
+    }
+
+    // ИСПРАВЛЕНО: Инъекция полноценного развернутого UI в окно усталости
+    const fatigueScr = document.getElementById('squad-fatigue-screen');
+    if (fatigueScr) {
+        const tFat = Math.round(parseFloat(localStorage.getItem('khamach_fatigue_tank') || '0'));
+        const dFat = Math.round(parseFloat(localStorage.getItem('khamach_fatigue_damage') || '0'));
+        const aFat = Math.round(parseFloat(localStorage.getItem('khamach_fatigue_archer') || '0'));
+        const mFat = Math.round(parseFloat(localStorage.getItem('khamach_fatigue_mage') || '0'));
+        
+        fatigueScr.innerHTML = `
+            <div class="combat-help-content" style="max-width: 380px; padding: 20px;">
+                <h2>ОТРЯД: СВЕЖЕСТЬ КОМАНДЫ</h2>
+                <span class="subtitle">Уровень усталости героев</span>
+                <div style="display:flex; flex-direction:column; gap:10px; text-align:left; background:rgba(0,0,0,0.5); padding:12px; border:1px solid #544432; border-radius:4px; font-size:13px; color:#cdb38c;">
+                    <div style="display:flex; justify-content:space-between;"><span>🛡️ Защитник:</span><strong>${tFat}% Усталости</strong></div>
+                    <div style="display:flex; justify-content:space-between;"><span>🔥 Воин-Дамагер:</span><strong>${dFat}% Усталости</strong></div>
+                    <div style="display:flex; justify-content:space-between;"><span>⚡ Стрелок-Лучник:</span><strong>${aFat}% Усталости</strong></div>
+                    <div style="display:flex; justify-content:space-between;"><span>💚 Божественный Маг:</span><strong>${mFat}% Усталости</strong></div>
+                </div>
+                <p style="font-size:11px; color:#8a7350; margin-top:10px; line-height:1.3; text-align:justify;">
+                    *Каждое поручение Ратуши увеличивает усталость бойца на +15%. Находясь в резерве Хаба, бойцы пассивно восстанавливают свежесть. Усталость снижает награду золотом.
+                </p>
+                <button id="close-fatigue-screen-btn" class="menu-btn back-btn" style="width: 100%; margin-top: 10px; padding: 8px;">Вернуться в Хаб</button>
+            </div>
         `;
     }
 }
