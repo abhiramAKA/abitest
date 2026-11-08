@@ -1,12 +1,12 @@
 /* ==========================================================================
-   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.7.63-FIX)
+   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.7.64-FIX)
    ========================================================================== */
 
 const SQUAD_HERO_LORE = {
-    tank: { name: "🛡️ Гарнизон", title: "🛡️ ЗАЩИТНИК", resourceKey: "plasma", resourceIcon: "🌋", statBonus: "+20 Max HP" },
-    damage: { name: "🔥 Казармы", title: "🔥 ВОИН", resourceKey: "blood", resourceIcon: "🩸", statBonus: "+15 урон ульты" },
-    archer: { name: "⚡ Стрельбище", title: "⚡ СТРЕЛОК", resourceKey: "scale", resourceIcon: "🪶", statBonus: "+10 урон молнии" },
-    damage_mage: { name: "💚 Обитель", title: "💚 МАГ", resourceKey: "tears", resourceIcon: "💧", statBonus: "+5 к масс-хилу" }
+    tank: { name: "🛡️ Гарнизон", title: "🛡️ ЗАЩИТНИК", statBonus: "+20 Max HP" },
+    damage: { name: "🔥 Казармы", title: "🔥 ВОИН", statBonus: "+15 урон ульты" },
+    archer: { name: "⚡ Стрельбище", title: "⚡ СТРЕЛОК", statBonus: "+10 урон молнии" },
+    damage_mage: { name: "💚 Обитель", title: "💚 МАГ", statBonus: "+5 к масс-хилу" }
 };
 
 window.getHeroLevel = function(id) { return parseInt(localStorage.getItem(`khamach_hero_lvl_${id}`) || '1'); };
@@ -48,14 +48,14 @@ window.updateSquadHeroesSpecScreenDOM = function() {
             actionBtnHTML = `<button class="menu-btn" style="padding:2px; font-size:10px; background:#1d3a1e; height:22px; line-height:1;" onclick="window.triggerHeroLevelUpgrade('${h.id}')">Прокачать</button>`;
         }
         
+        // ФИКС: Полностью удалена строка лимитов здания для чистоты UI
         cardInner = `
             <div style="display:flex; justify-content:space-between; font-weight:bold; color:#e6c280; font-size:11px;">
                 <span>${lore.title}</span>
                 <span style="color:#ffd700;">Ур. ${heroLvl}</span>
             </div>
-            <div style="font-size:9px; color:#8a7350; margin-top:-2px; margin-bottom:2px;">Лимит: ${heroLvl < 2 ? 'Без лимита' : buildLvl}</div>
-            <div style="font-size:10px; color:#2ecc71; line-height:1.1;">Бонус: ${lore.statBonus}</div>
-            <div style="font-size:10px; color:#e6c280; margin: 4px 0 2px 0; font-weight: bold;">Цена: 2 👑 Харизмы</div>
+            <div style="font-size:10px; color:#2ecc71; line-height:1.1; margin-top:2px;">Бонус: ${lore.statBonus}</div>
+            <div style="font-size:10px; color:#e6c280; margin: 6px 0 4px 0; font-weight: bold;">Цена: 2 👑 Харизмы</div>
             <div style="margin-top:auto;">${actionBtnHTML}</div>
         `;
         
