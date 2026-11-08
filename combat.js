@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ВЫЧИСЛИТЕЛЬНОЕ ЯДРО ПОШАГОВОГО БОЯ (ИСПРАВЛЕН - v5.7.39-FIX)
+   КХАМАЧ — ВЫЧИСЛИТЕЛЬНОЕ ЯДРО ПОШАГОВОГО БОЯ (ИСПРАВЛЕН - v5.7.55-FIX)
    ========================================================================== */
 
 let activeSessionLevel = 1;
@@ -27,7 +27,6 @@ function startCombatSession(level) {
     combatData.dragonBlinded = false;
     combatData.isActionPhase = false; 
     window.isBoardLocked = false;
-    isBoardLocked = false;
     
     const bossNameEl = document.getElementById('boss-name');
     if (bossNameEl) {
@@ -67,7 +66,6 @@ function startCombatSession(level) {
     const tutorialDone = localStorage.getItem('khamach_combat_tutorial_done') === 'true';
     if (!tutorialDone) {
         window.isBoardLocked = true;
-        isBoardLocked = true;
         const welcomeScr = document.getElementById('combat-welcome-tutorial-screen');
         if (welcomeScr) welcomeScr.style.display = 'flex';
     }
@@ -91,7 +89,6 @@ function usePlayerActionPoint() {
     if (combatData.playerAP <= 0) {
         combatData.isActionPhase = true; 
         window.isBoardLocked = true;
-        isBoardLocked = true;
         
         const apDisplay = document.getElementById('combat-ap-display');
         if (apDisplay) apDisplay.innerText = "Ход Дракона...";
@@ -130,7 +127,6 @@ function executeDragonTurnAI() {
         }
         if (combatData.squad.every(h => h.hp <= 0)) {
             combatData.squad.forEach(h => {
-                // Воскрешаем только тех, кто не ушёл на заработки в Ратушу
                 if (localStorage.getItem(`khamach_hero_busy_${h.id}`) !== 'true') {
                     h.hp = h.maxHP;
                 }
@@ -142,13 +138,11 @@ function executeDragonTurnAI() {
         
         combatData.isActionPhase = false;
         window.isBoardLocked = false;
-        isBoardLocked = false;
         window.selectedCell = null;
-        selectedCell = null;
         
         const apDisplay = document.getElementById('combat-ap-display');
         if (apDisplay) apDisplay.innerText = "Сделайте ход на поле!";
         if (typeof updateCombatInterfaceDOM === 'function') updateCombatInterfaceDOM();
-        if (typeof renderBoardDOM === 'function') renderBoardDOM(false,); 
+        if (typeof renderBoardDOM === 'function') renderBoardDOM(false); 
     }, 1000);
 }
