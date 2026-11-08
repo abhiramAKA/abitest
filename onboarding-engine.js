@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.62-FIX)
+   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.63-FIX)
    ========================================================================== */
 
 window.launchOnboardingStep = function(modeType) {
@@ -38,6 +38,7 @@ window.launchOnboardingStep = function(modeType) {
         const squadScr = document.getElementById('squad-screen');
         if (squadScr) squadScr.style.display = 'flex';
 
+        // Блокируем остальные кнопки в Цитадели
         ['damage', 'archer', 'mage'].forEach(id => {
             const btn = document.getElementById(`upgrade-${id}-btn`);
             if (btn) {
@@ -48,13 +49,17 @@ window.launchOnboardingStep = function(modeType) {
             }
         });
 
+        // Прямой вызов окна описания с принудительной активацией стилей
         const tankBtn = document.getElementById('upgrade-tank-btn');
         if (tankBtn) {
             tankBtn.onclick = function() {
                 if (typeof openModeDescription === 'function') {
                     openModeDescription('tank');
                     const descWin = document.getElementById('mode-desc-screen');
-                    if (descWin) descWin.style.display = 'flex';
+                    if (descWin) {
+                        descWin.style.display = 'flex';
+                        descWin.style.zIndex = '10001';
+                    }
                 }
             };
         }
