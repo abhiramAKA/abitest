@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (ИСПРАВЛЕН - v5.7.66-FIX)
+   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (ИСПРАВЛЕН - v5.7.67-FIX)
    ========================================================================== */
 
 const BOARD_ROWS = 8;
@@ -31,8 +31,6 @@ window.currentOpenedModeKey = null;
 function sanitizeAndMigrateStorage() {
     const currentGold = localStorage.getItem('khamach_gold') || '500';
     const currentMaxTier = localStorage.getItem('khamach_max_tier') || '1';
-    
-    // ФИКС ХАРИЗМЫ: Защищаем кошелек Харизмы от обнуления при миграции
     const currentCharisma = localStorage.getItem('khamach_dragon_essence') || '1'; 
 
     localStorage.setItem('khamach_gold', currentGold);
@@ -68,7 +66,7 @@ function initDispatcherModule() {
 
     if (typeof updateTownGoldDisplay === 'function') updateTownGoldDisplay();
 
-    // В Хабе запуск перенесен в hub.html, запускаем тут только для gate.html
+    // Запуск прослушивателей только для gate.html. В Хабе это делает финальный коллбэк hub.html
     if (!isHubPage && typeof setupAllGameListeners === 'function') {
         try { setupAllGameListeners(); } catch (e) { console.error(e); }
     }
@@ -94,7 +92,7 @@ function showScreen(screenId) {
     
     if (screenId === 'main-menu') {
         updateMenuOnboardingVisibility();
-        if (typeof setupAllGameListeners === 'function') setupAllGameListeners();
+        // ИСПРАВЛЕНО: Убран преждевременный сброс слушателей, ломавший кнопки в Хабе
     }
     if (screenId === 'dragon-select-screen' && typeof renderDragonSelectionGrid === 'function') {
         renderDragonSelectionGrid();
