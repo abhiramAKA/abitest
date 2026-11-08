@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ ИСХОДОВ БИТВЫ (ИСПРАВЛЕН ПОД ХАБ - v5.7.65-FIX)
+   КХАМАЧ — МОДУЛЬ ИСХОДОВ БИТВЫ (ИСПРАВЛЕН ПОД ХАБ - v5.7.69-FIX)
    ========================================================================== */
 
 function activateHeroSuperpower(heroId) {
@@ -9,9 +9,9 @@ function activateHeroSuperpower(heroId) {
     hero.sp = 0;
     if (typeof playMatch3Sound === 'function') playMatch3Sound(hero.icon);
 
-    const damageLvl = typeof getBuildingLevel === 'function' ? getBuildingLevel('damage') : 0;
-    const archerLvl = typeof getBuildingLevel === 'function' ? getBuildingLevel('archer') : 0;
-    const mageLvl = typeof getBuildingLevel === 'function' ? getBuildingLevel('mage') : 0;
+    const damageLvl = typeof getBuildingLevel === 'function' ? getBuildingLevel('damage') : 1;
+    const archerLvl = typeof getBuildingLevel === 'function' ? getBuildingLevel('archer') : 1;
+    const mageLvl = typeof getBuildingLevel === 'function' ? getBuildingLevel('mage') : 1;
 
     let dmgUnyielding = 120 + damageLvl * 15;
     let archerUnyielding = 25 + archerLvl * 10;
@@ -35,7 +35,7 @@ function checkBattleResolution() {
         let id = window.setTimeout(function() {}, 0);
         while (id--) { window.clearTimeout(id); }
 
-        // ЭКОНОМИКА ХАРИЗМЫ: 1 победа = +1 Харизма на склад Цитадели
+        // ЭКОНОМИКА ХАРИЗМЫ: +1 Харизма за победу
         const currentEssence = parseInt(localStorage.getItem('khamach_dragon_essence') || '0');
         localStorage.setItem('khamach_dragon_essence', (currentEssence + 1).toString());
 
@@ -44,10 +44,12 @@ function checkBattleResolution() {
         const firstBattleDone = localStorage.getItem('khamach_combat_tutorial_done') === 'true';
         const mDone = localStorage.getItem('khamach_missions_tutorial_done') === 'true';
 
+        // ЖЕСТКАЯ ФИКСАЦИЯ ОЧЕРЕДИ ОНБОРДИНГА
         if (!firstBattleDone) {
             localStorage.setItem('khamach_combat_tutorial_done', 'true');
             localStorage.setItem('khamach_gold', '100');
-            localStorage.setItem('khamach_dragon_essence', '2'); // Выдаем 2 харизмы на Шаг 2 онбординга
+            // 1 стартовая Харизма новичка + 1 за победу = 2 Харизмы для Спортзала
+            localStorage.setItem('khamach_dragon_essence', '2'); 
             window.location.href = 'gate.html?t=' + Date.now();
         } else if (!mDone) {
             window.location.href = 'gate.html?t=' + Date.now();
