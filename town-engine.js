@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНАЯ ЭКОНОМИКА ЦИТАДЕЛИ И ХРАНИЛИЩЕ РЕСУРСОВ (v5.7.65-FIX)
+   КХАМАЧ — ЦЕНТРАЛЬНАЯ ЭКОНОМИКА ЦИТАДЕЛИ И ХРАНИЛИЩЕ РЕСУРСОВ (v5.7.66-FIX)
    ========================================================================== */
 
 const TOWN_BUILDING_PRICES = {
@@ -17,7 +17,7 @@ const INLINE_MODE_DESCRIPTIONS = {
     tank: { title: "🛡️ ГАРНИЗОН", isLocked: false, isHero: true, heroId: "tank", lore: "Здесь тренируются ваши верные Защитники. Модернизация увеличивает здоровье танка." },
     damage: { title: "🔥 КАЗАРМЫ", isLocked: false, isHero: true, heroId: "damage", lore: "Казармы свирепых Воинов. Увеличивают чистый урон ультимейта." },
     archer: { title: "⚡ СТРУКТУРА СТРЕЛЬБИЩА", isLocked: false, isHero: true, heroId: "archer", lore: "Полигон Стрелков. Повышает урон от стихийных молний." },
-    mage: { title: "💚 ОБИТЕЛЬ", isLocked: false, isHero: true, heroId: "mage", lore: "Священное место Магов. Увеличивает силу группового исцеления." }
+    mage: { title: "💚 ОБИТЕЛЬ", isLocked: false, isHero: true, heroId: "mage", lore: "Священное место Магов. Увеличивают силу группового исцеления." }
 };
 
 window.getTownText = function(key) { return INLINE_TOWN_TEXTS[key] || ''; };
@@ -32,7 +32,6 @@ window.updateTownGoldDisplay = function() {
         el.innerText = `🪙 ${goldVal.toLocaleString('ru-RU')}`; 
     });
     
-    // Наполняем Склад Цитадели актуальными значениями валют
     const storageList = document.getElementById('storage-resources-list');
     if (storageList) {
         storageList.innerHTML = `
@@ -77,20 +76,23 @@ window.openModeDescription = function(id) {
             return;
         }
         const bldId = config.heroId || id;
-        const bldLvl = parseInt(localStorage.getItem(`khamach_build_${bldId}`) || '0');
+        
+        // ФИКС: По умолчанию уровень всех зданий равен 1
+        const bldLvl = parseInt(localStorage.getItem(`khamach_build_${bldId}`) || '1');
         let loreText = config.lore || "Оборонительное сооружение Цитадели.";
 
-        if (bldLvl === 0) {
-            let price = TOWN_BUILDING_PRICES[1];
-            textEl.innerHTML = `${loreText}`;
-            if (buyBtn) { buyBtn.style.display = 'block'; buyBtn.innerText = `⚒️ ПОСТРОИТЬ (🪙 ${price})`; }
-        } else if (bldLvl >= 15) {
+        if (bldLvl >= 15) {
             textEl.innerHTML = `${loreText}<br><br>Максимальный уровень строения достигнут!`;
             if (buyBtn) buyBtn.style.display = 'none';
         } else {
             let nextPrice = TOWN_BUILDING_PRICES[bldLvl + 1];
             textEl.innerHTML = `${loreText}<br><br>Текущий уровень: ${bldLvl}`;
-            if (buyBtn) { buyBtn.style.display = 'block'; buyBtn.innerText = `⚒️ УЛУЧШИТЬ ДО УР. ${bldLvl + 1} (🪙 ${nextPrice.toLocaleString('ru-RU')})`; }
+            
+            // ФИКС ТЕРМИНА: Кнопка переведена на строгое "УЛУЧШИТЬ ДО УР. X"
+            if (buyBtn) { 
+                buyBtn.style.display = 'block'; 
+                buyBtn.innerText = `⚒️ УЛУЧШИТЬ ДО УР. ${bldLvl + 1} (🪙 ${nextPrice.toLocaleString('ru-RU')})`; 
+            }
         }
     }
     showScreen('mode-desc-screen');
