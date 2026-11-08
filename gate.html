@@ -24,7 +24,7 @@
 
             <!-- ДИНАМИЧЕСКИЙ КОНТЕЙНЕР ДЛЯ КВАДРАТНЫХ КНОПОК -->
             <div id="onboarding-buttons-zone" class="menu-emoji-grid" style="display: flex; justify-content: center; align-items: center; gap: 16px; min-height: 140px; width: 100%; box-sizing: border-box; padding: 0 20px;">
-                <!-- Кнопки создаются автоматически скриптом onboarding-engine.js -->
+                <!-- Кнопки создаются автоматически скриптом onboarding-data.js -->
             </div>
         </div>
         
@@ -52,7 +52,7 @@
 
     <!-- МОНОЛИТНЫЙ ЗАГРУЗЧИК ЯДРА (ЗАЩИТА ОТ СБОЕВ СЕТИ) -->
     <script>
-        window.GAME_VERSION = "v5.7.61-FIX";
+        window.GAME_VERSION = "v5.7.62-FIX";
 
         function loadGameModulesAndExecute(modeType) {
             if (typeof window.launchOnboardingStep === 'function') {
@@ -93,7 +93,8 @@
         }
     </script>
 
-    <!-- Выделенный движок шагов онбординга -->
-    <script src="onboarding-engine.js?v=v5.7.61-FIX"></script>
+    <!-- Подключаем данные онбординга и обновленный сжатый движок -->
+    <script src="onboarding-data.js?v=v5.7.62-FIX"></script>
+    <script src="onboarding-engine.js?v=v5.7.62-FIX"></script>
 </body>
 </html>
