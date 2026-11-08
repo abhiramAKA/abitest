@@ -8,10 +8,10 @@
     <meta http-equiv="Expires" content="0">
     <title>КХАМАЧ — Легенды Абхирамбурга</title>
     <style>
-        /* Стиль готического спиннера ожидания */
         .hub-loader-overlay {
             display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(5, 4, 3, 0.95); z-index: 35000; align-items: center; justify-content: center; flex-direction: column;
+            background: rgba(5, 4, 3, 0.65) !important; z-index: 35000; align-items: center; justify-content: center; flex-direction: column;
+            backdrop-filter: blur(3px);
         }
         .loader-hourglass {
             font-size: 64px; animation: spinHourglass 1.8s ease-in-out infinite; line-height: 1; margin-bottom: 15px;
@@ -28,7 +28,8 @@
     </style>
     <script>
         (function() {
-            window.GAME_VERSION = "v5.7.75-STABLE";
+            // АВТОМАТИЧЕСКИЙ СБРОС КЭША: Генерация версии на лету
+            window.GAME_VERSION = "AUTO_" + Date.now();
             
             if (localStorage.getItem('khamach_sys_version') !== window.GAME_VERSION) {
                 localStorage.setItem('khamach_sys_version', window.GAME_VERSION);
@@ -54,13 +55,8 @@
             function injectScript(index) {
                 if (index >= scripts.length) {
                     console.log("КХАМАЧ: Модули успешно загружены.");
-                    if (typeof initDispatcherModule === 'function') {
-                        initDispatcherModule();
-                    }
-                    if (typeof setupAllGameListeners === 'function') {
-                        setupAllGameListeners();
-                    }
-                    // Убираем песочные часы, когда всё меню собрано целиком в один блок
+                    if (typeof initDispatcherModule === 'function') initDispatcherModule();
+                    if (typeof setupAllGameListeners === 'function') setupAllGameListeners();
                     const spinner = document.getElementById('hub-loading-screen');
                     if (spinner) spinner.style.display = 'none';
                     const menu = document.getElementById('main-menu');
@@ -71,9 +67,7 @@
                 const script = document.createElement('script');
                 script.src = scripts[index] + '?v=' + window.GAME_VERSION + '&t=' + enforceBuster;
                 script.async = false; 
-                script.onerror = function() {
-                    injectScript(index + 1);
-                };
+                script.onerror = function() { injectScript(index + 1); };
                 script.onload = function() { injectScript(index + 1); };
                 document.head.appendChild(script);
             }
@@ -87,16 +81,12 @@
 <body>
     <canvas id="bg-canvas"></canvas>
 
-    <!-- ГОТИЧЕСКИЙ ЛОАДЕР ДЛЯ БЕСШОВНОЙ СБОРКИ ХАБА -->
     <div id="hub-loading-screen" class="hub-loader-overlay">
         <div class="loader-hourglass">⏳</div>
         <div class="loader-text">Магия Кхамача призывается...</div>
     </div>
 
     <div id="game-interface">
-        
-        <!-- ================= ГЛАВНОЕ МЕНЮ ИГРЫ ================= -->
-        <!-- ИСПРАВЛЕНО: Меню изначально полностью скрыто (display: none) во избежание полупустых блоков -->
         <div id="main-menu" class="game-window" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 2px; padding: 0 4px; background: rgba(20, 15, 12, 0.5); border-bottom: 1px double #544432; box-sizing: border-box;">
                 <span id="main-gold-display" class="gold-counter-display" style="color: #ffd700; cursor: pointer; font-size: 14px; font-weight: bold; transition: color 0.2s;">🪙 0</span>
@@ -111,12 +101,9 @@
                 <button id="info-btn" class="info-btn" style="flex: 1; height: 38px; font-size: 14px;">❓ Справка</button>
             </div>
 
-            <div id="main-menu-grid" class="menu-emoji-grid">
-                <!-- Сетка из 6 кнопок города всегда рендерится здесь по умолчанию -->
-            </div>
+            <div id="main-menu-grid" class="menu-emoji-grid"></div>
         </div>
 
-        <!-- ================= АВТОНОМНЫЕ СЛОТЫ ОКОН ================= -->
         <div id="dynamic-town-screens"></div>
         <div id="squad-screen" class="game-window" style="display: none;"></div>
         <div id="dynamic-combat-screen"></div>
@@ -129,7 +116,6 @@
         <div id="chronicle-screen" class="game-window" style="display: none;"></div>
         <div id="settings-screen" class="game-window" style="display: none;"></div>
         <div id="squad-fatigue-screen" class="game-window combat-help-popup" style="display: none;"></div>
-
     </div>
 </body>
 </html>
