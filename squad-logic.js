@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.7.64-FIX)
+   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.7.65-FIX)
    ========================================================================== */
 
 const SQUAD_HERO_LORE = {
@@ -40,15 +40,10 @@ window.updateSquadHeroesSpecScreenDOM = function() {
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:10px; background:#221a1a; border-color:#3a2525; color:#665555; cursor:not-allowed;" disabled>Прокачать</button>`;
         } else if (heroLvl >= 15) {
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:10px;" disabled>МАКС УР</button>`;
-        } else if (heroLvl >= 1 && heroLvl < 2) {
-            actionBtnHTML = `<button class="menu-btn" style="padding:2px; font-size:10px; background:#1d3a1e; height:22px; line-height:1;" onclick="window.triggerHeroLevelUpgrade('${h.id}')">Прокачать</button>`;
-        } else if (heroLvl >= buildLvl) {
-            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:9px; background:#421e1e; border-color:#6e3131; line-height:1.1;" disabled>Нужен ${buildLvl + 1} ур. здания</button>`;
         } else {
             actionBtnHTML = `<button class="menu-btn" style="padding:2px; font-size:10px; background:#1d3a1e; height:22px; line-height:1;" onclick="window.triggerHeroLevelUpgrade('${h.id}')">Прокачать</button>`;
         }
         
-        // ФИКС: Полностью удалена строка лимитов здания для чистоты UI
         cardInner = `
             <div style="display:flex; justify-content:space-between; font-weight:bold; color:#e6c280; font-size:11px;">
                 <span>${lore.title}</span>
@@ -68,7 +63,14 @@ window.updateSquadHeroesSpecScreenDOM = function() {
 
 window.triggerHeroLevelUpgrade = function(heroId) {
     const heroLvl = window.getHeroLevel(heroId);
+    const currentCharisma = parseInt(localStorage.getItem('khamach_dragon_essence') || '0');
 
+    if (currentCharisma < 2) {
+        alert("Недостаточно Харизмы! Требуется 2 👑.");
+        return;
+    }
+
+    localStorage.setItem('khamach_dragon_essence', (currentCharisma - 2).toString());
     localStorage.setItem(`khamach_hero_lvl_${heroId}`, heroLvl + 1);
     
     const isTrainingPhase = localStorage.getItem('khamach_training_tutorial_done') !== 'true';
