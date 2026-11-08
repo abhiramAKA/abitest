@@ -20,6 +20,11 @@
     </style>
     <script>
         function handlePlayClick() {
+            // ФИКС ТУТОРИАЛА: Проверяем, пройден ли первый бой. Если нет — стираем ложные переходы в Хаб
+            if (localStorage.getItem('khamach_combat_tutorial_done') !== 'true') {
+                localStorage.removeItem('khamach_full_onboarding_complete');
+            }
+
             if (localStorage.getItem('khamach_full_onboarding_complete') === 'true') {
                 window.location.href = 'hub.html?t=' + Date.now();
             } else {
@@ -33,12 +38,12 @@
         <h1>КХАМАЧ</h1>
         <button class="play-btn" onclick="handlePlayClick()">ИГРАТЬ</button>
         <div class="changelog">
-            <h3>📜 ЖУРНАЛ СБОРКИ v5.7.72-STABLE:</h3>
-            • Ликвидирован критический SyntaxError во внутреннем объявлении массива squad в `game.js`.<br>
-            • Исправлена инициализация ядра: игра стабильно запускается как при первом, так и при повторных входах.<br>
-            • Полностью восстановлен сквозной контроль лимита кода и защита кэш-бастинга версий.
+            <h3>📜 ЖУРНАЛ СБОРКИ v5.7.73-STABLE:</h3>
+            • Ликвидирована слепая зона "темноты": внедрена базовая HTML-разметка окон Поручений и Летописи в Хабе.<br>
+            • Исправлен автоматический пропуск обучения: игра жестко проверяет флаг первого боя при клике «ИГРАТЬ».<br>
+            • Оптимизирован скрипт миграции стейта кошелька Харизмы против жесткого кэширования браузером.
         </div>
-        <div class="ver">ТЕКУЩАЯ СБОРКА: v5.7.72-STABLE</div>
+        <div class="ver">ТЕКУЩАЯ СБОРКА: v5.7.73-STABLE</div>
     </div>
 </body>
 </html>
