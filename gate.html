@@ -31,6 +31,7 @@
         <!-- ТЕХНИЧЕСКИЕ СЛОТЫ ДЛЯ СБОРКИ ИГРОВЫХ МОДУЛЕЙ -->
         <div id="main-menu" style="display: none;"></div>
         <div id="dynamic-combat-screen"></div>
+        <div id="squad-screen" class="game-window" style="display: none;"></div>
         <div id="squad-heroes-spec-screen" class="game-window" style="display: none; z-index: 100;"></div>
         <div id="missions-screen" class="game-window" style="display: none; z-index: 100; flex-direction: column;">
             <h2>Доска Поручений</h2>
@@ -51,10 +52,9 @@
 
     <!-- МОНОЛИТНЫЙ ЗАГРУЗЧИК ЯДРА (ЗАЩИТА ОТ СБОЕВ СЕТИ) -->
     <script>
-        window.GAME_VERSION = "v5.7.58-FIX";
+        window.GAME_VERSION = "v5.7.60-FIX";
 
         function loadGameModulesAndExecute(modeType) {
-            // Если функция launchOnboardingStep доступна, сразу даем визуальный отклик
             if (typeof window.launchOnboardingStep === 'function') {
                 window.launchOnboardingStep(modeType);
             } else {
@@ -78,7 +78,6 @@
                     if (modeType === 'battle' && typeof initDispatcherModule === 'function') {
                         initDispatcherModule();
                     }
-                    // Повторно триггерим для инициализации стейта, когда файлы уже загружены
                     if (typeof window.launchOnboardingStep === 'function') {
                         window.launchOnboardingStep(modeType);
                     }
@@ -95,6 +94,6 @@
     </script>
 
     <!-- Выделенный движок шагов онбординга -->
-    <script src="onboarding-engine.js?v=v5.7.58-FIX"></script>
+    <script src="onboarding-engine.js?v=v5.7.60-FIX"></script>
 </body>
 </html>
