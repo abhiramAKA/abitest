@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ УПРАВЛЕНИЯ И ОТРИСОВКИ РЕЖИМА ПРИКЛЮЧЕНИЙ (v5.7.1-STABLE)
+   КХАМАЧ — МОДУЛЬ УПРАВЛЕНИЯ И ОТРИСОВКИ РЕЖИМА ПРИКЛЮЧЕНИЙ (v5.8.3-BETA)
    ========================================================================== */
 
 window.currentActiveChapterView = null;
@@ -16,6 +16,15 @@ function saveCompletedTier(tier) {
     }
 }
 
+function handleAdventureBackNavigation() {
+    // УМНЫЙ UX-ПЕРЕХВАТЧИК: Если мы находимся на странице обучения gate.html, возвращаем в полноценный Хаб
+    if (window.location.pathname.includes('gate.html')) {
+        window.location.href = 'hub.html?t=' + Date.now();
+    } else {
+        if (typeof showScreen === 'function') showScreen('main-menu');
+    }
+}
+
 function renderDragonSelectionGrid() {
     const gridContainer = document.getElementById('dragon-levels-grid');
     const backBtn = document.getElementById('from-select-to-menu-btn');
@@ -27,14 +36,14 @@ function renderDragonSelectionGrid() {
     // ЭКРАН 1: Выбор художественной главы кампании
     if (window.currentActiveChapterView === null) {
         if (backBtn) {
-            backBtn.innerText = "Назад в меню";
-            backBtn.onclick = function() { showScreen('main-menu'); };
+            backBtn.innerText = window.location.pathname.includes('gate.html') ? "В Главный Хаб Цитадели ↩️" : "Назад в меню";
+            backBtn.onclick = handleAdventureBackNavigation;
         }
         
         const scrTitle = document.getElementById('adventure-screen-title');
         const scrSubtitle = document.getElementById('adventure-screen-subtitle');
         if (scrTitle) scrTitle.innerText = "РЕЖИМ ПРИКЛЮЧЕНИЯ";
-        if (scrSubtitle) scrSubtitle.innerText = "Выберите Пространство или Бестиアрий";
+        if (scrSubtitle) scrSubtitle.innerText = "Выберите Пространство или Бестиарий";
 
         window.ADVENTURE_CHAPTERS.forEach((ch, idx) => {
             const card = document.createElement('div');
@@ -42,7 +51,6 @@ function renderDragonSelectionGrid() {
             
             let isChapterLocked = true;
             if (ch.bosses && ch.bosses.length > 0) {
-                // ИСПРАВЛЕНО: Безопасное чтение первого тира из массива боссов главы
                 const firstBossTier = ch.bosses[0].tier;
                 isChapterLocked = firstBossTier > maxUnlocked;
             }
