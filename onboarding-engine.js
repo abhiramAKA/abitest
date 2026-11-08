@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.54-FIX)
+   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.57-FIX)
    ========================================================================== */
 
 const ONBOARDING_MISSIONS_LOCAL_POOL = [
@@ -9,33 +9,42 @@ const ONBOARDING_MISSIONS_LOCAL_POOL = [
 
 window.launchOnboardingStep = function(modeType) {
     if (modeType === 'battle') {
-        document.getElementById('onboarding-gothic-window').style.display = 'none';
+        const gothicWin = document.getElementById('onboarding-gothic-window');
+        if (gothicWin) gothicWin.style.display = 'none';
+        
         const isSecondBattlePhase = localStorage.getItem('khamach_missions_tutorial_done') === 'true';
         
-        if (!isSecondBattlePhase) {
-            if (typeof injectCombatInterfaceBaseDOM === 'function') injectCombatInterfaceBaseDOM();
-            if (typeof startBackgroundMusic === 'function') startBackgroundMusic();
-            if (typeof showScreen === 'function') showScreen('combat-screen');
-            if (typeof startCombatSession === 'function') startCombatSession(1); 
-        } else {
-            if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
-            if (typeof showScreen === 'function') showScreen('dragon-select-screen');
-            if (typeof renderDragonSelectionGrid === 'function') renderDragonSelectionGrid();
-        }
+        // Гарантируем, что DOM боевого интерфейса и ядро успели собраться в памяти
+        setTimeout(() => {
+            if (!isSecondBattlePhase) {
+                if (typeof injectCombatInterfaceBaseDOM === 'function') injectCombatInterfaceBaseDOM();
+                if (typeof startBackgroundMusic === 'function') startBackgroundMusic();
+                if (typeof showScreen === 'function') showScreen('combat-screen');
+                if (typeof startCombatSession === 'function') startCombatSession(1); 
+            } else {
+                if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
+                if (typeof showScreen === 'function') showScreen('dragon-select-screen');
+                if (typeof renderDragonSelectionGrid === 'function') renderDragonSelectionGrid();
+            }
+        }, 50);
     } 
     else if (modeType === 'camp') {
-        document.getElementById('onboarding-gothic-window').style.display = 'none';
+        const gothicWin = document.getElementById('onboarding-gothic-window');
+        if (gothicWin) gothicWin.style.display = 'none';
         if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
         if (typeof updateSquadHeroesSpecScreenDOM === 'function') updateSquadHeroesSpecScreenDOM();
-        document.getElementById('squad-heroes-spec-screen').style.display = 'flex';
+        const specScr = document.getElementById('squad-heroes-spec-screen');
+        if (specScr) specScr.style.display = 'flex';
     } 
     else if (modeType === 'citadel') {
-        document.getElementById('onboarding-gothic-window').style.display = 'none';
+        const gothicWin = document.getElementById('onboarding-gothic-window');
+        if (gothicWin) gothicWin.style.display = 'none';
         if (typeof injectSquadInterfaceDOM === 'function') injectSquadInterfaceDOM();
         
         const closeBtn = document.getElementById('close-squad-btn');
         if (closeBtn) closeBtn.style.display = 'none';
-        document.getElementById('squad-screen').style.display = 'flex';
+        const squadScr = document.getElementById('squad-screen');
+        if (squadScr) squadScr.style.display = 'flex';
 
         window.executeUnifiedBuildingTransaction = function() {
             localStorage.setItem('khamach_gold', '0'); 
@@ -43,12 +52,13 @@ window.launchOnboardingStep = function(modeType) {
             localStorage.setItem('khamach_squad_build_tank', 'true');
             localStorage.setItem('khamach_citadel_tutorial_done', 'true');
 
-            document.getElementById('squad-screen').style.display = 'none';
+            if (squadScr) squadScr.style.display = 'none';
             window.location.href = 'gate.html?t=' + Date.now();
         };
     } 
     else if (modeType === 'missions') {
-        document.getElementById('onboarding-gothic-window').style.display = 'none';
+        const gothicWin = document.getElementById('onboarding-gothic-window');
+        if (gothicWin) gothicWin.style.display = 'none';
         if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
         
         const container = document.getElementById('missions-list-container');
@@ -68,7 +78,8 @@ window.launchOnboardingStep = function(modeType) {
                 container.appendChild(card);
             });
         }
-        document.getElementById('missions-screen').style.display = 'flex';
+        const misScr = document.getElementById('missions-screen');
+        if (misScr) misScr.style.display = 'flex';
     }
 };
 
@@ -78,7 +89,8 @@ function executeOnboardingMission(missionId, heroId) {
     localStorage.setItem(`khamach_mission_start_${missionId}`, Date.now().toString());
     
     localStorage.setItem('khamach_missions_tutorial_done', 'true');
-    document.getElementById('missions-screen').style.display = 'none';
+    const misScr = document.getElementById('missions-screen');
+    if (misScr) misScr.style.display = 'none';
     window.location.href = 'gate.html?t=' + Date.now();
 }
 
@@ -88,28 +100,41 @@ document.addEventListener("DOMContentLoaded", function() {
     const isCitadelBuilt = localStorage.getItem('khamach_citadel_tutorial_done') === 'true';
     const isMissionsDone = localStorage.getItem('khamach_missions_tutorial_done') === 'true';
     const btnZone = document.getElementById('onboarding-buttons-zone');
+    if (!btnZone) return;
     
     if (!isVictory) {
         btnZone.innerHTML = `<button class="emoji-grid-btn" style="width: 110px; height: 110px; font-size: 54px; border-radius: 4px;" onclick="loadGameModulesAndExecute('battle')">🌋</button>`;
     } else if (!isTrained) {
-        document.getElementById('onboarding-title').innerText = "ЦИТАДЕЛЬ";
-        document.getElementById('onboarding-subtitle').innerText = "Управление Прогрессом";
-        document.getElementById('onboarding-description').innerText = "Дракон повержен! На склад доставлена Кровь Древних. Отправляйтесь в Спортзал, чтобы развить навыки и поднять уровень кого-то из героев.";
+        const titleEl = document.getElementById('onboarding-title');
+        const subEl = document.getElementById('onboarding-subtitle');
+        const descEl = document.getElementById('onboarding-description');
+        if (titleEl) titleEl.innerText = "ЦИТАДЕЛЬ";
+        if (subEl) subEl.innerText = "Управление Прогрессом";
+        if (descEl) descEl.innerText = "Дракон повержен! На склад доставлена Кровь Древних. Отправляйтесь в Спортзал, чтобы развить навыки и поднять уровень кого-то из героев.";
         btnZone.innerHTML = `<button class="emoji-grid-btn" style="width: 110px; height: 110px; font-size: 54px; border-radius: 4px;" title="Спортзал" onclick="loadGameModulesAndExecute('camp')">🏋️</button>`;
     } else if (!isCitadelBuilt) {
-        document.getElementById('onboarding-title').innerText = "АРХИТЕКТУРА";
-        document.getElementById('onboarding-subtitle').innerText = "Строительство построек";
-        document.getElementById('onboarding-description').innerText = "Чтобы тренировать героев дальше, нужно улучшать здания Цитадели. Откройте инженерное меню Замка и постройте первое оборонительное сооружение за 100 золотых монет.";
+        const titleEl = document.getElementById('onboarding-title');
+        const subEl = document.getElementById('onboarding-subtitle');
+        const descEl = document.getElementById('onboarding-description');
+        if (titleEl) titleEl.innerText = "АРХИТЕКТУРА";
+        if (subEl) subEl.innerText = "Строительство построек";
+        if (descEl) descEl.innerText = "Чтобы тренировать героев дальше, нужно улучшать здания Цитадели. Откройте инженерное меню Замка и постройте первое оборонительное сооружение за 100 золотых монет.";
         btnZone.innerHTML = `<button class="emoji-grid-btn" style="width: 110px; height: 110px; font-size: 54px; border-radius: 4px;" title="Замок" onclick="loadGameModulesAndExecute('citadel')">🏰</button>`;
     } else if (!isMissionsDone) {
-        document.getElementById('onboarding-title').innerText = "РАТУША";
-        document.getElementById('onboarding-subtitle').innerText = "Алхимические Экспедиции";
-        document.getElementById('onboarding-description').innerText = "Отлично! Теперь лимит тренировок повышен. Чтобы строить другие здания, нужно золото, а оно добывается в поручениях Ратуши. Отправьте свободного бойца в экспедицию.";
+        const titleEl = document.getElementById('onboarding-title');
+        const subEl = document.getElementById('onboarding-subtitle');
+        const descEl = document.getElementById('onboarding-description');
+        if (titleEl) titleEl.innerText = "РАТУША";
+        if (subEl) subEl.innerText = "Алхимические Экспедиции";
+        if (descEl) descEl.innerText = "Отлично! Теперь лимит тренировок повышен. Чтобы строить другие здания, нужно золото, а оно добывается в поручениях Ратуши. Отправьте свободного бойца в экспедицию.";
         btnZone.innerHTML = `<button class="emoji-grid-btn" style="width: 110px; height: 110px; font-size: 54px; border-radius: 4px;" title="Поручения" onclick="loadGameModulesAndExecute('missions')">💰</button>`;
     } else {
-        document.getElementById('onboarding-title').innerText = "В ПУТИ";
-        document.getElementById('onboarding-subtitle').innerText = "Выбор Бестиария";
-        document.getElementById('onboarding-description').innerText = "Твой герой ушёл выполнять поручение. Пока он в пути, ты можешь отправить оставшуюся команду в новый рейд. Открой карту Кампании и выбери главу и тир дракона — после этой битвы Цитадель откроется полностью!";
+        const titleEl = document.getElementById('onboarding-title');
+        const subEl = document.getElementById('onboarding-subtitle');
+        const descEl = document.getElementById('onboarding-description');
+        if (titleEl) titleEl.innerText = "В ПУТИ";
+        if (subEl) subEl.innerText = "Выбор Бестиария";
+        if (descEl) descEl.innerText = "Твой герой ушёл выполнять поручение. Пока он в пути, ты можете отправить оставшуюся команду в новый рейд. Открой карту Кампании и выбери главу и тир дракона — после этой битвы Цитадель откроется полностью!";
         btnZone.innerHTML = `<button class="emoji-grid-btn" style="width: 110px; height: 110px; font-size: 54px; border-radius: 4px;" title="Открыть карту" onclick="loadGameModulesAndExecute('battle')">🌋</button>`;
     }
 });
