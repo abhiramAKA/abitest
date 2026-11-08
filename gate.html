@@ -51,9 +51,17 @@
 
     <!-- МОНОЛИТНЫЙ ЗАГРУЗЧИК ЯДРА (ЗАЩИТА ОТ СБОЕВ СЕТИ) -->
     <script>
-        window.GAME_VERSION = "v5.7.57-FIX";
+        window.GAME_VERSION = "v5.7.58-FIX";
 
         function loadGameModulesAndExecute(modeType) {
+            // Если функция launchOnboardingStep доступна, сразу даем визуальный отклик
+            if (typeof window.launchOnboardingStep === 'function') {
+                window.launchOnboardingStep(modeType);
+            } else {
+                const win = document.getElementById('onboarding-gothic-window');
+                if (win) win.style.display = 'none';
+            }
+
             const enforceBuster = Date.now() + '_' + Math.floor(Math.random() * 999999);
             const scripts = [
                 'game.js', 'background.js', 'audio-engine.js', 'match3-fx.js',
@@ -70,6 +78,7 @@
                     if (modeType === 'battle' && typeof initDispatcherModule === 'function') {
                         initDispatcherModule();
                     }
+                    // Повторно триггерим для инициализации стейта, когда файлы уже загружены
                     if (typeof window.launchOnboardingStep === 'function') {
                         window.launchOnboardingStep(modeType);
                     }
@@ -86,6 +95,6 @@
     </script>
 
     <!-- Выделенный движок шагов онбординга -->
-    <script src="onboarding-engine.js?v=v5.7.57-FIX"></script>
+    <script src="onboarding-engine.js?v=v5.7.58-FIX"></script>
 </body>
 </html>
