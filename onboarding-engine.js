@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.57-FIX)
+   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.58-FIX)
    ========================================================================== */
 
 const ONBOARDING_MISSIONS_LOCAL_POOL = [
@@ -8,13 +8,15 @@ const ONBOARDING_MISSIONS_LOCAL_POOL = [
 ];
 
 window.launchOnboardingStep = function(modeType) {
+    // КРИТИЧЕСКИЙ UX-ФИКС: Мгновенно скрываем стартовое окно при первом же клике на вулкан,
+    // чтобы игрок видел искры заднего плана и понимал, что игра откликнулась на нажатие
+    const gothicWin = document.getElementById('onboarding-gothic-window');
+    if (gothicWin) gothicWin.style.display = 'none';
+
     if (modeType === 'battle') {
-        const gothicWin = document.getElementById('onboarding-gothic-window');
-        if (gothicWin) gothicWin.style.display = 'none';
-        
         const isSecondBattlePhase = localStorage.getItem('khamach_missions_tutorial_done') === 'true';
         
-        // Гарантируем, что DOM боевого интерфейса и ядро успели собраться в памяти
+        // Спокойно подгружаем боевую сцену в фоне, пока игрок созерцает искры
         setTimeout(() => {
             if (!isSecondBattlePhase) {
                 if (typeof injectCombatInterfaceBaseDOM === 'function') injectCombatInterfaceBaseDOM();
@@ -29,16 +31,12 @@ window.launchOnboardingStep = function(modeType) {
         }, 50);
     } 
     else if (modeType === 'camp') {
-        const gothicWin = document.getElementById('onboarding-gothic-window');
-        if (gothicWin) gothicWin.style.display = 'none';
         if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
         if (typeof updateSquadHeroesSpecScreenDOM === 'function') updateSquadHeroesSpecScreenDOM();
         const specScr = document.getElementById('squad-heroes-spec-screen');
         if (specScr) specScr.style.display = 'flex';
     } 
     else if (modeType === 'citadel') {
-        const gothicWin = document.getElementById('onboarding-gothic-window');
-        if (gothicWin) gothicWin.style.display = 'none';
         if (typeof injectSquadInterfaceDOM === 'function') injectSquadInterfaceDOM();
         
         const closeBtn = document.getElementById('close-squad-btn');
@@ -57,8 +55,6 @@ window.launchOnboardingStep = function(modeType) {
         };
     } 
     else if (modeType === 'missions') {
-        const gothicWin = document.getElementById('onboarding-gothic-window');
-        if (gothicWin) gothicWin.style.display = 'none';
         if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
         
         const container = document.getElementById('missions-list-container');
