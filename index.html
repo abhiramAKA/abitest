@@ -10,7 +10,7 @@
     <style>
         body, html { margin:0; padding:0; width:100%; height:100%; background:#050508; display:flex; justify-content:center; align-items:center; font-family:'Georgia', serif; user-select:none; -webkit-user-select:none; }
         .gate-window { width:92vw; max-width:400px; background:radial-gradient(circle, #1a1512 0%, #0d0a08 100%); border:4px solid #1a1613; outline:2px solid #8a7350; outline-offset:-3px; padding:25px 20px; text-align:center; box-sizing:border-box; box-shadow:0 0 30px rgba(0,0,0,0.95); }
-        h1 { font-size:36px; color:#e6c280; letter-spacing:5px; margin:0 0 10px 0; text-shadow:0 2px 4px #000; font-weight:900; }
+        h1 { font-size:36px; color:#e6c280; letter-spacing:5px; margin:0 0 15px 0; text-shadow:0 2px 4px #000; font-weight:900; }
         .play-btn { width:100%; padding:16px; font-size:18px; font-family:'Georgia', serif; font-weight:bold; letter-spacing:2px; color:#cdb38c; background:linear-gradient(to bottom, #2d2621 0%, #171311 100%); border:1px solid #544432; box-shadow:0 5px 10px rgba(0,0,0,0.6); cursor:pointer; transition:all 0.2s ease; border-radius:4px; text-shadow:2px 2px 2px #000; }
         .play-btn:hover { color:#fff; border-color:#cbb281; box-shadow:0 0 15px rgba(203,178,129,0.5); letter-spacing:3px; }
         .play-btn:active { transform:scale(0.98); }
@@ -33,12 +33,12 @@
         <h1>КХАМАЧ</h1>
         <button class="play-btn" onclick="handlePlayClick()">ИГРАТЬ</button>
         <div class="changelog">
-            <h3>📜 ЖУРНАЛ СБОРКИ v5.7.68-FIX:</h3>
-            • Ликвидировано ложное затирание кнопок Поручений `💰` и Летописи `📜` в главном Хабе.<br>
-            • Полностью убрано наложение и дублирование окон на стартовом экране авторизации.<br>
-            • Серые браузерные оповещения `alert` в обучении заменены на графическое окно с кнопкой Вулкана `🌋`.
+            <h3>📜 ЖУРНАЛ СБОРКИ v5.7.70-FIX:</h3>
+            • Ликвидирован критический TypeError в `JSON.stringify()`, намертво ломавший файл слушателей кликов.<br>
+            • Кнопки Поручений `💰` и Летописи `📜` полностью оживлены и протестированы на кросс-компиляцию.<br>
+            • Проведена сквозная очистка синтаксических утечек в вычислительных модулях интерфейса Хаба.
         </div>
-        <div class="ver">ТЕКУЩАЯ СБОРКА: v5.7.68-FIX</div>
+        <div class="ver">ТЕКУЩАЯ СБОРКА: v5.7.70-FIX</div>
     </div>
 </body>
 </html>
