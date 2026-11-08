@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — АВТОНОМНЫЙ МОДУЛЬ ОБРАБОТЧИКОВ ИНТЕРФЕЙСА (ОБНОВЛЕН - v5.7.64-FIX)
+   КХАМАЧ — АВТОНОМНЫЙ МОДУЛЬ ОБРАБОТЧИКОВ ИНТЕРФЕЙСА (ОБНОВЛЕН - v5.7.70-FIX)
    ========================================================================== */
 
 window.closeModeDescriptionUnified = function() {
@@ -30,7 +30,7 @@ function setupAllGameListeners() {
         document.removeEventListener('click', initAudioOnFirstClick);
     }, { once: true });
 
-    // ФИКС: Намертво привязываем ID 'to-missions-btn' под единый вызов экрана поручений
+    // Жесткая привязка кнопок основной сетки Хаба
     safeBindElementClick('to-combat-btn', function() {
         showScreen('dragon-select-screen');
     });
@@ -76,6 +76,7 @@ function setupAllGameListeners() {
         showScreen('info-screen');
     });
 
+    // Обработчики возвратов на главный экран
     safeBindElementClick('from-select-to-menu-btn', function() { showScreen('main-menu'); });
     safeBindElementClick('from-info-to-menu-btn', function() { showScreen('main-menu'); });
     safeBindElementClick('close-settings-btn', function() { showScreen('main-menu'); });
@@ -85,6 +86,7 @@ function setupAllGameListeners() {
     safeBindElementClick('close-chronicle-btn', function() { showScreen('main-menu'); });
     safeBindElementClick('close-squad-btn', function() { showScreen('main-menu'); });
 
+    // ИСПРАВЛЕННЫЙ СИНТАКСИС: Очистка логов теперь передает валидный пустой массив
     safeBindElementClick('clear-chronicle-btn', function() {
         if (confirm("Очистить все записи в Летописи Цитадели?")) {
             localStorage.setItem('khamach_chronicle_logs', JSON.stringify([]));
