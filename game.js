@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (ИСПРАВЛЕН - v5.7.65-FIX)
+   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (ИСПРАВЛЕН - v5.7.66-FIX)
    ========================================================================== */
 
 const BOARD_ROWS = 8;
@@ -32,8 +32,12 @@ function sanitizeAndMigrateStorage() {
     const currentGold = localStorage.getItem('khamach_gold') || '500';
     const currentMaxTier = localStorage.getItem('khamach_max_tier') || '1';
     
+    // ФИКС ХАРИЗМЫ: Защищаем кошелек Харизмы от обнуления при миграции
+    const currentCharisma = localStorage.getItem('khamach_dragon_essence') || '1'; 
+
     localStorage.setItem('khamach_gold', currentGold);
     localStorage.setItem('khamach_max_tier', currentMaxTier);
+    localStorage.setItem('khamach_dragon_essence', currentCharisma);
 }
 
 function updateMenuOnboardingVisibility() {
@@ -64,8 +68,9 @@ function initDispatcherModule() {
 
     if (typeof updateTownGoldDisplay === 'function') updateTownGoldDisplay();
 
-    if (typeof setupAllGameListeners === 'function') {
-        try { setupAllGameListeners(); } catch (e) { console.error("Ошибка листенеров:", e); }
+    // В Хабе запуск перенесен в hub.html, запускаем тут только для gate.html
+    if (!isHubPage && typeof setupAllGameListeners === 'function') {
+        try { setupAllGameListeners(); } catch (e) { console.error(e); }
     }
 
     document.addEventListener('click', function unlockAudio() {
@@ -89,7 +94,6 @@ function showScreen(screenId) {
     
     if (screenId === 'main-menu') {
         updateMenuOnboardingVisibility();
-        // КРИТИЧЕСКИЙ ФИКС: Жестко перезапускаем биндинг слушателей при каждом выходе в Хаб
         if (typeof setupAllGameListeners === 'function') setupAllGameListeners();
     }
     if (screenId === 'dragon-select-screen' && typeof renderDragonSelectionGrid === 'function') {
