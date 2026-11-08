@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — АВТОНОМНЫЙ МОДУЛЬ ОБРАБОТЧИКОВ ИНТЕРФЕЙСА (ОБНОВЛЕН - v5.7.70-FIX)
+   КХАМАЧ — АВТОНОМНЫЙ МОДУЛЬ ОБРАБОТЧИКОВ ИНТЕРФЕЙСА (ОБНОВЛЕН - v5.7.71-FIX)
    ========================================================================== */
 
 window.closeModeDescriptionUnified = function() {
@@ -86,7 +86,7 @@ function setupAllGameListeners() {
     safeBindElementClick('close-chronicle-btn', function() { showScreen('main-menu'); });
     safeBindElementClick('close-squad-btn', function() { showScreen('main-menu'); });
 
-    // ИСПРАВЛЕННЫЙ СИНТАКСИС: Очистка логов теперь передает валидный пустой массив
+    // КРИТИЧЕСКИЙ ФИКС СИНТАКСИСА: Передаем валидный пустой массив вместо пустоты во избежание сбоя ядра
     safeBindElementClick('clear-chronicle-btn', function() {
         if (confirm("Очистить все записи в Летописи Цитадели?")) {
             localStorage.setItem('khamach_chronicle_logs', JSON.stringify([]));
