@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.8.0-BETA)
+   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.8.1-BETA)
    ========================================================================== */
 
 const SQUAD_HERO_LORE = {
@@ -10,7 +10,7 @@ const SQUAD_HERO_LORE = {
 };
 
 window.getHeroLevel = function(id) { return parseInt(localStorage.getItem(`khamach_hero_lvl_${id}`) || '1'); };
-window.getBuildingLevel = function(id) { return parseInt(localStorage.getItem(`khamach_build_${id}`) || '0'); }; // Стартовый уровень зданий теперь 0
+window.getBuildingLevel = function(id) { return parseInt(localStorage.getItem(`khamach_build_${id}`) || '0'); };
 
 window.updateSquadHeroesSpecScreenDOM = function() {
     const container = document.getElementById('heroes-upgrade-list-container');
@@ -38,7 +38,6 @@ window.updateSquadHeroesSpecScreenDOM = function() {
         
         let actionBtnHTML = '';
         
-        // Проверка условий геймплея: до 2 уровня бесплатно от зданий. С 2 на 3 нужен 2 ур здания.
         const needsBuildingUpgrade = heroLvl >= (buildLvl + 1) && heroLvl >= 2;
         const hasEnoughCharisma = currentCharisma >= 2;
         
@@ -47,10 +46,8 @@ window.updateSquadHeroesSpecScreenDOM = function() {
         } else if (heroLvl >= 15) {
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:10px;" disabled>МАКС УР</button>`;
         } else if (needsBuildingUpgrade) {
-            // Если уперлись в уровень инфраструктуры здания
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:9px; background:#421e1e; border-color:#6e3131; line-height:1.1; color:#ffb3ba;" disabled>Нужно здание ${heroLvl} ур.</button>`;
         } else if (!hasEnoughCharisma) {
-            // Если здание позволяет или уровень < 2, но не хватает валюты харизмы
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:9px; background:#2d2621; border-color:#544432; line-height:1.1; color:#cca3a3;" disabled>Не хватает харизмы 👑</button>`;
         } else {
             actionBtnHTML = `<button class="menu-btn" style="padding:2px; font-size:10px; background:#1d3a1e; height:22px; line-height:1;" onclick="window.triggerHeroLevelUpgrade('${h.id}')">Тренировать</button>`;
@@ -83,7 +80,6 @@ window.triggerHeroLevelUpgrade = function(heroId) {
         return;
     }
     
-    // Повторная валидация лимита инфраструктуры перед записью
     if (heroLvl >= (buildLvl + 1) && heroLvl >= 2) {
         alert(`Для прокачки выше требуется улучшить соответствующее здание до ${heroLvl} уровня!`);
         return;
