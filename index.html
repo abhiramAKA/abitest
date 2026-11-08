@@ -20,7 +20,12 @@
     </style>
     <script>
         function handlePlayClick() {
-            window.location.href = 'gate.html?t=' + Date.now();
+            // Если игрок полностью закончил онбординг — ведем сразу на hub.html
+            if (localStorage.getItem('khamach_full_onboarding_complete') === 'true') {
+                window.location.href = 'hub.html?t=' + Date.now();
+            } else {
+                window.location.href = 'gate.html?t=' + Date.now();
+            }
         }
     </script>
 </head>
@@ -29,12 +34,12 @@
         <h1>КХАМАЧ</h1>
         <button class="play-btn" onclick="handlePlayClick()">ИГРАТЬ</button>
         <div class="changelog">
-            <h3>📜 ЖУРНАЛ СБОРКИ v5.7.45-FIX:</h3>
-            • Ликвидирована критическая синтаксическая ошибка в массивах движка онбординга onboarding-engine.js.<br>
-            • Исправлена работа Спортзала на 2-м шаге: экраны больше не путаются и не запускают ложный бой.<br>
-            • Полностью восстановлена работоспособность кнопок Ратуши (Доски поручений) на полноценной карте Хаба.
+            <h3>📜 ЖУРНАЛ СБОРКИ v5.7.52-FIX:</h3>
+            • Расширена цепочка обучения: интегрирован Шаг Строительства Цитадели за 100 золота перед Ратушей.<br>
+            • Внедрен моментальный редирект в Хаб со стартовой страницы index.html для всех, кто завершил онбординг.<br>
+            • Синхронизированы начисления стартового баланса (100 монет и 2 Крови) в боевом ядре исходов.
         </div>
-        <div class="ver">ТЕКУЩАЯ СБОРКА: v5.7.45-FIX</div>
+        <div class="ver">ТЕКУЩАЯ СБОРКА: v5.7.52-FIX</div>
     </div>
 </body>
 </html>
