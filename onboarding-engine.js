@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.68-FIX)
+   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.8.4-BETA)
    ========================================================================== */
 
 window.launchOnboardingStep = function(modeType) {
@@ -82,7 +82,6 @@ window.launchOnboardingStep = function(modeType) {
                     popup.remove();
                     if (squadScr) squadScr.style.display = 'none';
                     
-                    // БЕЗ АЛЕРТОВ: Мгновенно перекидываем в окно Ратуши с мешочком монет
                     window.location.href = 'gate.html?t=' + Date.now();
                 };
             };
@@ -101,10 +100,10 @@ window.launchOnboardingStep = function(modeType) {
                     card.innerHTML = `
                         <div style="display: flex; justify-content: space-between; font-weight: bold; color: #e6c280; font-size: 12px;">
                             <span>${mission.title}</span>
-                            <span style="color: #ffd700;">🪙 ${mission.rewardGold}</span>
+                            <span style="color: #ffd700;">🪙 133</span>
                         </div>
                         <div style="font-size: 11px; color: #bfae96; line-height: 1.3; margin: 2px 0; text-align: left;">${mission.text}</div>
-                        <button class="menu-btn" style="padding:4px; font-size:13px; background:#1d3a1e; height:28px; margin-top: 4px;" onclick="executeOnboardingMission('${mission.id}', '${mission.allowedHero}', ${mission.rewardGold})">Отправить ${mission.heroIcon}</button>
+                        <button class="menu-btn" style="padding:4px; font-size:13px; background:#1d3a1e; height:28px; margin-top: 4px;" onclick="executeOnboardingMission('${mission.id}', '${mission.allowedHero}', 133)">Отправить ${mission.heroIcon}</button>
                     `;
                     container.appendChild(card);
                 });
@@ -119,16 +118,14 @@ function executeOnboardingMission(missionId, heroId, rewardGold) {
     localStorage.setItem(`khamach_hero_busy_${heroId}`, 'true');
     localStorage.setItem(`khamach_mission_active_${missionId}`, 'true');
     localStorage.setItem(`khamach_mission_start_${missionId}`, Date.now().toString());
-    localStorage.setItem('khamach_gold', rewardGold.toString());
+    localStorage.setItem('khamach_gold', rewardGold.toString()); // Записываем честные 133 золотых
     localStorage.setItem('khamach_missions_tutorial_done', 'true');
     
-    // Фиксируем полное бесшовное завершение онбординга
     localStorage.setItem('khamach_full_onboarding_complete', 'true');
     
     const misScr = document.getElementById('missions-screen');
     if (misScr) misScr.style.display = 'none';
     
-    // UX-ФИКС: Вместо алерта рендерим красивое готическое окно с единственной кнопкой Вулкана 🌋
     let finishPopup = document.createElement('div');
     finishPopup.className = 'game-window combat-help-popup';
     finishPopup.style.display = 'flex';
@@ -139,7 +136,7 @@ function executeOnboardingMission(missionId, heroId, rewardGold) {
             <h2>📜 ОБУЧЕНИЕ ЗАВЕРШЕНО</h2>
             <span class="subtitle">Свобода Чертогов Кхамача</span>
             <p style="font-size: 13px; color: #cdb38c; text-align: left; line-height: 1.5; background:rgba(0,0,0,0.4); padding:12px; border:1px solid #544432; margin-bottom: 20px;">
-                Ваш боец успешно выдвинулся на контракт Ратуши. Цикл базового обучения пройден! Нажмите на иконку Вулкана пониже, чтобы открыть глобальную Карту Глав Бестиария. Оттуда вы сможете в любой момент бесшовно вернуться в полноценную Цитадель.
+                Ваш боец успешно выдвинулся на контракт Ратуши. Цикл базового обучения пройден! Нажмите на иконку Вулкана ниже, чтобы открыть Карту Глав Бестиария и вступить в финальное сражение.
             </p>
             <button id="onboarding-ultimate-finish-btn" class="emoji-grid-btn" style="width: 100px; height: 100px; font-size: 50px; margin: 0 auto; border-radius: 4px;">🌋</button>
         </div>
@@ -152,12 +149,5 @@ function executeOnboardingMission(missionId, heroId, rewardGold) {
         if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
         if (typeof showScreen === 'function') showScreen('dragon-select-screen');
         if (typeof renderDragonSelectionGrid === 'function') renderDragonSelectionGrid();
-        
-        const backBtn = document.getElementById('from-select-to-menu-btn');
-        if (backBtn) {
-            backBtn.style.display = 'block';
-            backBtn.innerText = "В Главный Хаб Цитадели ↩️";
-            backBtn.onclick = function() { window.location.href = 'hub.html?t=' + Date.now(); };
-        }
     };
 }
