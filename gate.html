@@ -9,10 +9,10 @@
     <title>КХАМАЧ — Чертоги Испытаний</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Стиль готического анимированного лоадера */
         .onboarding-loader-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(5, 4, 3, 0.93); z-index: 30000; align-items: center; justify-content: center; flex-direction: column;
+            background: rgba(5, 4, 3, 0.65) !important; z-index: 30000; align-items: center; justify-content: center; flex-direction: column;
+            backdrop-filter: blur(2px);
         }
         .loader-hourglass {
             font-size: 64px; animation: spinHourglass 1.8s ease-in-out infinite; line-height: 1; margin-bottom: 15px;
@@ -31,30 +31,21 @@
 <body>
     <canvas id="bg-canvas"></canvas>
     
-    <!-- ГОТИЧЕСКИЙ ЛОАДЕР ОЖИДАНИЯ -->
     <div id="onboarding-loading-screen" class="onboarding-loader-overlay">
         <div class="loader-hourglass">⏳</div>
         <div class="loader-text">Магия Кхамача призывается...</div>
     </div>
 
     <div id="game-interface">
-        
-        <!-- ГОТИЧЕСКОЕ ОКНО С КОРИЧНЕВОЙ РАМКОЙ -->
         <div id="onboarding-gothic-window" class="game-window" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 380px; box-sizing: border-box;">
             <h1 id="onboarding-title" style="font-size: 28px; margin-bottom: 5px;">ПРИКЛЮЧЕНИЕ</h1>
             <span id="onboarding-subtitle" class="subtitle" style="margin-bottom: 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Первый шаг в Горнило</span>
-            
             <p id="onboarding-description" style="font-size: 13px; line-height: 1.6; color: #bfae96; margin-bottom: 25px; padding: 0 10px;">
                 Древние подземелья Абхирамбурга пробудились. Соберите волю в кулак, управляйте камнями стихий и сокрушите огнедышащих тварей в тактических битвах!
             </p>
-
-            <!-- ДИНАМИЧЕСКИЙ КОНТЕЙНЕР ДЛЯ КВАДРАТНЫХ КНОПОК -->
-            <div id="onboarding-buttons-zone" class="menu-emoji-grid" style="display: flex; justify-content: center; align-items: center; gap: 16px; min-height: 140px; width: 100%; box-sizing: border-box; padding: 0 20px;">
-                <!-- Кнопки создаются автоматически скриптом onboarding-data.js -->
-            </div>
+            <div id="onboarding-buttons-zone" class="menu-emoji-grid" style="display: flex; justify-content: center; align-items: center; gap: 16px; min-height: 140px; width: 100%; box-sizing: border-box; padding: 0 20px;"></div>
         </div>
         
-        <!-- ТЕХНИЧЕСКИЕ СЛОТЫ ДЛЯ СБОРКИ ИГРОВЫХ МОДУЛЕЙ -->
         <div id="main-menu" style="display: none;"></div>
         <div id="dynamic-combat-screen"></div>
         <div id="squad-screen" class="game-window" style="display: none;"></div>
@@ -77,12 +68,11 @@
         <div id="dynamic-town-screens" style="display: none;"></div>
     </div>
 
-    <!-- МОНОЛИТНЫЙ ЗАГРУЗЧИК ЯДРА (ЗАЩИТА ОТ СБОЕВ СЕТИ) -->
     <script>
-        window.GAME_VERSION = "v5.7.67-FIX";
+        // АВТОМАТИЧЕСКИЙ СБРОС КЭША: Версия теперь всегда подтягивается из текущего времени сессии
+        window.GAME_VERSION = "AUTO_" + Date.now();
 
         function loadGameModulesAndExecute(modeType) {
-            // Мгновенно включаем лоадер ожидания часиков при клике
             const spinner = document.getElementById('onboarding-loading-screen');
             if (spinner) spinner.style.display = 'flex';
 
@@ -106,9 +96,7 @@
 
             function injectScriptSequentially(index) {
                 if (index >= scripts.length) {
-                    // Модули загружены, скрываем лоадер часиков бесшовно
                     if (spinner) spinner.style.display = 'none';
-
                     if (modeType === 'battle' && typeof initDispatcherModule === 'function') {
                         initDispatcherModule();
                     }
@@ -126,8 +114,7 @@
             injectScriptSequentially(0);
         }
     </script>
-
-    <script src="onboarding-data.js?v=v5.7.67-FIX"></script>
-    <script src="onboarding-engine.js?v=v5.7.67-FIX"></script>
+    <script src="onboarding-data.js?v=AUTO"></script>
+    <script src="onboarding-engine.js?v=AUTO"></script>
 </body>
 </html>
