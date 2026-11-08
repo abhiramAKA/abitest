@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.7.52)
+   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.7.62-FIX)
    ========================================================================== */
 
 const SQUAD_HERO_LORE = {
@@ -35,7 +35,10 @@ window.updateSquadHeroesSpecScreenDOM = function() {
         const buildLvl = window.getBuildingLevel(h.id);
         
         let actionBtnHTML = '';
-        if (heroLvl >= 15) {
+        
+        if (isTrainingPhase && h.id !== 'tank') {
+            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:9px; background:#221a1a; border-color:#3a2525; color:#665555; cursor:not-allowed;" disabled>[БЛОК ОБУЧЕНИЕМ]</button>`;
+        } else if (heroLvl >= 15) {
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:10px;" disabled>МАКС УР</button>`;
         } else if (heroLvl >= 1 && heroLvl < 2) {
             actionBtnHTML = `<button class="menu-btn" style="padding:2px; font-size:10px; background:#1d3a1e; height:22px; line-height:1;" onclick="window.triggerHeroLevelUpgrade('${h.id}')">Прокачать</button>`;
@@ -51,7 +54,7 @@ window.updateSquadHeroesSpecScreenDOM = function() {
                 <span style="color:#ffd700;">Ур. ${heroLvl}</span>
             </div>
             <div style="font-size:9px; color:#8a7350; margin-top:-2px; margin-bottom:2px;">Лимит: ${heroLvl < 2 ? 'Без лимита' : buildLvl}</div>
-            <div style="font-size:10px; color:#2ecc71; line-height:1.1;">Бонус: ${lore.statBonus}</div>
+            <div style="font-size:10px; color:#2ecc71; line-height:1.1;">Bonus: ${lore.statBonus}</div>
             <div style="margin-top:auto;">${actionBtnHTML}</div>
         `;
         
@@ -70,8 +73,6 @@ window.triggerHeroLevelUpgrade = function(heroId) {
     const isTrainingPhase = localStorage.getItem('khamach_training_tutorial_done') !== 'true';
     if (isTrainingPhase) {
         localStorage.setItem('khamach_training_tutorial_done', 'true');
-        
-        // Перенаправляем на Шаг 4 (Цитадель/Строительство)
         document.getElementById('squad-heroes-spec-screen').style.display = 'none';
         window.location.href = 'gate.html?t=' + Date.now();
         return;
