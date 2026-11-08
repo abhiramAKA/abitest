@@ -39,7 +39,6 @@
             <button id="close-missions-btn" class="menu-btn back-btn" style="width: 100%; display: none;">Назад</button>
         </div>
 
-        <!-- КРИТИЧЕСКИЙ ФИКС: Слот карты Кампании для безопасного рендеринга глав на 4-м шаге -->
         <div id="dragon-select-screen" class="game-window" style="display: none; z-index: 100;">
             <h2 id="adventure-screen-title">Выбор Рейда</h2>
             <span id="adventure-screen-subtitle" class="subtitle">Выберите тир дракона</span>
@@ -50,6 +49,43 @@
         <div id="dynamic-town-screens" style="display: none;"></div>
     </div>
 
-    <script src="onboarding-engine.js?v=v5.7.43-FIX"></script>
+    <!-- МОНОЛИТНЫЙ ЗАГРУЗЧИК ЯДРА (ЗАЩИТА ОТ СБОЕВ СЕТИ) -->
+    <script>
+        window.GAME_VERSION = "v5.7.54-FIX";
+
+        function loadGameModulesAndExecute(modeType) {
+            const enforceBuster = Date.now() + '_' + Math.floor(Math.random() * 999999);
+            const scripts = [
+                'game.js', 'background.js', 'audio-engine.js', 'match3-fx.js',
+                'match3-input.js', 'match3.js', 'match3-logic.js', 'match3-data.js',
+                'campaign.js', 'town-engine.js', 'town-chronicle.js',
+                'missions-pool.js', 'missions-engine.js', 'town-dom.js',
+                'squad-dom.js', 'combat-popups.js', 'combat-dom.js', 'missions-board.js',
+                'squad-logic.js', 'squad-core.js', 'combat-actions.js', 
+                'combat.js', 'game-listeners.js', 'season-engine.js'
+            ];
+
+            function injectScriptSequentially(index) {
+                if (index >= scripts.length) {
+                    if (modeType === 'battle' && typeof initDispatcherModule === 'function') {
+                        initDispatcherModule();
+                    }
+                    if (typeof window.launchOnboardingStep === 'function') {
+                        window.launchOnboardingStep(modeType);
+                    }
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = scripts[index] + '?v=' + window.GAME_VERSION + '&t=' + enforceBuster;
+                script.async = false; 
+                script.onload = function() { injectScriptSequentially(index + 1); };
+                document.head.appendChild(script);
+            }
+            injectScriptSequentially(0);
+        }
+    </script>
+
+    <!-- Выделенный движок шагов онбординга -->
+    <script src="onboarding-engine.js?v=v5.7.54-FIX"></script>
 </body>
 </html>
