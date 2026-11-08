@@ -33,6 +33,51 @@
         <h1>КХАМАЧ</h1>
         <button class="play-btn" onclick="handlePlayClick()">ИГРАТЬ</button>
         <div class="changelog">
+            <h3>📜 ЖУРНАЛ СБОРКИ v5.7.67-FIX:</h3>
+            • Добавлен анимированный готический лоадер `⏳` во время подгрузки тяжелых модулей движка.<br>
+            • Устранено затирание слушателей кнопок Поручений и Летописи в Хабе — клики оживлены на 100%.<br>
+            • Сдвинут индекс цен улучшений зданий: модернизация с 1 на 2 уровень теперь стоит 100 золотых.<br>
+            • Конечная точка онбординга перенесена на отправку поручения — кнопка Назад ведет в полноценный Хаб.
+        </div>
+        <div class="ver">ТЕКУЩАЯ СБОРКА: v5.7.67-FIX</div>
+    </div>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>КХАМАЧ — Вход в Чертоги</title>
+    <style>
+        body, html { margin:0; padding:0; width:100%; height:100%; background:#050508; display:flex; justify-content:center; align-items:center; font-family:'Georgia', serif; }
+        .gate-window { width:90vw; max-width:400px; background:radial-gradient(circle, #1a1512 0%, #0d0a08 100%); border:4px solid #1a1613; outline:2px solid #8a7350; outline-offset:-3px; padding:30px 20px; text-align:center; box-sizing:border-box; }
+        h1 { font-size:36px; color:#e6c280; letter-spacing:5px; margin:0 0 15px 0; text-shadow:0 2px 4px #000; }
+        .play-btn { width:100%; padding:16px; font-size:18px; font-family:'Georgia', serif; font-weight:bold; letter-spacing:2px; color:#cdb38c; background:linear-gradient(to bottom, #2d2621 0%, #171311 100%); border:1px solid #544432; box-shadow:0 5px 10px rgba(0,0,0,0.6); cursor:pointer; transition:all 0.2s ease; border-radius:4px; }
+        .play-btn:hover { color:#fff; border-color:#cbb281; box-shadow:0 0 15px rgba(203,178,129,0.5); letter-spacing:3px; }
+        .play-btn:active { transform:scale(0.98); }
+        .changelog { margin-top:20px; text-align:left; background:rgba(0,0,0,0.4); border:1px solid #3a3025; padding:10px; max-height:140px; overflow-y:auto; font-size:11px; color:#bfae96; line-height:1.4; }
+        .changelog h3 { margin:0 0 5px 0; color:#e6c280; font-size:12px; }
+        .ver { margin-top:20px; font-size:11px; color:#4a453f; letter-spacing:1px; font-weight:bold; }
+    </style>
+    <script>
+        function handlePlayClick() {
+            if (localStorage.getItem('khamach_full_onboarding_complete') === 'true') {
+                window.location.href = 'hub.html?t=' + Date.now();
+            } else {
+                window.location.href = 'gate.html?t=' + Date.now();
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="gate-window">
+        <h1>КХАМАЧ</h1>
+        <button class="play-btn" onclick="handlePlayClick()">ИГРАТЬ</button>
+        <div class="changelog">
             <h3>📜 ЖУРНАЛ СБОРКИ v5.7.66-FIX:</h3>
             • Каскадный пульт слушателей Хаба перемещен в финальную точку загрузки `hub.html`.<br>
             • Уровни всех построек и персонажей по умолчанию повышены с 0 на честный 1 Уровень.<br>
