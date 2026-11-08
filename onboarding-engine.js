@@ -1,8 +1,8 @@
 /* ==========================================================================
-   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ ДВИЖОК ПОЭТАПНОГО ОБУЧЕНИЯ (ОБНОВЛЕН - v5.7.52)
+   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ ДВИЖОК ПОЭТАПНОГО ОБУЧЕНИЯ (ИСПРАВЛЕН - v5.7.53)
    ========================================================================== */
 
-window.GAME_VERSION = "v5.7.52";
+window.GAME_VERSION = "v5.7.53";
 
 const ONBOARDING_MISSIONS_LOCAL_POOL = [
     { id: "m_t1", allowedHero: "tank", heroName: "Защитник", heroIcon: "🛡️", rewardText: "🌿 Магическая Трава (3 шт)", title: "Сбор трав в низине" },
@@ -66,20 +66,17 @@ function launchCitadel() {
     document.getElementById('onboarding-gothic-window').style.display = 'none';
     if (typeof injectSquadInterfaceDOM === 'function') injectSquadInterfaceDOM();
     
-    // Переопределяем кнопку закрытия Цитадели, чтобы не ломала цепочку
     const closeBtn = document.getElementById('close-squad-btn');
     if (closeBtn) closeBtn.style.display = 'none';
 
     document.getElementById('squad-screen').style.display = 'flex';
 
-    // Взламываем функцию покупки здания на Шаге 4, чтобы она переключала на Шаг 5 Ратуши
     window.executeUnifiedBuildingTransaction = function() {
-        localStorage.setItem('khamach_gold', '0'); // Списываем 100 золота
+        localStorage.setItem('khamach_gold', '0'); 
         localStorage.setItem('khamach_build_tank', '1');
         localStorage.setItem('khamach_squad_build_tank', 'true');
         localStorage.setItem('khamach_citadel_tutorial_done', 'true');
 
-        // Мгновенно возвращаем в gate.html для активации Шага 5
         document.getElementById('squad-screen').style.display = 'none';
         window.location.href = 'gate.html?t=' + Date.now();
     };
