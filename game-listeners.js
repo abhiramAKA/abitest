@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — АВТОНОМНЫЙ МОДУЛЬ ОБРАБОТЧИКОВ ИНТЕРФЕЙСА (СТАБИЛЬНЫЙ - v5.7.72)
+   КХАМАЧ — АВТОНОМНЫЙ МОДУЛЬ ОБРАБОТЧИКОВ ИНТЕРФЕЙСА (СТАБИЛЬНЫЙ - v5.7.74)
    ========================================================================== */
 
 window.closeModeDescriptionUnified = function() {
@@ -30,7 +30,6 @@ function setupAllGameListeners() {
         document.removeEventListener('click', initAudioOnFirstClick);
     }, { once: true });
 
-    // Привязка кнопок Хаба
     safeBindElementClick('to-combat-btn', function() {
         showScreen('dragon-select-screen');
     });
@@ -76,7 +75,7 @@ function setupAllGameListeners() {
         showScreen('info-screen');
     });
 
-    // Возвраты
+    // Возвраты в меню
     safeBindElementClick('from-select-to-menu-btn', function() { showScreen('main-menu'); });
     safeBindElementClick('from-info-to-menu-btn', function() { showScreen('main-menu'); });
     safeBindElementClick('close-settings-btn', function() { showScreen('main-menu'); });
@@ -86,13 +85,27 @@ function setupAllGameListeners() {
     safeBindElementClick('close-chronicle-btn', function() { showScreen('main-menu'); });
     safeBindElementClick('close-squad-btn', function() { showScreen('main-menu'); });
 
-    // Исправленный вызов очистки летописи
+    // Оживляем клик на кнопку закрытия окна усталости
+    safeBindElementClick('close-fatigue-screen-btn', function() {
+        const fScr = document.getElementById('squad-fatigue-screen');
+        if (fScr) fScr.style.display = 'none';
+    });
+
     safeBindElementClick('clear-chronicle-btn', function() {
         if (confirm("Очистить все записи в Летописи Цитадели?")) {
             localStorage.setItem('khamach_chronicle_logs', JSON.stringify([]));
             if (typeof renderChronicleDOM === 'function') renderChronicleDOM();
         }
     });
+
+    // ФИКС УСТАЛОСТИ: Клик на значок 🥱 вверху Хаба открывает окно свежести команды
+    const fatBtn = document.getElementById('team-fatigue-display');
+    if (fatBtn) {
+        fatBtn.onclick = function() {
+            const fScr = document.getElementById('squad-fatigue-screen');
+            if (fScr) fScr.style.display = 'flex';
+        };
+    }
 
     const goldDisplayLink = document.getElementById('main-gold-display');
     if (goldDisplayLink) {
