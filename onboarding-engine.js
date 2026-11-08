@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.64-FIX)
+   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.65-FIX)
    ========================================================================== */
 
 window.launchOnboardingStep = function(modeType) {
@@ -37,7 +37,6 @@ window.launchOnboardingStep = function(modeType) {
         const squadScr = document.getElementById('squad-screen');
         if (squadScr) squadScr.style.display = 'flex';
 
-        // Блокируем остальные здания
         ['damage', 'archer', 'mage'].forEach(id => {
             const btn = document.getElementById(`upgrade-${id}-btn`);
             if (btn) {
@@ -48,7 +47,6 @@ window.launchOnboardingStep = function(modeType) {
             }
         });
 
-        // ФИКС: Прямой ручной рендеринг независимого модального окна Гарнизона
         const tankBtn = document.getElementById('upgrade-tank-btn');
         if (tankBtn) {
             tankBtn.onclick = function() {
@@ -103,10 +101,10 @@ window.launchOnboardingStep = function(modeType) {
                     card.innerHTML = `
                         <div style="display: flex; justify-content: space-between; font-weight: bold; color: #e6c280; font-size: 12px;">
                             <span>${mission.title}</span>
-                            <span style="color: #2ecc71;">${mission.rewardText}</span>
+                            <span style="color: #ffd700;">🪙 ${mission.rewardGold}</span>
                         </div>
-                        <div style="font-size: 11px; color: #bfae96; line-height: 1.2;">Направить бойца в экспедицию.</div>
-                        <button class="menu-btn" style="padding:4px; font-size:13px; background:#1d3a1e; height:28px;" onclick="executeOnboardingMission('${mission.id}', '${mission.allowedHero}')">Отправить ${mission.heroIcon}</button>
+                        <div style="font-size: 11px; color: #bfae96; line-height: 1.3; margin: 2px 0; text-align: left;">${mission.text}</div>
+                        <button class="menu-btn" style="padding:4px; font-size:13px; background:#1d3a1e; height:28px; margin-top: 4px;" onclick="executeOnboardingMission('${mission.id}', '${mission.allowedHero}', ${mission.rewardGold})">Отправить ${mission.heroIcon}</button>
                     `;
                     container.appendChild(card);
                 });
@@ -117,10 +115,11 @@ window.launchOnboardingStep = function(modeType) {
     }
 };
 
-function executeOnboardingMission(missionId, heroId) {
+function executeOnboardingMission(missionId, heroId, rewardGold) {
     localStorage.setItem(`khamach_hero_busy_${heroId}`, 'true');
     localStorage.setItem(`khamach_mission_active_${missionId}`, 'true');
     localStorage.setItem(`khamach_mission_start_${missionId}`, Date.now().toString());
+    localStorage.setItem('khamach_gold', rewardGold.toString()); // Выдаем золото за контракт
     
     localStorage.setItem('khamach_missions_tutorial_done', 'true');
     const misScr = document.getElementById('missions-screen');
