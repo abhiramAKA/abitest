@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.65-FIX)
+   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.66-FIX)
    ========================================================================== */
 
 window.launchOnboardingStep = function(modeType) {
@@ -64,10 +64,11 @@ window.launchOnboardingStep = function(modeType) {
                         <h2>🛡️ ГАРНИЗОН ЗАЩИТНИКА</h2>
                         <span class="subtitle">Оборонительное сооружение</span>
                         <p style="font-size: 13px; color: #cdb38c; text-align: left; line-height: 1.5; background:rgba(0,0,0,0.4); padding:10px; border:1px solid #544432;">
-                            Здесь тренируются ваши тяжелые Защитники. Строительство этого здания увеличит максимальный запас здоровья Танка и поднимет лимит его прокачки.
+                            Здесь тренируются ваши тяжелые Защитники. Модернизация этого здания увеличит максимальный запас здоровья Танка и поднимет лимит его прокачки.
                         </p>
                         <div style="font-size: 14px; color: #ffd700; font-weight: bold; margin-bottom: 15px;">Стоимость: 🪙 100 золотых</div>
-                        <button id="onboarding-build-tank-confirm" class="menu-btn" style="width: 100%; background: linear-gradient(to bottom, #1d3a1e, #0f2110); border-color: #316e34; padding: 12px;">⚒️ ПОСТРОИТЬ</button>
+                        <!-- ФИКС ТЕРМИНА: Кнопка переименована в УЛУЧШИТЬ -->
+                        <button id="onboarding-build-tank-confirm" class="menu-btn" style="width: 100%; background: linear-gradient(to bottom, #1d3a1e, #0f2110); border-color: #316e34; padding: 12px;">⚒️ УЛУЧШИТЬ</button>
                     </div>
                 `;
                 
@@ -75,11 +76,11 @@ window.launchOnboardingStep = function(modeType) {
 
                 document.getElementById('onboarding-build-tank-confirm').onclick = function() {
                     localStorage.setItem('khamach_gold', '0'); 
-                    localStorage.setItem('khamach_build_tank', '1');
+                    localStorage.setItem('khamach_build_tank', '2'); // Увеличиваем уровень строения до 2
                     localStorage.setItem('khamach_squad_build_tank', 'true');
                     localStorage.setItem('khamach_citadel_tutorial_done', 'true');
 
-                    alert("Здание успешно возведено! Отправляемся в Ратушу за новыми контрактами.");
+                    alert("Здание успешно улучшено! Отправляемся в Ратушу за новыми контрактами.");
                     popup.remove();
                     if (squadScr) squadScr.style.display = 'none';
                     
@@ -119,7 +120,7 @@ function executeOnboardingMission(missionId, heroId, rewardGold) {
     localStorage.setItem(`khamach_hero_busy_${heroId}`, 'true');
     localStorage.setItem(`khamach_mission_active_${missionId}`, 'true');
     localStorage.setItem(`khamach_mission_start_${missionId}`, Date.now().toString());
-    localStorage.setItem('khamach_gold', rewardGold.toString()); // Выдаем золото за контракт
+    localStorage.setItem('khamach_gold', rewardGold.toString());
     
     localStorage.setItem('khamach_missions_tutorial_done', 'true');
     const misScr = document.getElementById('missions-screen');
