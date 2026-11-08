@@ -9,7 +9,7 @@
     <title>КХАМАЧ — Легенды Абхирамбурга</title>
     <script>
         (function() {
-            window.GAME_VERSION = "v5.7.66-FIX";
+            window.GAME_VERSION = "v5.7.74-STABLE";
             
             if (localStorage.getItem('khamach_sys_version') !== window.GAME_VERSION) {
                 localStorage.setItem('khamach_sys_version', window.GAME_VERSION);
@@ -38,7 +38,6 @@
                     if (typeof initDispatcherModule === 'function') {
                         initDispatcherModule();
                     }
-                    // КРИТИЧЕСКИЙ ФИКС ТАЙМИНГА: Навешиваем слушатели кнопок Хаба в самом конце загрузки
                     if (typeof setupAllGameListeners === 'function') {
                         setupAllGameListeners();
                     }
@@ -84,8 +83,8 @@
             <div id="main-menu-grid" class="menu-emoji-grid">
                 <!-- Сетка из 6 кнопок города всегда рендерится здесь по умолчанию -->
             </div>
-
-            <div id="game-version" class="version-footer">v5.7.66-FIX</div>
+            
+            <!-- ФИКС: Старые дублирующиеся version-footer надписи полностью удалены отсюда -->
         </div>
 
         <!-- ================= АВТОНОМНЫЕ СЛОТЫ ОКОН ================= -->
