@@ -7,9 +7,28 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>КХАМАЧ — Легенды Абхирамбурга</title>
+    <style>
+        /* Стиль готического спиннера ожидания */
+        .hub-loader-overlay {
+            display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(5, 4, 3, 0.95); z-index: 35000; align-items: center; justify-content: center; flex-direction: column;
+        }
+        .loader-hourglass {
+            font-size: 64px; animation: spinHourglass 1.8s ease-in-out infinite; line-height: 1; margin-bottom: 15px;
+            filter: drop-shadow(0 0 15px #e6c280);
+        }
+        .loader-text { font-size: 13px; color: #cdb38c; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; text-shadow: 1px 1px 2px #000; }
+        @keyframes spinHourglass {
+            0% { transform: rotate(0deg); }
+            45% { transform: rotate(180deg); }
+            50% { transform: rotate(180deg); }
+            95% { transform: rotate(360deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
     <script>
         (function() {
-            window.GAME_VERSION = "v5.7.74-STABLE";
+            window.GAME_VERSION = "v5.7.75-STABLE";
             
             if (localStorage.getItem('khamach_sys_version') !== window.GAME_VERSION) {
                 localStorage.setItem('khamach_sys_version', window.GAME_VERSION);
@@ -41,6 +60,11 @@
                     if (typeof setupAllGameListeners === 'function') {
                         setupAllGameListeners();
                     }
+                    // Убираем песочные часы, когда всё меню собрано целиком в один блок
+                    const spinner = document.getElementById('hub-loading-screen');
+                    if (spinner) spinner.style.display = 'none';
+                    const menu = document.getElementById('main-menu');
+                    if (menu) menu.style.display = 'flex';
                     return;
                 }
                 
@@ -63,10 +87,17 @@
 <body>
     <canvas id="bg-canvas"></canvas>
 
+    <!-- ГОТИЧЕСКИЙ ЛОАДЕР ДЛЯ БЕСШОВНОЙ СБОРКИ ХАБА -->
+    <div id="hub-loading-screen" class="hub-loader-overlay">
+        <div class="loader-hourglass">⏳</div>
+        <div class="loader-text">Магия Кхамача призывается...</div>
+    </div>
+
     <div id="game-interface">
         
         <!-- ================= ГЛАВНОЕ МЕНЮ ИГРЫ ================= -->
-        <div id="main-menu" class="game-window" style="display: flex;">
+        <!-- ИСПРАВЛЕНО: Меню изначально полностью скрыто (display: none) во избежание полупустых блоков -->
+        <div id="main-menu" class="game-window" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 2px; padding: 0 4px; background: rgba(20, 15, 12, 0.5); border-bottom: 1px double #544432; box-sizing: border-box;">
                 <span id="main-gold-display" class="gold-counter-display" style="color: #ffd700; cursor: pointer; font-size: 14px; font-weight: bold; transition: color 0.2s;">🪙 0</span>
                 <h1 style="font-size: 24px; margin: 0; letter-spacing: 2px; padding: 4px 0;">КХАМАЧ</h1>
@@ -83,8 +114,6 @@
             <div id="main-menu-grid" class="menu-emoji-grid">
                 <!-- Сетка из 6 кнопок города всегда рендерится здесь по умолчанию -->
             </div>
-            
-            <!-- ФИКС: Старые дублирующиеся version-footer надписи полностью удалены отсюда -->
         </div>
 
         <!-- ================= АВТОНОМНЫЕ СЛОТЫ ОКОН ================= -->
