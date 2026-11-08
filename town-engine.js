@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНАЯ ЭКОНОМИКА ЦИТАДЕЛИ И ХРАНИЛИЩЕ РЕСУРСОВ (v5.4.0)
+   КХАМАЧ — ЦЕНТРАЛЬНАЯ ЭКОНОМИКА ЦИТАДЕЛИ И ХРАНИЛИЩЕ РЕСУРСОВ (v5.7.65-FIX)
    ========================================================================== */
 
 const TOWN_BUILDING_PRICES = {
@@ -9,33 +9,44 @@ const TOWN_BUILDING_PRICES = {
 };
 
 const INLINE_TOWN_TEXTS = {
-    mainInfo: `<p><strong>«КХАМАЧ: Восхождение Рейдов»</strong></p><p>В недрах древних подземелий Абхирамбурга пробудился великий закон змея. Соберите свой верный отряд, заряжайте шкалы суперсил через камни стихий и сокрушите огнедышащих тварей в пошаговых тактических битвах Горнила!</p>`,
-    combatHelp: `<div style="text-align: left; font-size: 13px; line-height: 1.4; display: flex; flex-direction: column; gap: 8px; color: #cdb38c;"><div>🛡️ <strong>Защитник:</strong> Блокирует урон Дракона.</div><div>🔥 <strong>Воин:</strong> Наносит чистый урон.</div><div>⚡ <strong>Стрелок:</strong> Ослепляет змея молнией.</div><div>💚 <strong>Маг:</strong> Массовое исцеление.</div></div>`
+    mainInfo: `<p><strong>«КХАМАЧ: Восхождение Рейдов»</strong></p><p>В недрах древних подземелий Абхирамбурга пробудился великий закон змея. Соберите свой верный отряд, заряжайте шкалы суперсил через камни стихий и сокрушите огнедышащих тварей в пошаговых тактических битвах Горнила!</p>`
 };
 
 const INLINE_MODE_DESCRIPTIONS = {
     clans: { title: "🛡️ ОРДЕН КХАМАЧА (КЛАНЫ)", reqText: "⚠️ Доступ заблокирован. Клановый шлюз открывается на 12-м уровне развития отряда!", isLocked: true },
-    alchemy: { title: "🧪 ЛАБОРАТОРИЯ АЛХИМИИ", isLocked: false, isHero: false, heroId: "alchemy", lore: "Полки уставлены древними фолиантами. Необходима для будущей дистилляции ресурсов." },
-    tank: { title: "🛡️ ГАРНИЗОН", isLocked: false, isHero: true, heroId: "tank" },
-    damage: { title: "🔥 КАЗАРМЫ", isLocked: false, isHero: true, heroId: "damage" },
-    archer: { title: "⚡ СТРУКТУРА СТРЕЛЬБИЩА", isLocked: false, isHero: true, heroId: "archer" },
-    mage: { title: "💚 ОБИТЕЛЬ", isLocked: false, isHero: true, heroId: "mage" }
+    tank: { title: "🛡️ ГАРНИЗОН", isLocked: false, isHero: true, heroId: "tank", lore: "Здесь тренируются ваши верные Защитники. Модернизация увеличивает здоровье танка." },
+    damage: { title: "🔥 КАЗАРМЫ", isLocked: false, isHero: true, heroId: "damage", lore: "Казармы свирепых Воинов. Увеличивают чистый урон ультимейта." },
+    archer: { title: "⚡ СТРУКТУРА СТРЕЛЬБИЩА", isLocked: false, isHero: true, heroId: "archer", lore: "Полигон Стрелков. Повышает урон от стихийных молний." },
+    mage: { title: "💚 ОБИТЕЛЬ", isLocked: false, isHero: true, heroId: "mage", lore: "Священное место Магов. Увеличивает силу группового исцеления." }
 };
 
 window.getTownText = function(key) { return INLINE_TOWN_TEXTS[key] || ''; };
 window.getPlayerGold = function() { return parseInt(localStorage.getItem('khamach_gold') || '0'); };
 window.addPlayerGold = function(amount) { localStorage.setItem('khamach_gold', window.getPlayerGold() + amount); window.updateTownGoldDisplay(); };
-window.getPlayerResource = function(key) { return parseInt(localStorage.getItem(`khamach_res_${key}`) || '0'); };
-window.addPlayerResource = function(key, amount) { localStorage.setItem(`khamach_res_${key}`, window.getPlayerResource(key) + amount); if (typeof window.updateTownGoldDisplay === 'function') window.updateTownGoldDisplay(); };
 
 window.updateTownGoldDisplay = function() {
-    // 1. Обновляем счетчики золота по всему DOM
     const goldVal = window.getPlayerGold();
+    const charismaVal = parseInt(localStorage.getItem('khamach_dragon_essence') || '0');
+
     document.querySelectorAll('.gold-counter-display').forEach(el => { 
         el.innerText = `🪙 ${goldVal.toLocaleString('ru-RU')}`; 
     });
     
-    // 2. Считываем усталость
+    // Наполняем Склад Цитадели актуальными значениями валют
+    const storageList = document.getElementById('storage-resources-list');
+    if (storageList) {
+        storageList.innerHTML = `
+            <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #4a3f2c; padding-bottom:4px; font-size:14px; color:#ffd700;">
+                <span>🪙 Казна Цитадели (Золото):</span>
+                <strong>${goldVal.toLocaleString('ru-RU')}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:14px; color:#e6c280;">
+                <span>👑 Харизма Древних:</span>
+                <strong>${charismaVal} шт</strong>
+            </div>
+        `;
+    }
+
     const tFat = Math.round(parseFloat(localStorage.getItem('khamach_fatigue_tank') || '0'));
     const dFat = Math.round(parseFloat(localStorage.getItem('khamach_fatigue_damage') || '0'));
     const aFat = Math.round(parseFloat(localStorage.getItem('khamach_fatigue_archer') || '0'));
@@ -45,19 +56,6 @@ window.updateTownGoldDisplay = function() {
     if (fatigueContainer) {
         const averageFatigue = Math.round((tFat + dFat + aFat + mFat) / 4);
         fatigueContainer.innerHTML = `🥱 ${averageFatigue}%`;
-    }
-
-    const listContainer = document.getElementById('individual-fatigue-list-container');
-    if (listContainer) {
-        listContainer.innerHTML = `
-            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #3a3025; padding-bottom:4px;"><span>🛡️ Защитник:</span><strong>${tFat}%</strong></div>
-            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #3a3025; padding-bottom:4px;"><span>🔥 Воин:</span><strong>${dFat}%</strong></div>
-            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #3a3025; padding-bottom:4px;"><span>⚡ Стрелок:</span><strong>${aFat}%</strong></div>
-            <div style="display:flex; justify-content:space-between;"><span>💚 Maг:</span><strong>${mFat}%</strong></div>
-        `;
-    }
-    if (typeof window.updateStorageScreenDOM === 'function') {
-        try { window.updateStorageScreenDOM(); } catch(e){}
     }
 };
 
