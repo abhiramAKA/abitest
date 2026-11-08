@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — АВТОНОМНЫЙ МОДУЛЬ ОБРАБОТЧИКОВ ИНТЕРФЕЙСА (ОБНОВЛЕН - v5.7.45-FIX)
+   КХАМАЧ — АВТОНОМНЫЙ МОДУЛЬ ОБРАБОТЧИКОВ ИНТЕРФЕЙСА (ОБНОВЛЕН - v5.7.64-FIX)
    ========================================================================== */
 
 window.closeModeDescriptionUnified = function() {
@@ -30,7 +30,7 @@ function setupAllGameListeners() {
         document.removeEventListener('click', initAudioOnFirstClick);
     }, { once: true });
 
-    // ПРИВЯЗКА КНОПОК ОСНОВНОЙ СЕТКИ ХАБА
+    // ФИКС: Намертво привязываем ID 'to-missions-btn' под единый вызов экрана поручений
     safeBindElementClick('to-combat-btn', function() {
         showScreen('dragon-select-screen');
     });
@@ -62,7 +62,6 @@ function setupAllGameListeners() {
         }
     });
 
-    // СЛУЖЕБНЫЕ КНОПКИ ПАНЕЛЕЙ ХАБА
     safeBindElementClick('to-settings-btn', function() {
         const musicSlider = document.getElementById('volume-music-slider');
         const fxSlider = document.getElementById('volume-fx-slider');
@@ -77,7 +76,6 @@ function setupAllGameListeners() {
         showScreen('info-screen');
     });
 
-    // ОБРАБОТЧИКИ НАЖАТИЙ НА КНОПКИ «НАЗАД»
     safeBindElementClick('from-select-to-menu-btn', function() { showScreen('main-menu'); });
     safeBindElementClick('from-info-to-menu-btn', function() { showScreen('main-menu'); });
     safeBindElementClick('close-settings-btn', function() { showScreen('main-menu'); });
