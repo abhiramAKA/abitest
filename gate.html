@@ -51,7 +51,7 @@
 
     <!-- МОНОЛИТНЫЙ ЗАГРУЗЧИК ЯДРА (ЗАЩИТА ОТ СБОЕВ СЕТИ) -->
     <script>
-        window.GAME_VERSION = "v5.7.54-FIX";
+        window.GAME_VERSION = "v5.7.57-FIX";
 
         function loadGameModulesAndExecute(modeType) {
             const enforceBuster = Date.now() + '_' + Math.floor(Math.random() * 999999);
@@ -62,7 +62,7 @@
                 'missions-pool.js', 'missions-engine.js', 'town-dom.js',
                 'squad-dom.js', 'combat-popups.js', 'combat-dom.js', 'missions-board.js',
                 'squad-logic.js', 'squad-core.js', 'combat-actions.js', 
-                'combat.js', 'game-listeners.js', 'season-engine.js'
+                'combat.js', 'game-listeners.js'
             ];
 
             function injectScriptSequentially(index) {
@@ -86,6 +86,6 @@
     </script>
 
     <!-- Выделенный движок шагов онбординга -->
-    <script src="onboarding-engine.js?v=v5.7.54-FIX"></script>
+    <script src="onboarding-engine.js?v=v5.7.57-FIX"></script>
 </body>
 </html>
