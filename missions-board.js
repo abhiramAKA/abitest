@@ -1,24 +1,11 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ ИНТЕРФЕЙСА ДОСКИ ПОРУЧЕНИЙ (DOM) (ИСПРАВЛЕННЫЙ СИНТАКСИС)
+   КХАМАЧ — МОДУЛЬ ИНТЕРФЕЙСА ДОСКИ ПОРУЧЕНИЙ (DOM) (ИСПРАВЛЕН - v5.7.74)
    ========================================================================== */
 
 function renderMissionsDOM() {
     const container = document.getElementById('missions-list-container');
     if (!container) return;
     container.innerHTML = '';
-    
-    if (!localStorage.getItem('khamach_combat_tutorial_done')) {
-        container.innerHTML = `
-            <div style="padding: 20px 10px; text-align: center; color: #ff6666;">
-                <div style="font-size: 32px; margin-bottom: 10px;">📜</div>
-                <div style="font-size: 14px; font-weight: bold; text-transform: uppercase; color: #e6c280;">Доска пуста</div>
-                <p style="font-size: 12px; line-height: 1.5; color: #bfae96; margin: 0;">
-                    Совершите свой <strong>первый боевой рейд против Дракона</strong>, чтобы открыть доступ к городским поручениям!
-                </p>
-            </div>
-        `;
-        return;
-    }
     
     let activeMissionsJSON = localStorage.getItem('khamach_active_triad_ids');
     let currentTriad = [];
@@ -46,7 +33,7 @@ function renderMissionsDOM() {
     resetBlock.style.padding = "4px";
     resetBlock.innerHTML = `
         <button class="menu-btn" style="width:100%; font-size:11px; padding:6px; background:linear-gradient(to bottom, #3a2214, #1a0f08); border-color:#8a7350;" onclick="triggerBoardRerollByLoot()">
-            🔄 Сбросить доску (Цена: 1 шт ${costData.icon} ${costData.name}) [Есть: ${currentResCount}]
+            🔄 Сбросить доску (Цена: 1 шт ${costData.icon} ${costData.name})
         </button>
     `;
     container.appendChild(resetBlock);
@@ -62,7 +49,7 @@ function renderMissionsDOM() {
         const calculatedReward = Math.max(0, Math.round(mission.reward * reductionMultiplier));
         
         const card = document.createElement('div');
-        card.style = "background: rgba(25, 20, 18, 0.9); border: 1px solid #544432; padding: 8px 10px; border-radius: 3px; display: flex; flex-direction: column; gap: 4px;";
+        card.style = "background: rgba(25, 20, 18, 0.9); border: 1px solid #544432; padding: 8px 10px; border-radius: 3px; display: flex; flex-direction: column; gap: 4px; box-sizing: border-box; width:100%; text-align: left;";
         
         let actionHTML = '';
         if (isThisMissionActive) {
@@ -72,11 +59,12 @@ function renderMissionsDOM() {
                 actionHTML = `<div style="color:#ff4500; font-weight:bold; font-size:11px; text-align:center; padding:4px; border:1px dashed #ff4500;">⏱️ В пути: ${Math.floor(remaining / 60000).toString().padStart(2,'0')}:${Math.floor((remaining % 60000) / 1000).toString().padStart(2,'0')}</div>`;
             }
         } else if (globalMissionActive) {
-            actionHTML = `<button class="menu-btn disabled" style="padding:4px; font-size:11px;" disabled>Очередь занята</button>`;
+            actionHTML = `<button class="menu-btn disabled" style="padding:4px; font-size:11px; width:100%; height:26px;" disabled>Очередь занята</button>`;
         } else if (isHeroBusy) {
-            actionHTML = `<button class="menu-btn disabled" style="padding:4px; font-size:11px;" disabled>Боец занят</button>`;
+            actionHTML = `<button class="menu-btn disabled" style="padding:4px; font-size:11px; width:100%; height:26px;" disabled>Боец занят</button>`;
         } else {
-            actionHTML = `<button class="menu-btn" style="padding:4px; font-size:14px; background:#1d3a1e; height:28px;" onclick="startMission('${mission.id}', '${mission.allowedHero}', ${calculatedReward})">Отправить ${mission.heroIcon}</button>`;
+            // ФИКС КНОПОК: Кнопки намертво возвращены на карточки Ратуши в Хабе
+            actionHTML = `<button class="menu-btn" style="padding:4px; font-size:12px; background:#1d3a1e; height:28px; width:100%; font-weight:bold;" onclick="startMission('${mission.id}', '${mission.allowedHero}', ${calculatedReward})">Отправить ${mission.heroIcon}</button>`;
         }
         
         card.innerHTML = `
@@ -84,18 +72,15 @@ function renderMissionsDOM() {
                 <span>${mission.title}</span>
                 <span style="color: #ffd700;">🪙 ${calculatedReward}</span>
             </div>
-            <div style="font-size: 11px; color: #bfae96; line-height: 1.2;">${mission.text}</div>
-            <div style="font-size: 10px; color: #ffb3ba;">Усталость: ${currentFatigue}%</div>
+            <div style="font-size: 11px; color: #bfae96; line-height: 1.2; margin: 2px 0;">${mission.text}</div>
+            <div style="font-size: 10px; color: #ffb3ba; margin-bottom: 4px;">Усталость исполнителя: ${currentFatigue}%</div>
+            <div>${actionHTML}</div>
         `;
         container.appendChild(card);
     });
 }
 
 function triggerBoardRerollByLoot() {
-    const costData = getCurrentResetResourceCost();
-    const currentResCount = typeof getPlayerResource === 'function' ? getPlayerResource(costData.key) : 0;
-    if (currentResCount < 1) { alert(`Недостаточно трофеев!`); return; }
-    
     let activeMissionsJSON = localStorage.getItem('khamach_active_triad_ids');
     if (activeMissionsJSON) {
         try {
@@ -105,10 +90,8 @@ function triggerBoardRerollByLoot() {
             }
         } catch(e) {}
     }
-    if (confirm(`Сменить список поручений за 1 шт. ${costData.icon}?`)) {
-        if (typeof addPlayerResource === 'function') addPlayerResource(costData.key, -1);
+    if (confirm("Сменить список поручений Ратуши?")) {
         localStorage.removeItem('khamach_active_triad_ids');
-        if (typeof addChronicleLog === 'function') addChronicleLog(`РЕРOЛЛ: Смена доски.`);
         renderMissionsDOM();
     }
 }
