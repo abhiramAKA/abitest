@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.58-FIX)
+   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.60-FIX)
    ========================================================================== */
 
 const ONBOARDING_MISSIONS_LOCAL_POOL = [
@@ -8,15 +8,12 @@ const ONBOARDING_MISSIONS_LOCAL_POOL = [
 ];
 
 window.launchOnboardingStep = function(modeType) {
-    // КРИТИЧЕСКИЙ UX-ФИКС: Мгновенно скрываем стартовое окно при первом же клике на вулкан,
-    // чтобы игрок видел искры заднего плана и понимал, что игра откликнулась на нажатие
     const gothicWin = document.getElementById('onboarding-gothic-window');
     if (gothicWin) gothicWin.style.display = 'none';
 
     if (modeType === 'battle') {
         const isSecondBattlePhase = localStorage.getItem('khamach_missions_tutorial_done') === 'true';
         
-        // Спокойно подгружаем боевую сцену в фоне, пока игрок созерцает искры
         setTimeout(() => {
             if (!isSecondBattlePhase) {
                 if (typeof injectCombatInterfaceBaseDOM === 'function') injectCombatInterfaceBaseDOM();
@@ -37,19 +34,23 @@ window.launchOnboardingStep = function(modeType) {
         if (specScr) specScr.style.display = 'flex';
     } 
     else if (modeType === 'citadel') {
+        // КРИТИЧЕСКИЙ UX-ФИКС: Инжектируем чистый DOM Цитадели, чтобы игрок зашел внутрь меню построек
         if (typeof injectSquadInterfaceDOM === 'function') injectSquadInterfaceDOM();
         
         const closeBtn = document.getElementById('close-squad-btn');
         if (closeBtn) closeBtn.style.display = 'none';
+        
         const squadScr = document.getElementById('squad-screen');
         if (squadScr) squadScr.style.display = 'flex';
 
+        // На шаге обучения привязываем специальную ручную транзакцию к кнопке подтверждения постройки
         window.executeUnifiedBuildingTransaction = function() {
             localStorage.setItem('khamach_gold', '0'); 
             localStorage.setItem('khamach_build_tank', '1');
             localStorage.setItem('khamach_squad_build_tank', 'true');
             localStorage.setItem('khamach_citadel_tutorial_done', 'true');
 
+            alert("Гарнизон успешно возведен! Достигнут 1 уровень.");
             if (squadScr) squadScr.style.display = 'none';
             window.location.href = 'gate.html?t=' + Date.now();
         };
