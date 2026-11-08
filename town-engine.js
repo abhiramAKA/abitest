@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНАЯ ЭКОНОМИКА ЦИТАДЕЛИ И ХРАНИЛИЩЕ РЕСУРСОВ (v5.7.66-FIX)
+   КХАМАЧ — ЦЕНТРАЛЬНАЯ ЭКОНОМИКА ЦИТАДЕЛИ И ХРАНИЛИЩЕ РЕСУРСОВ (v5.7.67-FIX)
    ========================================================================== */
 
 const TOWN_BUILDING_PRICES = {
@@ -76,8 +76,6 @@ window.openModeDescription = function(id) {
             return;
         }
         const bldId = config.heroId || id;
-        
-        // ФИКС: По умолчанию уровень всех зданий равен 1
         const bldLvl = parseInt(localStorage.getItem(`khamach_build_${bldId}`) || '1');
         let loreText = config.lore || "Оборонительное сооружение Цитадели.";
 
@@ -85,10 +83,10 @@ window.openModeDescription = function(id) {
             textEl.innerHTML = `${loreText}<br><br>Максимальный уровень строения достигнут!`;
             if (buyBtn) buyBtn.style.display = 'none';
         } else {
-            let nextPrice = TOWN_BUILDING_PRICES[bldLvl + 1];
+            // ИСПРАВЛЕНО: Сдвигаем индекс тарифов. Первое улучшение (с 1 на 2 ур) теперь берет цену TOWN_BUILDING_PRICES[1] = 100 монет!
+            let nextPrice = TOWN_BUILDING_PRICES[bldLvl];
             textEl.innerHTML = `${loreText}<br><br>Текущий уровень: ${bldLvl}`;
             
-            // ФИКС ТЕРМИНА: Кнопка переведена на строгое "УЛУЧШИТЬ ДО УР. X"
             if (buyBtn) { 
                 buyBtn.style.display = 'block'; 
                 buyBtn.innerText = `⚒️ УЛУЧШИТЬ ДО УР. ${bldLvl + 1} (🪙 ${nextPrice.toLocaleString('ru-RU')})`; 
