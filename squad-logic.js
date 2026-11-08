@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.7.62-FIX)
+   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.7.63-FIX)
    ========================================================================== */
 
 const SQUAD_HERO_LORE = {
@@ -37,7 +37,7 @@ window.updateSquadHeroesSpecScreenDOM = function() {
         let actionBtnHTML = '';
         
         if (isTrainingPhase && h.id !== 'tank') {
-            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:9px; background:#221a1a; border-color:#3a2525; color:#665555; cursor:not-allowed;" disabled>[БЛОК ОБУЧЕНИЕМ]</button>`;
+            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:10px; background:#221a1a; border-color:#3a2525; color:#665555; cursor:not-allowed;" disabled>Прокачать</button>`;
         } else if (heroLvl >= 15) {
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:10px;" disabled>МАКС УР</button>`;
         } else if (heroLvl >= 1 && heroLvl < 2) {
@@ -54,7 +54,8 @@ window.updateSquadHeroesSpecScreenDOM = function() {
                 <span style="color:#ffd700;">Ур. ${heroLvl}</span>
             </div>
             <div style="font-size:9px; color:#8a7350; margin-top:-2px; margin-bottom:2px;">Лимит: ${heroLvl < 2 ? 'Без лимита' : buildLvl}</div>
-            <div style="font-size:10px; color:#2ecc71; line-height:1.1;">Bonus: ${lore.statBonus}</div>
+            <div style="font-size:10px; color:#2ecc71; line-height:1.1;">Бонус: ${lore.statBonus}</div>
+            <div style="font-size:10px; color:#e6c280; margin: 4px 0 2px 0; font-weight: bold;">Цена: 2 👑 Харизмы</div>
             <div style="margin-top:auto;">${actionBtnHTML}</div>
         `;
         
