@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (ИСПРАВЛЕН - v5.7.71-FIX)
+   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (СТАБИЛЬНЫЙ - v5.7.72-STABLE)
    ========================================================================== */
 
 const BOARD_ROWS = 8;
@@ -15,7 +15,7 @@ let combatData = {
     tankTaunting: false, 
     dragonBlinded: false, 
     pendingComboTutorial: false, 
-    squad = [
+    squad: [
         { id: "tank", name: "Защитник", hp: 150, maxHP: 150, sp: 0, maxSP: 100, icon: "🛡️", color: "#4a90e2" },
         { id: "damage", name: "Воин", hp: 90, maxHP: 90, sp: 0, maxSP: 100, icon: "🔥", color: "#ff4500" },
         { id: "archer", name: "Стрелок", hp: 100, maxHP: 100, sp: 0, maxSP: 100, icon: "⚡", color: "#f1c40f" },
@@ -29,7 +29,7 @@ let selectedDragonLevel = 1;
 window.currentOpenedModeKey = null;
 
 function sanitizeAndMigrateStorage() {
-    // Выставляем стартовые флаги С НУЛЯ только если игрок вообще никогда не заходил
+    // Инициализация стартовых флагов с нуля для новых игроков
     if (localStorage.getItem('khamach_combat_tutorial_done') === null && localStorage.getItem('khamach_full_onboarding_complete') !== 'true') {
         localStorage.setItem('khamach_gold', '0');
         localStorage.setItem('khamach_max_tier', '1');
