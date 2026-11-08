@@ -8,9 +8,35 @@
     <meta http-equiv="Expires" content="0">
     <title>КХАМАЧ — Чертоги Испытаний</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Стиль готического анимированного лоадера */
+        .onboarding-loader-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(5, 4, 3, 0.93); z-index: 30000; align-items: center; justify-content: center; flex-direction: column;
+        }
+        .loader-hourglass {
+            font-size: 64px; animation: spinHourglass 1.8s ease-in-out infinite; line-height: 1; margin-bottom: 15px;
+            filter: drop-shadow(0 0 15px #e6c280);
+        }
+        .loader-text { font-size: 13px; color: #cdb38c; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; text-shadow: 1px 1px 2px #000; }
+        @keyframes spinHourglass {
+            0% { transform: rotate(0deg); }
+            45% { transform: rotate(180deg); }
+            50% { transform: rotate(180deg); }
+            95% { transform: rotate(360deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
     <canvas id="bg-canvas"></canvas>
+    
+    <!-- ГОТИЧЕСКИЙ ЛОАДЕР ОЖИДАНИЯ -->
+    <div id="onboarding-loading-screen" class="onboarding-loader-overlay">
+        <div class="loader-hourglass">⏳</div>
+        <div class="loader-text">Магия Кхамача призывается...</div>
+    </div>
+
     <div id="game-interface">
         
         <!-- ГОТИЧЕСКОЕ ОКНО С КОРИЧНЕВОЙ РАМКОЙ -->
@@ -53,9 +79,13 @@
 
     <!-- МОНОЛИТНЫЙ ЗАГРУЗЧИК ЯДРА (ЗАЩИТА ОТ СБОЕВ СЕТИ) -->
     <script>
-        window.GAME_VERSION = "v5.7.65-FIX";
+        window.GAME_VERSION = "v5.7.67-FIX";
 
         function loadGameModulesAndExecute(modeType) {
+            // Мгновенно включаем лоадер ожидания часиков при клике
+            const spinner = document.getElementById('onboarding-loading-screen');
+            if (spinner) spinner.style.display = 'flex';
+
             if (typeof window.launchOnboardingStep === 'function') {
                 window.launchOnboardingStep(modeType);
             } else {
@@ -76,6 +106,9 @@
 
             function injectScriptSequentially(index) {
                 if (index >= scripts.length) {
+                    // Модули загружены, скрываем лоадер часиков бесшовно
+                    if (spinner) spinner.style.display = 'none';
+
                     if (modeType === 'battle' && typeof initDispatcherModule === 'function') {
                         initDispatcherModule();
                     }
@@ -94,7 +127,7 @@
         }
     </script>
 
-    <script src="onboarding-data.js?v=v5.7.65-FIX"></script>
-    <script src="onboarding-engine.js?v=v5.7.65-FIX"></script>
+    <script src="onboarding-data.js?v=v5.7.67-FIX"></script>
+    <script src="onboarding-engine.js?v=v5.7.67-FIX"></script>
 </body>
 </html>
