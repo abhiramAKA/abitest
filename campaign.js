@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ УПРАВЛЕНИЯ И ОТРИСОВКИ РЕЖИМА ПРИКЛЮЧЕНИЙ (v5.8.3-BETA)
+   КХАМАЧ — МОДУЛЬ УПРАВЛЕНИЯ И ОТРИСОВКИ РЕЖИМА ПРИКЛЮЧЕНИЙ (v5.8.4-BETA)
    ========================================================================== */
 
 window.currentActiveChapterView = null;
@@ -17,7 +17,6 @@ function saveCompletedTier(tier) {
 }
 
 function handleAdventureBackNavigation() {
-    // УМНЫЙ UX-ПЕРЕХВАТЧИК: Если мы находимся на странице обучения gate.html, возвращаем в полноценный Хаб
     if (window.location.pathname.includes('gate.html')) {
         window.location.href = 'hub.html?t=' + Date.now();
     } else {
@@ -36,8 +35,14 @@ function renderDragonSelectionGrid() {
     // ЭКРАН 1: Выбор художественной главы кампании
     if (window.currentActiveChapterView === null) {
         if (backBtn) {
-            backBtn.innerText = window.location.pathname.includes('gate.html') ? "В Главный Хаб Цитадели ↩️" : "Назад в меню";
-            backBtn.onclick = handleAdventureBackNavigation;
+            // ЖЕСТКАЯ БЛОКИРОВКА В ОБУЧЕНИИ: Полностью убираем кнопку возврата, если мы в gate.html
+            if (window.location.pathname.includes('gate.html')) {
+                backBtn.style.display = 'none';
+            } else {
+                backBtn.style.display = 'block';
+                backBtn.innerText = "Назад в меню";
+                backBtn.onclick = handleAdventureBackNavigation;
+            }
         }
         
         const scrTitle = document.getElementById('adventure-screen-title');
@@ -88,6 +93,8 @@ function renderDragonSelectionGrid() {
     const activeChapter = window.ADVENTURE_CHAPTERS[window.currentActiveChapterView];
     
     if (backBtn) {
+        // Во время выбора боссов внутри главы в онбординге кнопка назад к главам разрешена, но скрыта в gate.html на 1 экране
+        backBtn.style.display = 'block';
         backBtn.innerText = "↩️ Назад к списку глав";
         backBtn.onclick = function() {
             window.currentActiveChapterView = null;
