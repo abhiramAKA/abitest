@@ -1,9 +1,15 @@
 /* ==========================================================================
-   КХАМАЧ — ГЛАВНЫЙ СТИЛИСТИЧЕСКИЙ ДИСПЕТЧЕР (СБРОС КЭША - v0.7.4-BETA)
+   КХАМАЧ — ГЛАВНЫЙ СТИЛИСТИЧЕСКИЙ ДИСПЕТЧЕР (СБРОС КЭША - v5.8.0-BETA)
    ========================================================================== */
 
-@import url('css/base.css?v=v0.7.4');
-@import url('css/layouts.css?v=v0.7.4');
-@import url('css/combat.css?v=v0.7.4');
-@import url('css/board.css?v=v0.7.4');
+@import url('css/base.css?v=v5.8.0');
+@import url('css/layouts.css?v=v5.8.0');
+@import url('css/combat.css?v=v5.8.0');
+@import url('css/board.css?v=v5.8.0');
 
+/* ЭФФЕКТ ИСКР ДЛЯ ВСЕХ ЭКРАНОВ ЗАГРУЗКИ С ПЕСОЧНЫМИ ЧАСАМИ */
+.onboarding-loader-overlay, .hub-loader-overlay {
+    background: rgba(10, 8, 6, 0.75) !important;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
