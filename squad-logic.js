@@ -1,30 +1,16 @@
 /* ==========================================================================
-   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК И ПОТОЛКА ОТРЯДА (ИСПРАВЛЕН - v5.7.36-FIX)
+   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.7.52)
    ========================================================================== */
 
 const SQUAD_HERO_LORE = {
-    tank: { name: "🛡️ Гарнизон", title: "🛡️ ЗАЩИТНИК", resourceKey: "plasma", resourceIcon: "🌋", resourceName: "Плазма", statBonus: "+20 Max HP", lore: "Латные рукавицы намертво сжимают ростовой щит из костей." },
-    damage: { name: "🔥 Казармы", title: "🔥 ВОИН", resourceKey: "blood", resourceIcon: "🩸", resourceName: "Кровь", statBonus: "+15 урон ульты", lore: "Одержимый первобытным гневом рун Кхамача, жаждет лишь крови." },
-    archer: { name: "⚡ Стрельбище", title: "⚡ СТРЕЛОК", resourceKey: "scale", resourceIcon: "🪶", resourceName: "Чешуя", statBonus: "+10 урон молнии", lore: "Его стрелы оперены чешуей драконов света." },
-    damage_mage: { name: "💚 Обитель", title: "💚 МАГ", resourceKey: "tears", resourceIcon: "💧", resourceName: "Слезы", statBonus: "+5 к масс-хилу", lore: "Тайные эссенции жизни текут по его венам." }
+    tank: { name: "🛡️ Гарнизон", title: "🛡️ ЗАЩИТНИК", resourceKey: "plasma", resourceIcon: "🌋", statBonus: "+20 Max HP" },
+    damage: { name: "🔥 Казармы", title: "🔥 ВОИН", resourceKey: "blood", resourceIcon: "🩸", statBonus: "+15 урон ульты" },
+    archer: { name: "⚡ Стрельбище", title: "⚡ СТРЕЛОК", resourceKey: "scale", resourceIcon: "🪶", statBonus: "+10 урон молнии" },
+    damage_mage: { name: "💚 Обитель", title: "💚 МАГ", resourceKey: "tears", resourceIcon: "💧", statBonus: "+5 к масс-хилу" }
 };
 
 window.getHeroLevel = function(id) { return parseInt(localStorage.getItem(`khamach_hero_lvl_${id}`) || '1'); };
 window.getBuildingLevel = function(id) { return parseInt(localStorage.getItem(`khamach_build_${id}`) || '0'); };
-
-window.updateStorageScreenDOM = function() {
-    const listContainer = document.getElementById('storage-resources-list');
-    if (!listContainer) return;
-    listContainer.innerHTML = `
-        <div style="color: #e6c280; font-weight: bold; border-bottom: 1px solid #544432; padding-bottom: 4px; margin-bottom: 8px; text-transform: uppercase; font-size: 12px;">📜 Материалы Хранилища:</div>
-        <div style="display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 13px; color: #cdb38c;">
-            <div>🌋 Плазма дракона: <strong style="color:#fff; float: right;">${window.getPlayerResource('plasma')} шт.</strong></div>
-            <div>🩸 Кровь дракона: <strong style="color:#fff; float: right;">${window.getPlayerResource('blood')} шт.</strong></div>
-            <div>🪶 Чешуя дракона: <strong style="color:#fff; float: right;">${window.getPlayerResource('scale')} шт.</strong></div>
-            <div>💧 Слезы дракона: <strong style="color:#fff; float: right;">${window.getPlayerResource('tears')} шт.</strong></div>
-        </div>
-    `;
-};
 
 window.updateSquadHeroesSpecScreenDOM = function() {
     const container = document.getElementById('heroes-upgrade-list-container');
@@ -47,13 +33,10 @@ window.updateSquadHeroesSpecScreenDOM = function() {
         
         const heroLvl = window.getHeroLevel(h.id);
         const buildLvl = window.getBuildingLevel(h.id);
-        const currentRes = typeof window.getPlayerResource === 'function' ? window.getPlayerResource(lore.resourceKey) : 0;
         
         let actionBtnHTML = '';
         if (heroLvl >= 15) {
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:10px;" disabled>МАКС УР</button>`;
-        } else if (currentRes < 1) {
-            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:10px; background:#221111; border-color:#441111;" disabled>Нет трофеев</button>`;
         } else if (heroLvl >= 1 && heroLvl < 2) {
             actionBtnHTML = `<button class="menu-btn" style="padding:2px; font-size:10px; background:#1d3a1e; height:22px; line-height:1;" onclick="window.triggerHeroLevelUpgrade('${h.id}')">Прокачать</button>`;
         } else if (heroLvl >= buildLvl) {
@@ -69,7 +52,6 @@ window.updateSquadHeroesSpecScreenDOM = function() {
             </div>
             <div style="font-size:9px; color:#8a7350; margin-top:-2px; margin-bottom:2px;">Лимит: ${heroLvl < 2 ? 'Без лимита' : buildLvl}</div>
             <div style="font-size:10px; color:#2ecc71; line-height:1.1;">Бонус: ${lore.statBonus}</div>
-            <div style="font-size:10px; color:#cdb38c; margin-bottom:3px;">Доступно: ${lore.resourceIcon} ${currentRes}</div>
             <div style="margin-top:auto;">${actionBtnHTML}</div>
         `;
         
@@ -81,28 +63,15 @@ window.updateSquadHeroesSpecScreenDOM = function() {
 };
 
 window.triggerHeroLevelUpgrade = function(heroId) {
-    const heroesData = { tank: { resKey: "plasma" }, damage: { resKey: "blood" }, archer: { resKey: "scale" }, mage: { resKey: "tears" } };
-    const target = heroesData[heroId];
-    if (!target) return;
-
-    const currentRes = typeof window.getPlayerResource === 'function' ? window.getPlayerResource(target.resKey) : 0;
     const heroLvl = window.getHeroLevel(heroId);
 
-    if (currentRes < 1) {
-        alert(`Недостаточно трофеев!`);
-        return;
-    }
-
-    if (typeof addPlayerResource === 'function') addPlayerResource(target.resKey, -1);
     localStorage.setItem(`khamach_hero_lvl_${heroId}`, heroLvl + 1);
-
-    if (typeof addChronicleLog === 'function') {
-        addChronicleLog(`ТРЕНИРОВКА: Боец повысил уровень до ${heroLvl + 1}-го.`);
-    }
     
     const isTrainingPhase = localStorage.getItem('khamach_training_tutorial_done') !== 'true';
     if (isTrainingPhase) {
         localStorage.setItem('khamach_training_tutorial_done', 'true');
+        
+        // Перенаправляем на Шаг 4 (Цитадель/Строительство)
         document.getElementById('squad-heroes-spec-screen').style.display = 'none';
         window.location.href = 'gate.html?t=' + Date.now();
         return;
