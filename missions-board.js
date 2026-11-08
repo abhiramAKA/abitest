@@ -1,6 +1,8 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ ИНТЕРФЕЙСА ДОСКИ ПОРУЧЕНИЙ (DOM) (ИСПРАВЛЕН - v5.7.74)
+   КХАМАЧ — МОДУЛЬ ИНТЕРФЕЙСА ДОСКИ ПОРУЧЕНИЙ (DOM) (ИСПРАВЛЕН - v5.8.0-BETA)
    ========================================================================== */
+
+let missionsTimerIntervalInstance = null;
 
 function renderMissionsDOM() {
     const container = document.getElementById('missions-list-container');
@@ -27,7 +29,6 @@ function renderMissionsDOM() {
     
     let globalMissionActive = currentTriad.some(mId => localStorage.getItem(`khamach_mission_active_${mId}`) === 'true');
     const costData = getCurrentResetResourceCost();
-    const currentResCount = typeof getPlayerResource === 'function' ? getPlayerResource(costData.key) : 0;
     
     const resetBlock = document.createElement('div');
     resetBlock.style.padding = "4px";
@@ -55,15 +56,14 @@ function renderMissionsDOM() {
         if (isThisMissionActive) {
             const startTimestamp = parseInt(localStorage.getItem(`khamach_mission_start_${mission.id}`) || '0');
             const remaining = Math.max(0, mission.durationMs - (Date.now() - startTimestamp));
-            if (remaining > 0) {
-                actionHTML = `<div style="color:#ff4500; font-weight:bold; font-size:11px; text-align:center; padding:4px; border:1px dashed #ff4500;">⏱️ В пути: ${Math.floor(remaining / 60000).toString().padStart(2,'0')}:${Math.floor((remaining % 60000) / 1000).toString().padStart(2,'0')}</div>`;
-            }
+            const minStr = Math.floor(remaining / 60000).toString().padStart(2,'0');
+            const secStr = Math.floor((remaining % 60000) / 1000).toString().padStart(2,'0');
+            actionHTML = `<div class="mission-countdown-ticker" data-start="${startTimestamp}" data-duration="${mission.durationMs}" style="color:#ff4500; font-weight:bold; font-size:11px; text-align:center; padding:4px; border:1px dashed #ff4500;">⏱️ В пути: ${minStr}:${secStr}</div>`;
         } else if (globalMissionActive) {
             actionHTML = `<button class="menu-btn disabled" style="padding:4px; font-size:11px; width:100%; height:26px;" disabled>Очередь занята</button>`;
         } else if (isHeroBusy) {
             actionHTML = `<button class="menu-btn disabled" style="padding:4px; font-size:11px; width:100%; height:26px;" disabled>Боец занят</button>`;
         } else {
-            // ФИКС КНОПОК: Кнопки намертво возвращены на карточки Ратуши в Хабе
             actionHTML = `<button class="menu-btn" style="padding:4px; font-size:12px; background:#1d3a1e; height:28px; width:100%; font-weight:bold;" onclick="startMission('${mission.id}', '${mission.allowedHero}', ${calculatedReward})">Отправить ${mission.heroIcon}</button>`;
         }
         
@@ -78,6 +78,29 @@ function renderMissionsDOM() {
         `;
         container.appendChild(card);
     });
+
+    // Запускаем локальный тикающий таймер для бесшовного обновления цифр каждую секунду
+    if (missionsTimerIntervalInstance) clearInterval(missionsTimerIntervalInstance);
+    missionsTimerIntervalInstance = setInterval(() => {
+        const tickers = document.querySelectorAll('.mission-countdown-ticker');
+        if (tickers.length === 0) {
+            clearInterval(missionsTimerIntervalInstance);
+            return;
+        }
+        tickers.forEach(t => {
+            const start = parseInt(t.dataset.start);
+            const duration = parseInt(t.dataset.duration);
+            const rem = Math.max(0, duration - (Date.now() - start));
+            if (rem <= 0) {
+                t.innerText = "⏱️ Возвращение...";
+                if (typeof checkAndProcessMissionsBackground === 'function') checkAndProcessMissionsBackground();
+            } else {
+                const m = Math.floor(rem / 60000).toString().padStart(2,'0');
+                const s = Math.floor((rem % 60000) / 1000).toString().padStart(2,'0');
+                t.innerText = `⏱️ В пути: ${m}:${s}`;
+            }
+        });
+    }, 1000);
 }
 
 function triggerBoardRerollByLoot() {
