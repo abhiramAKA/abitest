@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ ИСХОДОВ БИТВЫ (ИСПРАВЛЕН ПОД ХАБ - v5.7.52)
+   КХАМАЧ — МОДУЛЬ ИСХОДОВ БИТВЫ (ИСПРАВЛЕН ПОД ХАБ - v5.7.65-FIX)
    ========================================================================== */
 
 function activateHeroSuperpower(heroId) {
@@ -35,6 +35,10 @@ function checkBattleResolution() {
         let id = window.setTimeout(function() {}, 0);
         while (id--) { window.clearTimeout(id); }
 
+        // ЭКОНОМИКА ХАРИЗМЫ: 1 победа = +1 Харизма на склад Цитадели
+        const currentEssence = parseInt(localStorage.getItem('khamach_dragon_essence') || '0');
+        localStorage.setItem('khamach_dragon_essence', (currentEssence + 1).toString());
+
         if (typeof checkSeasonBountyResolution === 'function') checkSeasonBountyResolution();
 
         const firstBattleDone = localStorage.getItem('khamach_combat_tutorial_done') === 'true';
@@ -42,14 +46,12 @@ function checkBattleResolution() {
 
         if (!firstBattleDone) {
             localStorage.setItem('khamach_combat_tutorial_done', 'true');
-            // Выдаем 100 золота и 2 Крови Древних на Шаг 3 Спортзала
             localStorage.setItem('khamach_gold', '100');
-            localStorage.setItem('khamach_dragon_essence', '2');
+            localStorage.setItem('khamach_dragon_essence', '2'); // Выдаем 2 харизмы на Шаг 2 онбординга
             window.location.href = 'gate.html?t=' + Date.now();
         } else if (!mDone) {
             window.location.href = 'gate.html?t=' + Date.now();
         } else {
-            // КОНЕЦ ОБУЧЕНИЯ: Второй бой окончен, открываем Хаб навсегда!
             localStorage.setItem('khamach_full_onboarding_complete', 'true');
             window.location.href = 'hub.html?t=' + Date.now();
         }
