@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.7.65-FIX)
+   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.7.66-FIX)
    ========================================================================== */
 
 const SQUAD_HERO_LORE = {
@@ -10,7 +10,7 @@ const SQUAD_HERO_LORE = {
 };
 
 window.getHeroLevel = function(id) { return parseInt(localStorage.getItem(`khamach_hero_lvl_${id}`) || '1'); };
-window.getBuildingLevel = function(id) { return parseInt(localStorage.getItem(`khamach_build_${id}`) || '0'); };
+window.getBuildingLevel = function(id) { return parseInt(localStorage.getItem(`khamach_build_${id}`) || '1'); };
 
 window.updateSquadHeroesSpecScreenDOM = function() {
     const container = document.getElementById('heroes-upgrade-list-container');
@@ -36,12 +36,15 @@ window.updateSquadHeroesSpecScreenDOM = function() {
         
         let actionBtnHTML = '';
         
+        // ФИКС ТЕРМИНА: Название кнопки переведено на строгое "Тренировать"
         if (isTrainingPhase && h.id !== 'tank') {
-            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:10px; background:#221a1a; border-color:#3a2525; color:#665555; cursor:not-allowed;" disabled>Прокачать</button>`;
+            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:10px; background:#221a1a; border-color:#3a2525; color:#665555; cursor:not-allowed;" disabled>Тренировать</button>`;
         } else if (heroLvl >= 15) {
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:10px;" disabled>МАКС УР</button>`;
+        } else if (heroLvl >= buildLvl && !isTrainingPhase) {
+            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:9px; background:#421e1e; border-color:#6e3131; line-height:1.1;" disabled>Нужен ${buildLvl + 1} ур. здания</button>`;
         } else {
-            actionBtnHTML = `<button class="menu-btn" style="padding:2px; font-size:10px; background:#1d3a1e; height:22px; line-height:1;" onclick="window.triggerHeroLevelUpgrade('${h.id}')">Прокачать</button>`;
+            actionBtnHTML = `<button class="menu-btn" style="padding:2px; font-size:10px; background:#1d3a1e; height:22px; line-height:1;" onclick="window.triggerHeroLevelUpgrade('${h.id}')">Тренировать</button>`;
         }
         
         cardInner = `
