@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.67-FIX)
+   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.68-FIX)
    ========================================================================== */
 
 window.launchOnboardingStep = function(modeType) {
@@ -66,7 +66,6 @@ window.launchOnboardingStep = function(modeType) {
                         <p style="font-size: 13px; color: #cdb38c; text-align: left; line-height: 1.5; background:rgba(0,0,0,0.4); padding:10px; border:1px solid #544432;">
                             Здесь тренируются ваши тяжелые Защитники. Модернизация этого здания увеличит максимальный запас здоровья Танка и поднимет лимит его прокачки.
                         </p>
-                        <!-- БАЛАНС ЦЕНЫ: Первое улучшение стоит ровно 100 золотых монет -->
                         <div style="font-size: 14px; color: #ffd700; font-weight: bold; margin-bottom: 15px;">Стоимость: 🪙 100 золотых</div>
                         <button id="onboarding-build-tank-confirm" class="menu-btn" style="width: 100%; background: linear-gradient(to bottom, #1d3a1e, #0f2110); border-color: #316e34; padding: 12px;">⚒️ УЛУЧШИТЬ</button>
                     </div>
@@ -80,10 +79,10 @@ window.launchOnboardingStep = function(modeType) {
                     localStorage.setItem('khamach_squad_build_tank', 'true');
                     localStorage.setItem('khamach_citadel_tutorial_done', 'true');
 
-                    alert("Здание успешно улучшено! Отправляемся в Ратушу за новыми контрактами.");
                     popup.remove();
                     if (squadScr) squadScr.style.display = 'none';
                     
+                    // БЕЗ АЛЕРТОВ: Мгновенно перекидываем в окно Ратуши с мешочком монет
                     window.location.href = 'gate.html?t=' + Date.now();
                 };
             };
@@ -121,27 +120,44 @@ function executeOnboardingMission(missionId, heroId, rewardGold) {
     localStorage.setItem(`khamach_mission_active_${missionId}`, 'true');
     localStorage.setItem(`khamach_mission_start_${missionId}`, Date.now().toString());
     localStorage.setItem('khamach_gold', rewardGold.toString());
-    
     localStorage.setItem('khamach_missions_tutorial_done', 'true');
     
-    // КОНЕЦ ОБУЧЕНИЯ: Фиксируем полное завершение туториала!
+    // Фиксируем полное бесшовное завершение онбординга
     localStorage.setItem('khamach_full_onboarding_complete', 'true');
     
     const misScr = document.getElementById('missions-screen');
     if (misScr) misScr.style.display = 'none';
     
-    alert("Обучение окончено! Боец отправлен. Теперь вам доступна вся карта Кампании Абхирамбурга!");
+    // UX-ФИКС: Вместо алерта рендерим красивое готическое окно с единственной кнопкой Вулкана 🌋
+    let finishPopup = document.createElement('div');
+    finishPopup.className = 'game-window combat-help-popup';
+    finishPopup.style.display = 'flex';
+    finishPopup.style.zIndex = '25000';
     
-    // Бесшовно переводим в карту глав, кнопка Назад оттуда вернет в полноценный Хаб
-    if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
-    if (typeof showScreen === 'function') showScreen('dragon-select-screen');
-    if (typeof renderDragonSelectionGrid === 'function') renderDragonSelectionGrid();
+    finishPopup.innerHTML = `
+        <div class="combat-help-content" style="max-width: 390px; padding: 20px; text-align: center;">
+            <h2>📜 ОБУЧЕНИЕ ЗАВЕРШЕНО</h2>
+            <span class="subtitle">Свобода Чертогов Кхамача</span>
+            <p style="font-size: 13px; color: #cdb38c; text-align: left; line-height: 1.5; background:rgba(0,0,0,0.4); padding:12px; border:1px solid #544432; margin-bottom: 20px;">
+                Ваш боец успешно выдвинулся на контракт Ратуши. Цикл базового обучения пройден! Нажмите на иконку Вулкана пониже, чтобы открыть глобальную Карту Глав Бестиария. Оттуда вы сможете в любой момент бесшовно вернуться в полноценную Цитадель.
+            </p>
+            <button id="onboarding-ultimate-finish-btn" class="emoji-grid-btn" style="width: 100px; height: 100px; font-size: 50px; margin: 0 auto; border-radius: 4px;">🌋</button>
+        </div>
+    `;
     
-    // Меняем кнопку возврата, чтобы она вела на hub.html
-    const backBtn = document.getElementById('from-select-to-menu-btn');
-    if (backBtn) {
-        backBtn.style.display = 'block';
-        backBtn.innerText = "В Главный Хаб Цитадели ↩️";
-        backBtn.onclick = function() { window.location.href = 'hub.html?t=' + Date.now(); };
-    }
+    document.body.appendChild(finishPopup);
+    
+    document.getElementById('onboarding-ultimate-finish-btn').onclick = function() {
+        finishPopup.remove();
+        if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
+        if (typeof showScreen === 'function') showScreen('dragon-select-screen');
+        if (typeof renderDragonSelectionGrid === 'function') renderDragonSelectionGrid();
+        
+        const backBtn = document.getElementById('from-select-to-menu-btn');
+        if (backBtn) {
+            backBtn.style.display = 'block';
+            backBtn.innerText = "В Главный Хаб Цитадели ↩️";
+            backBtn.onclick = function() { window.location.href = 'hub.html?t=' + Date.now(); };
+        }
+    };
 }
