@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ ИНТЕРФЕЙСА ДОСКИ ПОРУЧЕНИЙ (DOM) (ИСПРАВЛЕН - v5.8.0-BETA)
+   КХАМАЧ — МОДУЛЬ ИНТЕРФЕЙСА ДОСКИ ПОРУЧЕНИЙ (DOM) (ИСПРАВЛЕН - v5.8.1-BETA)
    ========================================================================== */
 
 let missionsTimerIntervalInstance = null;
@@ -62,7 +62,7 @@ function renderMissionsDOM() {
         } else if (globalMissionActive) {
             actionHTML = `<button class="menu-btn disabled" style="padding:4px; font-size:11px; width:100%; height:26px;" disabled>Очередь занята</button>`;
         } else if (isHeroBusy) {
-            actionHTML = `<button class="menu-btn disabled" style="padding:4px; font-size:11px; width:100%; height:26px;" disabled>Боец занят</button>`;
+            actionHTML = `<button class="menu-btn disabled" style="padding:4px; font-size:11px; width:100%; height:26px;" disabled>Боец занят на задании</button>`;
         } else {
             actionHTML = `<button class="menu-btn" style="padding:4px; font-size:12px; background:#1d3a1e; height:28px; width:100%; font-weight:bold;" onclick="startMission('${mission.id}', '${mission.allowedHero}', ${calculatedReward})">Отправить ${mission.heroIcon}</button>`;
         }
@@ -79,7 +79,6 @@ function renderMissionsDOM() {
         container.appendChild(card);
     });
 
-    // Запускаем локальный тикающий таймер для бесшовного обновления цифр каждую секунду
     if (missionsTimerIntervalInstance) clearInterval(missionsTimerIntervalInstance);
     missionsTimerIntervalInstance = setInterval(() => {
         const tickers = document.querySelectorAll('.mission-countdown-ticker');
