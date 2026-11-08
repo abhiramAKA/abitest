@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (ИСПРАВЛЕН - v5.7.63-FIX)
+   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (ИСПРАВЛЕН - v5.7.65-FIX)
    ========================================================================== */
 
 const BOARD_ROWS = 8;
@@ -31,17 +31,9 @@ window.currentOpenedModeKey = null;
 function sanitizeAndMigrateStorage() {
     const currentGold = localStorage.getItem('khamach_gold') || '500';
     const currentMaxTier = localStorage.getItem('khamach_max_tier') || '1';
-    const plasma = localStorage.getItem('khamach_res_plasma') || '0';
-    const blood = localStorage.getItem('khamach_res_blood') || '0';
-    const scale = localStorage.getItem('khamach_res_scale') || '0';
-    const tears = localStorage.getItem('khamach_res_tears') || '0';
-
+    
     localStorage.setItem('khamach_gold', currentGold);
     localStorage.setItem('khamach_max_tier', currentMaxTier);
-    localStorage.setItem('khamach_res_plasma', plasma);
-    localStorage.setItem('khamach_res_blood', blood);
-    localStorage.setItem('khamach_res_scale', scale);
-    localStorage.setItem('khamach_res_tears', tears);
 }
 
 function updateMenuOnboardingVisibility() {
@@ -97,6 +89,7 @@ function showScreen(screenId) {
     
     if (screenId === 'main-menu') {
         updateMenuOnboardingVisibility();
+        // КРИТИЧЕСКИЙ ФИКС: Жестко перезапускаем биндинг слушателей при каждом выходе в Хаб
         if (typeof setupAllGameListeners === 'function') setupAllGameListeners();
     }
     if (screenId === 'dragon-select-screen' && typeof renderDragonSelectionGrid === 'function') {
