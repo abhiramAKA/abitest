@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.63-FIX)
+   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.7.64-FIX)
    ========================================================================== */
 
 window.launchOnboardingStep = function(modeType) {
@@ -30,7 +30,6 @@ window.launchOnboardingStep = function(modeType) {
     } 
     else if (modeType === 'citadel') {
         if (typeof injectSquadInterfaceDOM === 'function') injectSquadInterfaceDOM();
-        if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
         
         const closeBtn = document.getElementById('close-squad-btn');
         if (closeBtn) closeBtn.style.display = 'none';
@@ -38,7 +37,7 @@ window.launchOnboardingStep = function(modeType) {
         const squadScr = document.getElementById('squad-screen');
         if (squadScr) squadScr.style.display = 'flex';
 
-        // Блокируем остальные кнопки в Цитадели
+        // Блокируем остальные здания
         ['damage', 'archer', 'mage'].forEach(id => {
             const btn = document.getElementById(`upgrade-${id}-btn`);
             if (btn) {
@@ -49,35 +48,47 @@ window.launchOnboardingStep = function(modeType) {
             }
         });
 
-        // Прямой вызов окна описания с принудительной активацией стилей
+        // ФИКС: Прямой ручной рендеринг независимого модального окна Гарнизона
         const tankBtn = document.getElementById('upgrade-tank-btn');
         if (tankBtn) {
             tankBtn.onclick = function() {
-                if (typeof openModeDescription === 'function') {
-                    openModeDescription('tank');
-                    const descWin = document.getElementById('mode-desc-screen');
-                    if (descWin) {
-                        descWin.style.display = 'flex';
-                        descWin.style.zIndex = '10001';
-                    }
-                }
+                let existingPopup = document.getElementById('onboarding-tank-popup');
+                if (existingPopup) existingPopup.remove();
+
+                const popup = document.createElement('div');
+                popup.id = 'onboarding-tank-popup';
+                popup.className = 'game-window combat-help-popup';
+                popup.style.display = 'flex';
+                popup.style.zIndex = '20000';
+                
+                popup.innerHTML = `
+                    <div class="combat-help-content" style="max-width: 380px; padding: 20px;">
+                        <h2>🛡️ ГАРНИЗОН ЗАЩИТНИКА</h2>
+                        <span class="subtitle">Оборонительное сооружение</span>
+                        <p style="font-size: 13px; color: #cdb38c; text-align: left; line-height: 1.5; background:rgba(0,0,0,0.4); padding:10px; border:1px solid #544432;">
+                            Здесь тренируются ваши тяжелые Защитники. Строительство этого здания увеличит максимальный запас здоровья Танка и поднимет лимит его прокачки.
+                        </p>
+                        <div style="font-size: 14px; color: #ffd700; font-weight: bold; margin-bottom: 15px;">Стоимость: 🪙 100 золотых</div>
+                        <button id="onboarding-build-tank-confirm" class="menu-btn" style="width: 100%; background: linear-gradient(to bottom, #1d3a1e, #0f2110); border-color: #316e34; padding: 12px;">⚒️ ПОСТРОИТЬ</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(popup);
+
+                document.getElementById('onboarding-build-tank-confirm').onclick = function() {
+                    localStorage.setItem('khamach_gold', '0'); 
+                    localStorage.setItem('khamach_build_tank', '1');
+                    localStorage.setItem('khamach_squad_build_tank', 'true');
+                    localStorage.setItem('khamach_citadel_tutorial_done', 'true');
+
+                    alert("Здание успешно возведено! Отправляемся в Ратушу за новыми контрактами.");
+                    popup.remove();
+                    if (squadScr) squadScr.style.display = 'none';
+                    
+                    window.location.href = 'gate.html?t=' + Date.now();
+                };
             };
         }
-
-        window.executeUnifiedBuildingTransaction = function() {
-            localStorage.setItem('khamach_gold', '0'); 
-            localStorage.setItem('khamach_build_tank', '1');
-            localStorage.setItem('khamach_squad_build_tank', 'true');
-            localStorage.setItem('khamach_citadel_tutorial_done', 'true');
-
-            alert("Гарнизон успешно возведен! Достигнут 1 уровень.");
-            if (squadScr) squadScr.style.display = 'none';
-            
-            const modeDescScr = document.getElementById('mode-desc-screen');
-            if (modeDescScr) modeDescScr.style.display = 'none';
-
-            window.location.href = 'gate.html?t=' + Date.now();
-        };
     } 
     else if (modeType === 'missions') {
         if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
