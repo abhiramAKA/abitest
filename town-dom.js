@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ ИНЪЕКЦИЙ ГОРОДСКИХ ИНТЕРФЕЙСОВ И НАСТРОЕК (v5.5.0-BETA)
+   КХАМАЧ — МОДУЛЬ ИНЪЕКЦИЙ ГОРОДСКИХ ИНТЕРФЕЙСОВ И НАСТРОЕК (v5.7.65-FIX)
    ========================================================================== */
 
 function injectTownScreensDOM() {
@@ -36,7 +36,10 @@ function injectTownScreensDOM() {
     if (storageScr) {
         storageScr.innerHTML = `
             <h2>Склад Цитадели</h2>
-            <div id="storage-resources-list" style="text-align: left; margin-bottom: 15px;"></div>
+            <span class="subtitle">Ваши накопленные богатства</span>
+            <div id="storage-resources-list" style="text-align: left; margin-bottom: 15px; background: rgba(0,0,0,0.5); padding: 12px; border: 1px solid #544432; display: flex; flex-direction: column; gap: 8px;">
+                <!-- Динамически заполняется через updateTownGoldDisplay -->
+            </div>
             <button id="close-storage-btn" class="menu-btn back-btn" style="width: 100%;">Назад в меню</button>
         `;
     }
@@ -57,17 +60,6 @@ function injectTownScreensDOM() {
                 </div>
             </div>
             <button id="close-settings-btn" class="menu-btn back-btn" style="width: 100%; margin-top: 0;">Сохранить настройки</button>
-        `;
-    }
-
-    const fatigueScr = document.getElementById('squad-fatigue-screen');
-    if (fatigueScr) {
-        fatigueScr.innerHTML = `
-            <div class="combat-help-content" style="max-width: 360px;">
-                <h2>🥱 Свежесть Отряда</h2>
-                <div id="individual-fatigue-list-container" style="text-align: left; font-size: 13px; display: flex; flex-direction: column; gap: 6px; margin: 15px 0; background: rgba(0,0,0,0.5); padding: 10px; border: 1px solid #544432;"></div>
-                <button id="close-fatigue-screen-btn" class="menu-btn back-btn" style="width: 100%; margin-top: 5px;">Закрыть</button>
-            </div>
         `;
     }
 
