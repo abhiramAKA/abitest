@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ УЛЬТИМЕЙТОВ И ИСХОДОВ БИТВЫ (ИСПРАВЛЕН - v5.7.38-FIX)
+   КХАМАЧ — МОДУЛЬ ИСХОДОВ БИТВЫ (ИСПРАВЛЕН ПОД ХАБ - v5.7.52)
    ========================================================================== */
 
 function activateHeroSuperpower(heroId) {
@@ -33,43 +33,29 @@ function activateHeroSuperpower(heroId) {
 function checkBattleResolution() {
     if (combatData.dragonHP <= 0) {
         let id = window.setTimeout(function() {}, 0);
-        while (id--) {
-            window.clearTimeout(id);
-        }
+        while (id--) { window.clearTimeout(id); }
 
-        const lootTypes = ['plasma', 'blood', 'scale', 'tears']; 
-        const lootNames = ['🛡️ Плазма', '🔥 Кровь', '🪶 Чешуя', '💚 Слезы'];
-        const randIndex = Math.floor(Math.random() * lootTypes.length);
-        
-        let lootKey = lootTypes[randIndex];
-        let lootName = lootNames[randIndex];
+        if (typeof checkSeasonBountyResolution === 'function') checkSeasonBountyResolution();
 
-        if (typeof addPlayerResource === 'function') addPlayerResource(lootKey, 1);
-        
-        if (typeof window.addChronicleLog === 'function') {
-            window.addChronicleLog(`ПОБЕДА: Ликвидирован дракон Тира ${activeSessionLevel}. На склад зачислена 1 шт. материала: ${lootName}`);
-        } else if (typeof addChronicleLog === 'function') {
-            addChronicleLog(`ПОБЕДА: Ликвидирован дракон Тира ${activeSessionLevel}. На склад зачислена 1 шт. материала: ${lootName}`);
-        }
-        
         const firstBattleDone = localStorage.getItem('khamach_combat_tutorial_done') === 'true';
-        const missionsDone = localStorage.getItem('khamach_missions_tutorial_done') === 'true';
+        const mDone = localStorage.getItem('khamach_missions_tutorial_done') === 'true';
 
         if (!firstBattleDone) {
             localStorage.setItem('khamach_combat_tutorial_done', 'true');
+            // Выдаем 100 золота и 2 Крови Древних на Шаг 3 Спортзала
+            localStorage.setItem('khamach_gold', '100');
+            localStorage.setItem('khamach_dragon_essence', '2');
             window.location.href = 'gate.html?t=' + Date.now();
-        } else if (!missionsDone) {
+        } else if (!mDone) {
             window.location.href = 'gate.html?t=' + Date.now();
         } else {
-            // Если и первый бой выигран, и боец уже отправлен на Поручение (Этап 4) — открываем полный Хаб!
+            // КОНЕЦ ОБУЧЕНИЯ: Второй бой окончен, открываем Хаб навсегда!
             localStorage.setItem('khamach_full_onboarding_complete', 'true');
             window.location.href = 'hub.html?t=' + Date.now();
         }
     } else if (combatData.squad.every(hero => hero.hp <= 0)) {
         let id = window.setTimeout(function() {}, 0);
-        while (id--) {
-            window.clearTimeout(id);
-        }
+        while (id--) { window.clearTimeout(id); }
         alert("ОТРЯД ПАЛ В БИТВЕ! Попробуйте еще раз.");
         window.location.href = 'gate.html?t=' + Date.now();
     }
