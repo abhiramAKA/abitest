@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (СТАБИЛЬНЫЙ - v6.0.2-STABLE)
+   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (СТАБИЛЬНЫЙ - v6.0.4-STABLE)
    ========================================================================== */
 
 const BOARD_ROWS = 8;
@@ -28,16 +28,24 @@ let selectedDragonLevel = 2;
 window.currentOpenedModeKey = null;
 
 function sanitizeAndMigrateStorage() {
-    // ИНИЦИАЛИЗАЦИЯ ХАБА ВЗРОСЛОЙ ИГРЫ С НУЛЕВОЙ ГОРНОЙ РУДОЙ
     if (!localStorage.getItem('khamach_hub_initialized')) {
         localStorage.setItem('khamach_hub_initialized', 'true');
         
         localStorage.setItem('khamach_gold', '133');                 
-        localStorage.setItem('khamach_dragon_ore', '0');             // ЖЕСТКО: На старте 0 горной руды!
+        localStorage.setItem('khamach_dragon_ore', '0');             
         localStorage.setItem('khamach_max_tier', '2');               
         
+        // ФИКС СТАРТОВЫХ УРОВНЕЙ: Танк и его Гарнизон — 2 уровень, остальные здания — 1 уровень
         localStorage.setItem('khamach_build_tank', '2');             
         localStorage.setItem('khamach_hero_lvl_tank', '2');          
+        
+        localStorage.setItem('khamach_build_damage', '1');
+        localStorage.setItem('khamach_build_archer', '1');
+        localStorage.setItem('khamach_build_mage', '1');
+
+        localStorage.setItem('khamach_hero_lvl_damage', '1');
+        localStorage.setItem('khamach_hero_lvl_archer', '1');
+        localStorage.setItem('khamach_hero_lvl_mage', '1');
         
         // Автоматический часовой уход Танка в экспедицию
         localStorage.setItem('khamach_hero_busy_tank', 'true');       
@@ -46,12 +54,8 @@ function sanitizeAndMigrateStorage() {
         localStorage.setItem('khamach_mission_reward_frozen_m_t1', '133');
         localStorage.setItem('khamach_fatigue_tank', '15');           
         
-        localStorage.setItem('khamach_build_damage', '0');
-        localStorage.setItem('khamach_build_archer', '0');
-        localStorage.setItem('khamach_build_mage', '0');
-        
         if (typeof addChronicleLog === 'function') {
-            addChronicleLog("ЦИТАДЕЛЬ: Казначейство инициализировано с 0 шт Горной руды. Защитник отбыл в Ратушу.");
+            addChronicleLog("ЦИТАДЕЛЬ: Здания Цитадели успешно развернуты [Гарнизон ур.2, Казармы ур.1, Стрельбище ур.1, Обитель ур.1].");
         }
     }
 }
