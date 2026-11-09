@@ -1,77 +1,100 @@
 /* ==========================================================================
-   КХАМАЧ — ВЕРТИКАЛЬНЫЙ СПОРТЗАЛ И ГОТИЧЕСКАЯ ЦИТАДЕЛЬ (ИСПРАВЛЕН - v1.0.5)
+   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.8.2-BETA)
    ========================================================================== */
 
-const ONBOARDING_HERO_LORE = {
-    tank: { title: "🛡️ ЗАЩИТНИК", statBonus: "+20 Max HP" },
-    damage: { title: "🔥 ВОИН", statBonus: "+15 урон ульты" },
-    archer: { title: "⚡ СТРЕЛОК", statBonus: "+10 урон молнии" },
-    mage: { title: "💚 МАГ", statBonus: "+5 к масс-хилу" }
+const SQUAD_HERO_LORE = {
+    tank: { name: "🛡️ Гарнизон", title: "🛡️ ЗАЩИТНИК", statBonus: "+20 Max HP" },
+    damage: { name: "🔥 Казармы", title: "🔥 ВОИН", statBonus: "+15 урон ульты" },
+    archer: { name: "⚡ Стрельбище", title: "⚡ СТРЕЛОК", statBonus: "+10 урон молнии" },
+    mage: { name: "💚 Обитель", title: "💚 МАГ", statBonus: "+5 к масс-хилу" }
 };
 
-function updateSquadHeroesSpecScreenDOM() {
+window.getHeroLevel = function(id) { return parseInt(localStorage.getItem(`khamach_hero_lvl_${id}`) || '1'); };
+window.getBuildingLevel = function(id) { return parseInt(localStorage.getItem(`khamach_build_${id}`) || '0'); };
+
+window.updateSquadHeroesSpecScreenDOM = function() {
     const container = document.getElementById('heroes-upgrade-list-container');
-    if (!container) return; container.innerHTML = '';
+    if (!container) return;
+    container.innerHTML = '';
     
-    container.style.display = "flex"; 
-    container.style.flexDirection = "column"; 
+    container.style.display = "grid";
+    container.style.gridTemplateColumns = "1fr 1fr";
     container.style.gap = "6px";
-    container.style.width = "100%";
     
     const heroesData = [{ id: "tank" }, { id: "damage" }, { id: "archer" }, { id: "mage" }];
+    const isTrainingPhase = localStorage.getItem('khamach_training_tutorial_done') !== 'true';
+    
+    const closeBtn = document.getElementById('close-heroes-spec-btn');
+    if (closeBtn) closeBtn.style.display = isTrainingPhase ? 'none' : 'block';
+    
+    const currentCharisma = parseInt(localStorage.getItem('khamach_dragon_essence') || '0');
     
     heroesData.forEach(h => {
-        const lore = ONBOARDING_HERO_LORE[h.id];
+        const lore = SQUAD_HERO_LORE[h.id];
+        if (!lore) return;
+        
+        const heroLvl = window.getHeroLevel(h.id);
+        const buildLvl = window.getBuildingLevel(h.id);
+        
         let actionBtnHTML = '';
         
-        // КНОПКИ СПОРТЗАЛА: Полное соответствие оригинальному взрослому base.css
-        if (h.id === 'tank') {
-            actionBtnHTML = `<button class="menu-btn" style="padding:12px; font-size:13px; width:130px; height:44px;" onclick="executeOnboardingCampUpgrade()">Тренировать</button>`;
+        const needsBuildingUpgrade = heroLvl >= (buildLvl + 1) && heroLvl >= 2;
+        const hasEnoughCharisma = currentCharisma >= 2;
+        
+        if (isTrainingPhase && h.id !== 'tank') {
+            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:10px; background:#221a1a; border-color:#3a2525; color:#665555; cursor:not-allowed;" disabled>Тренировать</button>`;
+        } else if (heroLvl >= 15) {
+            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:10px;" disabled>МАКС УР</button>`;
+        } else if (needsBuildingUpgrade) {
+            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:9px; background:#421e1e; border-color:#6e3131; line-height:1.1; color:#ffb3ba;" disabled>Нужно здание ${heroLvl} ур.</button>`;
+        } else if (!hasEnoughCharisma) {
+            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:9px; background:#2d2621; border-color:#544432; line-height:1.1; color:#cca3a3;" disabled>Не хватает харизмы 👑</button>`;
         } else {
-            actionBtnHTML = `<button class="menu-btn disabled" style="padding:12px; font-size:13px; width:130px; height:44px;" disabled>Заблокирован</button>`;
+            actionBtnHTML = `<button class="menu-btn" style="padding:2px; font-size:10px; background:#1d3a1e; height:22px; line-height:1;" onclick="window.triggerHeroLevelUpgrade('${h.id}')">Тренировать</button>`;
         }
         
         let cardInner = `
-            <div style="flex:1; text-align:left;">
-                <div style="font-weight:bold; color:#e6c280; font-size:13px; letter-spacing:0.5px;">${lore.title} <span style="color:#ffd700; font-size:11px; margin-left:6px;">Ур. 1</span></div>
-                <div style="font-size:11px; color:#2ecc71; margin-top:2px;">Развитие: ${lore.statBonus}</div>
-                <div style="font-size:11px; color:#bfae96; font-weight: bold; margin-top:2px;">Цена: 1 👑 Харизма</div>
+            <div style="display:flex; justify-content:space-between; font-weight:bold; color:#e6c280; font-size:11px;">
+                <span>${lore.title}</span>
+                <span style="color:#ffd700;">Ур. ${heroLvl}</span>
             </div>
-            <div style="display:flex; align-items:center;">${actionBtnHTML}</div>
+            <div style="font-size:10px; color:#2ecc71; line-height:1.1; margin-top:2px;">Бонус: ${lore.statBonus}</div>
+            <div style="font-size:10px; color:#e6c280; margin: 6px 0 4px 0; font-weight: bold;">Цена: 2 👑</div>
+            <div style="margin-top:auto;">${actionBtnHTML}</div>
         `;
         
         const card = document.createElement('div');
-        card.style = "background: rgba(20, 16, 14, 0.95); border: 1px solid #544432; padding: 10px 12px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; width:100%; gap:10px;";
+        card.style = "background: rgba(25, 20, 18, 0.95); border: 1px solid #544432; padding: 6px 8px; border-radius: 3px; display: flex; flex-direction: column; justify-content: space-between; gap: 2px; box-sizing: border-box;";
         card.innerHTML = cardInner;
         container.appendChild(card);
     });
-}
+};
 
-function executeOnboardingCampUpgrade() {
-    localStorage.setItem('khamach_training_tutorial_done', 'true');
-    localStorage.setItem('khamach_dragon_essence', '0');
-    document.getElementById('squad-heroes-spec-screen').style.display = 'none';
-    window.reloadOnboardingCoreState();
-}
+window.triggerHeroLevelUpgrade = function(heroId) {
+    const heroLvl = window.getHeroLevel(heroId);
+    const buildLvl = window.getBuildingLevel(heroId);
+    const currentCharisma = parseInt(localStorage.getItem('khamach_dragon_essence') || '0');
 
-function injectSquadInterfaceDOM() {
-    const screen = document.getElementById('squad-screen'); 
-    if(!screen) return;
-    
-    // КНОПКИ ЦИТАДЕЛИ: Каноничный дизайн из base.css взрослой игры
-    screen.innerHTML = `
-        <h2>Цитадель</h2>
-        <span class="subtitle">Инфраструктура строений</span>
-        <div style="display: flex; flex-direction: column; width: 100%; box-sizing: border-box; gap: 8px;">
-            <div class="menu-row"><button id="upgrade-tank-btn" class="menu-btn" style="width:100%;">⚒️ Построить Гарнизон Защитника (Цена: 🪙 100)</button></div>
-            <div class="menu-row"><button class="menu-btn disabled" disabled>⚒️ Построить Казармы Воинов (Заблокировано)</button></div>
-            <div class="menu-row"><button class="menu-btn disabled" disabled>⚒️ Построить Стрельбище Лучника (Заблокировано)</button></div>
-            <div class="menu-row"><button class="menu-btn disabled" disabled>⚒️ Построить Обитель Магов (Заблокировано)</button></div>
-        </div>
-    `;
-    
-    const btn = document.getElementById('upgrade-tank-btn');
-    if (btn && typeof window.executeOnboardingCitadelBuild === 'function') {
-        btn.onclick = window.executeOnboardingCitadelBuild;
+    if (currentCharisma < 2) {
+        alert("Недостаточно Харизмы! Требуется 2 👑.");
+        return;
     }
-}
+    
+    if (heroLvl >= (buildLvl + 1) && heroLvl >= 2) {
+        alert(`Для прокачки выше требуется улучшить соответствующее здание до ${heroLvl} уровня!`);
+        return;
+    }
+
+    localStorage.setItem('khamach_dragon_essence', (currentCharisma - 2).toString());
+    localStorage.setItem(`khamach_hero_lvl_${heroId}`, heroLvl + 1);
+    
+    const isTrainingPhase = localStorage.getItem('khamach_training_tutorial_done') !== 'true';
+    if (isTrainingPhase) {
+        localStorage.setItem('khamach_training_tutorial_done', 'true');
+        document.getElementById('squad-heroes-spec-screen').style.display = 'none';
+        window.location.href = 'gate.html?t=' + Date.now();
+        return;
+    }
+
+    window.updateSquadHeroesSpecScreenDOM();
+};
