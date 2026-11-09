@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ УПРАВЛЕНИЯ И ОТРИСОВКИ РЕЖИМА ПРИКЛЮЧЕНИЙ (v5.8.4-BETA)
+   КХАМАЧ — МОДУЛЬ УПРАВЛЕНИЯ И ОТРИСОВКИ РЕЖИМА ПРИКЛЮЧЕНИЙ (v6.1.2-STABLE)
    ========================================================================== */
 
 window.currentActiveChapterView = null;
@@ -35,7 +35,6 @@ function renderDragonSelectionGrid() {
     // ЭКРАН 1: Выбор художественной главы кампании
     if (window.currentActiveChapterView === null) {
         if (backBtn) {
-            // ЖЕСТКАЯ БЛОКИРОВКА В ОБУЧЕНИИ: Полностью убираем кнопку возврата, если мы в gate.html
             if (window.location.pathname.includes('gate.html')) {
                 backBtn.style.display = 'none';
             } else {
@@ -91,9 +90,9 @@ function renderDragonSelectionGrid() {
     
     // ЭКРАН 2: Список конкретных боссов внутри выбранной главы
     const activeChapter = window.ADVENTURE_CHAPTERS[window.currentActiveChapterView];
+    const isFirstChapter = activeChapter.id === "ch_1"; // Флаг Гнилых Топей
     
     if (backBtn) {
-        // Во время выбора боссов внутри главы в онбординге кнопка назад к главам разрешена, но скрыта в gate.html на 1 экране
         backBtn.style.display = 'block';
         backBtn.innerText = "↩️ Назад к списку глав";
         backBtn.onclick = function() {
@@ -102,10 +101,11 @@ function renderDragonSelectionGrid() {
         };
     }
     
+    // ФИКС ЗАГОЛОВКА: Выводится только чистое лорное название главы
     const scrTitle = document.getElementById('adventure-screen-title');
     const scrSubtitle = document.getElementById('adventure-screen-subtitle');
-    if (scrTitle) scrTitle.innerText = activeChapter.icon + " СИЛЫ ГЛАВЫ";
-    if (scrSubtitle) scrSubtitle.innerText = activeChapter.title;
+    if (scrTitle) scrTitle.innerText = `${activeChapter.icon} ${activeChapter.title.toUpperCase()}`;
+    if (scrSubtitle) scrSubtitle.innerText = isFirstChapter ? "Обычные монстры болот" : "Силы и стихии главы";
 
     const elements = ["Огонь", "Лед", "Тьма", "Свет"];
     
@@ -119,35 +119,42 @@ function renderDragonSelectionGrid() {
         const btn = document.createElement('button');
         btn.className = 'menu-btn dragon-level-btn';
         btn.style.transition = 'all 0.15s ease';
-        btn.style.padding = "10px";
-        btn.style.fontSize = "12px";
+        btn.style.padding = "12px 10px";
+        btn.style.fontSize = "13px";
         
         if (isLocked) {
             btn.classList.add('disabled');
-            btn.innerHTML = `🔒 Тир ${boss.tier} (Заблокировано в этой главе)`;
+            btn.innerHTML = `🔒 Заблокировано текущим прогрессом`;
         } else {
-            const element = elements[(boss.tier - 1) % elements.length];
-            btn.innerHTML = `${boss.icon} Тир ${boss.tier} : ${boss.name} [${element}] — ${boss.baseHP} HP`;
-            btn.dataset.level = boss.tier;
-            
-            if (element === "Огонь") {
-                btn.style.background = "linear-gradient(to bottom, #3b1717, #1c0a0a)";
-                btn.style.borderColor = "#9c2a2a";
-                btn.style.color = "#ff8c8c";
-            } else if (element === "Лед") {
-                btn.style.background = "linear-gradient(to bottom, #162436, #0b121c)";
-                btn.style.borderColor = "#2a629c";
-                btn.style.color = "#8cd1ff";
-            } else if (element === "Тьма") {
-                btn.style.background = "linear-gradient(to bottom, #28173b, #130a1c)";
-                btn.style.borderColor = "#6d2a9c";
-                btn.style.color = "#e58cff";
-            } else if (element === "Свет") {
-                btn.style.background = "linear-gradient(to bottom, #362e19, #1a160c)";
-                btn.style.borderColor = "#9c7f2a";
-                btn.style.color = "#ffe88c";
+            // ФИКС ВЫВОДА СТРОКИ БОССОВ ДЛЯ ГЛАВЫ 1
+            if (isFirstChapter) {
+                // Убираем приписки "Тир", "Стихия" и красим в классический серый готический цвет
+                btn.innerHTML = `${boss.icon} ${boss.name.toUpperCase()} — ${boss.baseHP} HP`;
+                btn.style.background = "linear-gradient(to bottom, #2d2621 0%, #171311 100%)";
+                btn.style.borderColor = "#544432";
+                btn.style.color = "#cdb38c";
+            } else {
+                // Для остальных глав сохраняем стихийную цветовую разметку
+                const element = elements[(boss.tier - 1) % elements.length];
+                btn.innerHTML = `${boss.icon} Тир ${boss.tier} : ${boss.name} [${element}] — ${boss.baseHP} HP`;
+                btn.dataset.level = boss.tier;
+                
+                if (element === "Огонь") {
+                    btn.style.background = "linear-gradient(to bottom, #3b1717, #1c0a0a)";
+                    btn.style.borderColor = "#9c2a2a"; btn.style.color = "#ff8c8c";
+                } else if (element === "Лед") {
+                    btn.style.background = "linear-gradient(to bottom, #162436, #0b121c)";
+                    btn.style.borderColor = "#2a629c"; btn.style.color = "#8cd1ff";
+                } else if (element === "Тьма") {
+                    btn.style.background = "linear-gradient(to bottom, #28173b, #130a1c)";
+                    btn.style.borderColor = "#6d2a9c"; btn.style.color = "#e58cff";
+                } else if (element === "Свет") {
+                    btn.style.background = "linear-gradient(to bottom, #362e19, #1a160c)";
+                    btn.style.borderColor = "#9c7f2a"; btn.style.color = "#ffe88c";
+                }
             }
             
+            btn.dataset.level = boss.tier;
             btn.addEventListener('click', (e) => {
                 selectedDragonLevel = parseInt(e.currentTarget.dataset.level);
                 if (typeof startBackgroundMusic === 'function') startBackgroundMusic();
