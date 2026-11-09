@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ВЕРТИКАЛЬНЫЙ СПОРТЗАЛ И ГОТИЧЕСКАЯ ЦИТАДЕЛЬ (ИСПРАВЛЕН - v6.0.0)
+   КХАМАЧ — ВЕРТИКАЛЬНЫЙ СПОРТЗАЛ И ВАЛИДАЦИЯ ГОРНОЙ РУДЫ (v6.0.2-STABLE)
    ========================================================================== */
 
 const SQUAD_HERO_LORE = {
@@ -17,14 +17,15 @@ window.updateSquadHeroesSpecScreenDOM = function() {
     if (!container) return;
     container.innerHTML = '';
     
-    // СТРОГАЯ UX-СЕТКА: Карточки выстроены в один ровный вертикальный ряд сверху вниз
     container.style.display = "flex";
     container.style.flexDirection = "column";
     container.style.gap = "6px";
     container.style.width = "100%";
     
     const heroesData = [{ id: "tank" }, { id: "damage" }, { id: "archer" }, { id: "mage" }];
-    const currentCharisma = parseInt(localStorage.getItem('khamach_dragon_essence') || '0');
+    
+    // Считываем баланс Горной руды вместо харизмы
+    const currentOre = parseInt(localStorage.getItem('khamach_dragon_ore') || '0');
     
     heroesData.forEach(h => {
         const lore = SQUAD_HERO_LORE[h.id];
@@ -36,14 +37,15 @@ window.updateSquadHeroesSpecScreenDOM = function() {
         let actionBtnHTML = '';
         
         const needsBuildingUpgrade = heroLvl >= (buildLvl + 1) && heroLvl >= 2;
-        const hasEnoughCharisma = currentCharisma >= 2;
+        const hasEnoughOre = currentOre >= 2; // Цена: 2 единицы руды
         
         if (heroLvl >= 15) {
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:10px; font-size:12px; width:140px; height:44px;" disabled>МАКС УР</button>`;
         } else if (needsBuildingUpgrade) {
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:8px 6px; font-size:10px; width:140px; height:44px; line-height:1.1; color:#ffb3ba;" disabled>Нужно здание ${heroLvl} ур.</button>`;
-        } else if (!hasEnoughCharisma) {
-            actionBtnHTML = `<button class="menu-btn disabled" style="padding:8px 6px; font-size:10px; width:140px; height:44px; line-height:1.1; color:#cca3a3;" disabled>Нет харизмы 👑</button>`;
+        } else if (!hasEnoughOre) {
+            // ЖЕСТКАЯ БЛОКИРОВКА ПРИ СТАРТЕ: На кнопке горит ошибка нехватки руды!
+            actionBtnHTML = `<button class="menu-btn disabled" style="padding:8px 6px; font-size:10px; width:140px; height:44px; line-height:1.1; color:#cca3a3;" disabled>Не хватает руды 🪨</button>`;
         } else {
             actionBtnHTML = `<button class="menu-btn" style="padding:10px; font-size:12px; background:linear-gradient(to bottom, #1d3a1e, #0f2110); border-color:#316e34; width:140px; height:44px;" onclick="window.triggerHeroLevelUpgrade('${h.id}')">Тренировать</button>`;
         }
@@ -54,7 +56,7 @@ window.updateSquadHeroesSpecScreenDOM = function() {
                     ${lore.title} <span style="color:#ffd700; font-size:11px; margin-left:6px;">Ур. ${heroLvl}</span>
                 </div>
                 <div style="font-size:11px; color:#2ecc71; margin-top:2px;">Развитие: ${lore.statBonus}</div>
-                <div style="font-size:11px; color:#bfae96; font-weight: bold; margin-top:2px;">Цена: 2 👑 Харизмы</div>
+                <div style="font-size:11px; color:#bfae96; font-weight: bold; margin-top:2px;">Цена: 2 🪨 Горной руды</div>
             </div>
             <div style="display:flex; align-items:center;">${actionBtnHTML}</div>
         `;
@@ -69,10 +71,10 @@ window.updateSquadHeroesSpecScreenDOM = function() {
 window.triggerHeroLevelUpgrade = function(heroId) {
     const heroLvl = window.getHeroLevel(heroId);
     const buildLvl = window.getBuildingLevel(heroId);
-    const currentCharisma = parseInt(localStorage.getItem('khamach_dragon_essence') || '0');
+    const currentOre = parseInt(localStorage.getItem('khamach_dragon_ore') || '0');
 
-    if (currentCharisma < 2) {
-        alert("Недостаточно Харизмы! Требуется 2 👑.");
+    if (currentOre < 2) {
+        alert("Недостаточно Горной руды! Требуется 2 🪨.");
         return;
     }
     
@@ -81,8 +83,29 @@ window.triggerHeroLevelUpgrade = function(heroId) {
         return;
     }
 
-    localStorage.setItem('khamach_dragon_essence', (currentCharisma - 2).toString());
+    localStorage.setItem('khamach_dragon_ore', (currentOre - 2).toString());
     localStorage.setItem(`khamach_hero_lvl_${heroId}`, heroLvl + 1);
     
     window.updateSquadHeroesSpecScreenDOM();
 };
+
+function injectSquadInterfaceDOM() {
+    const screen = document.getElementById('squad-screen'); 
+    if(!screen) return;
+    
+    screen.innerHTML = `
+        <h2>Цитадель</h2>
+        <span class="subtitle">Инфраструктура строений</span>
+        <div style="display: flex; flex-direction: column; width: 100%; box-sizing: border-box; gap: 8px;">
+            <div class="menu-row"><button id="upgrade-tank-btn" class="menu-btn" style="width:100%;">⚒️ Построить Гарнизон Защитника (Цена: 🪙 100)</button></div>
+            <div class="menu-row"><button class="menu-btn disabled" disabled>⚒️ Построить Казармы Воинов (Заблокировано)</button></div>
+            <div class="menu-row"><button class="menu-btn disabled" disabled>⚒️ Построить Стрельбище Лучника (Заблокировано)</button></div>
+            <div class="menu-row"><button class="menu-btn disabled" disabled>⚒️ Построить Обитель Maгов (Заблокировано)</button></div>
+        </div>
+    `;
+    
+    const btn = document.getElementById('upgrade-tank-btn');
+    if (btn && typeof window.executeOnboardingCitadelBuild === 'function') {
+        btn.onclick = window.executeOnboardingCitadelBuild;
+    }
+}
