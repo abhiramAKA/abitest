@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (СТАБИЛЬНЫЙ - v6.0.4-STABLE)
+   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (СТАБИЛЬНЫЙ - v6.0.6-STABLE)
    ========================================================================== */
 
 const BOARD_ROWS = 8;
@@ -31,11 +31,11 @@ function sanitizeAndMigrateStorage() {
     if (!localStorage.getItem('khamach_hub_initialized')) {
         localStorage.setItem('khamach_hub_initialized', 'true');
         
-        localStorage.setItem('khamach_gold', '133');                 
+        // ЖЕСТКИЙ СТАРТ: 0 золота и 0 горной руды во взрослом мире!
+        localStorage.setItem('khamach_gold', '0');                 
         localStorage.setItem('khamach_dragon_ore', '0');             
         localStorage.setItem('khamach_max_tier', '2');               
         
-        // ФИКС СТАРТОВЫХ УРОВНЕЙ: Танк и его Гарнизон — 2 уровень, остальные здания — 1 уровень
         localStorage.setItem('khamach_build_tank', '2');             
         localStorage.setItem('khamach_hero_lvl_tank', '2');          
         
@@ -47,7 +47,7 @@ function sanitizeAndMigrateStorage() {
         localStorage.setItem('khamach_hero_lvl_archer', '1');
         localStorage.setItem('khamach_hero_lvl_mage', '1');
         
-        // Автоматический часовой уход Танка в экспедицию
+        // Танк уходит на поручение Ратуши, чтобы принести первые деньги
         localStorage.setItem('khamach_hero_busy_tank', 'true');       
         localStorage.setItem('khamach_mission_active_m_t1', 'true');  
         localStorage.setItem('khamach_mission_start_m_t1', Date.now().toString()); 
@@ -55,7 +55,7 @@ function sanitizeAndMigrateStorage() {
         localStorage.setItem('khamach_fatigue_tank', '15');           
         
         if (typeof addChronicleLog === 'function') {
-            addChronicleLog("ЦИТАДЕЛЬ: Здания Цитадели успешно развернуты [Гарнизон ур.2, Казармы ур.1, Стрельбище ур.1, Обитель ур.1].");
+            addChronicleLog("ЦИТАДЕЛЬ: Казна и склады полностью опустошены. Защитник выдвинулся на заработки.");
         }
     }
 }
