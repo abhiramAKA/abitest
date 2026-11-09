@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (СТАБИЛЬНЫЙ - v5.7.74-STABLE)
+   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (СТАБИЛЬНЫЙ - v6.0.0-STABLE)
    ========================================================================== */
 
 const BOARD_ROWS = 8;
@@ -7,14 +7,13 @@ const BOARD_COLS = 8;
 const RUNE_TYPES = ['🔥', '🛡️', '⚡', '💚'];
 
 let combatData = {
-    dragonHP: 120, 
-    dragonMaxHP: 120,
+    dragonHP: 180, 
+    dragonMaxHP: 180,
     playerAP: 3, 
     playerMaxAP: 3,
     currentRound: 1,
     tankTaunting: false, 
     dragonBlinded: false, 
-    pendingComboTutorial: false, 
     squad: [
         { id: "tank", name: "Защитник", hp: 150, maxHP: 150, sp: 0, maxSP: 100, icon: "🛡️", color: "#4a90e2" },
         { id: "damage", name: "Воин", hp: 90, maxHP: 90, sp: 0, maxSP: 100, icon: "🔥", color: "#ff4500" },
@@ -25,24 +24,37 @@ let combatData = {
 
 let match3BoardData = null;
 let selectedCell = null;
-let selectedDragonLevel = 1;
+let selectedDragonLevel = 2; // По умолчанию выбран Тир 2
 window.currentOpenedModeKey = null;
 
 function sanitizeAndMigrateStorage() {
-    if (localStorage.getItem('khamach_combat_tutorial_done') !== 'true') {
-        localStorage.removeItem('khamach_full_onboarding_complete');
-        localStorage.setItem('khamach_gold', '0');
-        localStorage.setItem('khamach_max_tier', '1');
-        localStorage.setItem('khamach_dragon_essence', '1'); 
+    // ЕСЛИ ПЕРВЫЙ ЗАПУСК ХАБА ВЗРОСЛОЙ ИГРЫ — ИНИЦИАЛИЗИРУЕМ СТАРТОВЫЙ СУПЕР-СТЕЙТ ВЫПУСКНИКА
+    if (!localStorage.getItem('khamach_hub_initialized')) {
+        localStorage.setItem('khamach_hub_initialized', 'true');
+        
+        localStorage.setItem('khamach_gold', '133');                 // 133 монеты на счету
+        localStorage.setItem('khamach_dragon_essence', '2');         // 2 Харизмы
+        localStorage.setItem('khamach_max_tier', '2');               // Открыт и выбран Тир 2 драконов
+        
+        localStorage.setItem('khamach_build_tank', '2');             // Построен Гарнизон 2 уровня
+        localStorage.setItem('khamach_hero_lvl_tank', '2');          // Танк прокачан до 2 уровня
+        
+        // АВТОМАТИЧЕСКИЙ СТАРТ КОНТРАКТА РАТУШИ НА 60 МИНУТ ПРИ СТАРТЕ ИГРЫ
+        localStorage.setItem('khamach_hero_busy_tank', 'true');       // Танк уходит на задание
+        localStorage.setItem('khamach_mission_active_m_t1', 'true');  // Миссия m_t1 активирована
+        localStorage.setItem('khamach_mission_start_m_t1', Date.now().toString()); // Запуск счетчика времени
+        localStorage.setItem('khamach_mission_reward_frozen_m_t1', '133');
+        localStorage.setItem('khamach_fatigue_tank', '15');           // Начисляем стартовую усталость за поход
+        
+        // Все остальные постройки сброшены на 0 уровень по умолчанию
+        localStorage.setItem('khamach_build_damage', '0');
+        localStorage.setItem('khamach_build_archer', '0');
+        localStorage.setItem('khamach_build_mage', '0');
+        
+        if (typeof addChronicleLog === 'function') {
+            addChronicleLog("ЦИТАДЕЛЬ ВОЗВЕДЕНА: Выпускник онбординга прибыл в Хаб. Защитник отправлен на часовое поручение Ратуши.");
+        }
     }
-
-    const currentGold = localStorage.getItem('khamach_gold') || '0';
-    const currentMaxTier = localStorage.getItem('khamach_max_tier') || '1';
-    const currentCharisma = localStorage.getItem('khamach_dragon_essence') || '1'; 
-
-    localStorage.setItem('khamach_gold', currentGold);
-    localStorage.setItem('khamach_max_tier', currentMaxTier);
-    localStorage.setItem('khamach_dragon_essence', currentCharisma);
 }
 
 function updateMenuOnboardingVisibility() {
@@ -68,12 +80,6 @@ function initDispatcherModule() {
     sanitizeAndMigrateStorage();
 
     const isHubPage = window.location.pathname.includes('hub.html');
-    
-    // ЖЕСТКИЙ UX-ПЕРЕХВАТЧИК: Защита от случайного открытия хаба без обучения
-    if (isHubPage && localStorage.getItem('khamach_combat_tutorial_done') !== 'true') {
-        window.location.href = 'gate.html?t=' + Date.now();
-        return;
-    }
 
     if (isHubPage) {
         const mScreen = document.getElementById('missions-screen');
@@ -82,7 +88,7 @@ function initDispatcherModule() {
         }
         const cScreen = document.getElementById('chronicle-screen');
         if (cScreen && cScreen.innerHTML.trim() === '') {
-            cScreen.innerHTML = `<h2>Летопись Цитадели</h2><span class="subtitle">История великих побед</span><div id="chronicle-list-container" style="text-align:left; max-height:50vh; overflow-y:auto; margin-bottom:15px; font-size:12px; font-family:monospace; line-height:1.4; color:#cdb38c; width:100%;"></div><div style="display:flex; gap:8px; width:100%;"><button id="clear-chronicle-btn" class="menu-btn" style="font-size:12px; padding:6px; background:#3a1414; border-color:#6e3131;">Очистить</button><button id="close-chronicle-btn" class="menu-btn back-btn" style="width:100%; margin-top:0;">Назад</button></div>`;
+            cScreen.innerHTML = `<h2>Летопись Цитадели</h2><span class="subtitle">История великих побед</span><div id="chronicle-list-container" style="text-align:left; max-height:50vh; overflow-y:auto; margin-bottom:15px; font-size:12px; font-family:monospace; line-height:1.4; color:#cdb38c; width:100%;"></div><div style="display:flex; gap:8px; width:100%"><button id="clear-chronicle-btn" class="menu-btn" style="font-size:12px; padding:6px; background:#3a1414; border-color:#6e3131;">Очистить</button><button id="close-chronicle-btn" class="menu-btn back-btn" style="width:100%; margin-top:0;">Назад</button></div>`;
         }
     }
 
