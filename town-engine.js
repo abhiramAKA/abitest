@@ -1,11 +1,24 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНАЯ ЭКОНОМИКА ЦИТАДЕЛИ И ХРАНИЛИЩЕ РЕСУРСОВ (v6.0.2-STABLE)
+   КХАМАЧ — ЦЕНТРАЛЬНАЯ ЭКОНОМИКА ЦИТАДЕЛИ И ХРАНИЛИЩЕ РЕСУРСОВ (v6.0.5-STABLE)
    ========================================================================== */
 
+// ФИКС ТАРИФОВ: Индекс означает уровень, ДО КОТОРОГО мы улучшаем здание
 const TOWN_BUILDING_PRICES = {
-    1: 100, 2: 300, 3: 900, 4: 2700, 5: 11000, 6: 30000, 7: 75000,
-    8: 125000, 9: 200000, 10: 310000, 11: 540000, 12: 850000,
-    13: 1385000, 14: 2300000, 15: 3590500
+    2: 100,     // С 1 на 2 уровень = 100 монет
+    3: 300,     // Со 2 на 3 уровень = 300 монет
+    4: 900,     // С 3 на 4 уровень = 900 монет
+    5: 2700,    
+    6: 11000,   
+    7: 30000,   
+    8: 75000,
+    9: 125000, 
+    10: 200000, 
+    11: 310000, 
+    12: 540000, 
+    13: 850000,
+    14: 1385000, 
+    15: 2300000, 
+    16: 3590500  // Максимальный потолок модернизации
 };
 
 const INLINE_TOWN_TEXTS = {
@@ -13,7 +26,7 @@ const INLINE_TOWN_TEXTS = {
 };
 
 const INLINE_MODE_DESCRIPTIONS = {
-    clans: { title: "🛡️ ОРДЕН КХАМАЧА (КЛАНЫ)", reqText: "⚠️ Доступ заблокирован. Клановый шлюз открывается на 12-м уровне развития отряда!", isLocked: true },
+    clans: { title: "🛡️ ОРДЕН КХАМАЧА (КЛАНЫ)", reqText: "⚠️ Доступ заблокирован. Клановый шлюз открывается на 12-м уровень развития отряда!", isLocked: true },
     tank: { title: "🛡️ ГАРНИЗОН", isLocked: false, isHero: true, heroId: "tank", lore: "Здесь тренируются ваши верные Защитники. Модернизация увеличивает здоровье танка." },
     damage: { title: "🔥 КАЗАРМЫ", isLocked: false, isHero: true, heroId: "damage", lore: "Казармы свирепых Воинов. Увеличивают чистый урон ультимейта." },
     archer: { title: "⚡ СТРУКТУРА СТРЕЛЬБИЩА", isLocked: false, isHero: true, heroId: "archer", lore: "Полигон Стрелков. Повышает урон от стихийных молний." },
@@ -26,8 +39,6 @@ window.addPlayerGold = function(amount) { localStorage.setItem('khamach_gold', w
 
 window.updateTownGoldDisplay = function() {
     const goldVal = window.getPlayerGold();
-    
-    // Считываем Горную руду из памяти
     const oreVal = parseInt(localStorage.getItem('khamach_dragon_ore') || '0');
 
     document.querySelectorAll('.gold-counter-display').forEach(el => { 
@@ -85,12 +96,15 @@ window.openModeDescription = function(id) {
             textEl.innerHTML = `${loreText}<br><br>Максимальный уровень строения достигнут!`;
             if (buyBtn) buyBtn.style.display = 'none';
         } else {
-            let nextPrice = TOWN_BUILDING_PRICES[bldLvl];
+            // Исправленный расчет: Следующий уровень = текущий + 1
+            const nextLvl = bldLvl + 1;
+            let nextPrice = TOWN_BUILDING_PRICES[nextLvl] || 999999;
+            
             textEl.innerHTML = `${loreText}<br><br>Текущий уровень: ${bldLvl}`;
             
             if (buyBtn) { 
                 buyBtn.style.display = 'block'; 
-                buyBtn.innerText = `⚒️ УЛУЧШИТЬ ДО УР. ${bldLvl + 1} (🪙 ${nextPrice.toLocaleString('ru-RU')})`; 
+                buyBtn.innerText = `⚒️ УЛУЧШИТЬ ДО УР. ${nextLvl} (🪙 ${nextPrice.toLocaleString('ru-RU')})`; 
             }
         }
     }
