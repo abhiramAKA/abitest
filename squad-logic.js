@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ВЕРТИКАЛЬНЫЙ СПОРТЗАЛ И ПРИОРИТЕТ ОШИБОК ИНФРАСТРУКТУРЫ (v6.0.6)
+   КХАМАЧ — ВЕРТИКАЛЬНЫЙ СПОРТЗАЛ И ТОЧНЫЙ КАСКАД ЛИМИТОВ (v6.1.0-STABLE)
    ========================================================================== */
 
 const SQUAD_HERO_LORE = {
@@ -34,17 +34,16 @@ window.updateSquadHeroesSpecScreenDOM = function() {
         
         let actionBtnHTML = '';
         
-        // Каскад проверок: уровень здания имеет НАИВЫСШИЙ приоритет над рудой
-        const needsBuildingUpgrade = heroLvl >= (buildLvl + 1) && heroLvl >= 2;
+        // МАТЕМАТИЧЕСКИЙ ФИКС ЛИМИТОВ: Уровень героя не может превышать или быть равен уровню его здания
+        const needsBuildingUpgrade = heroLvl >= buildLvl;
         const hasEnoughOre = currentOre >= 2;
         
         if (heroLvl >= 15) {
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:10px; font-size:12px; width:140px; height:44px;" disabled>МАКС УР</button>`;
         } else if (needsBuildingUpgrade) {
-            // ФИКС ТАНКА: Если здания не хватает, пишем это СРАЗУ, даже если на балансе 0 руды!
+            // ФИКС ТАНКА: Железно выводится требование к расширению архитектуры
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:8px 6px; font-size:10px; width:140px; height:44px; line-height:1.1; color:#ffb3ba;" disabled>Нужно здание ${heroLvl + 1} ур.</button>`;
         } else if (!hasEnoughOre) {
-            // Воин, Лучник и Маг упираются в экономику материалов
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:8px 6px; font-size:10px; width:140px; height:44px; line-height:1.1; color:#cca3a3;" disabled>Не хватает руды 🪨</button>`;
         } else {
             actionBtnHTML = `<button class="menu-btn" style="padding:10px; font-size:12px; background:linear-gradient(to bottom, #1d3a1e, #0f2110); border-color:#316e34; width:140px; height:44px;" onclick="window.triggerHeroLevelUpgrade('${h.id}')">Тренировать</button>`;
@@ -78,7 +77,7 @@ window.triggerHeroLevelUpgrade = function(heroId) {
         return;
     }
     
-    if (heroLvl >= (buildLvl + 1) && heroLvl >= 2) {
+    if (heroLvl >= buildLvl) {
         alert(`Для прокачки выше требуется улучшить соответствующее здание до ${heroLvl + 1} уровня!`);
         return;
     }
