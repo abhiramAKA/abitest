@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ ИСХОДОВ БИТВЫ (НАЧИСЛЕНИЕ ГОРНОЙ РУДЫ - v6.0.2-STABLE)
+   КХАМАЧ — МОДУЛЬ ИСХОДОВ БИТВЫ (РЕБРЕНДИНГ - v6.1.0)
    ========================================================================== */
 
 function activateHeroSuperpower(heroId) {
@@ -35,18 +35,15 @@ function checkBattleResolution() {
         let id = window.setTimeout(function() {}, 0);
         while (id--) { window.clearTimeout(id); }
 
-        // ЭКОНОМИКА РУДЫ: Начисляем +1 Горную руду на склад Цитадели за победу!
         const currentOre = parseInt(localStorage.getItem('khamach_dragon_ore') || '0');
         localStorage.setItem('khamach_dragon_ore', (currentOre + 1).toString());
 
         if (typeof checkSeasonBountyResolution === 'function') checkSeasonBountyResolution();
-
-        // Бесшовно возвращаемся в Хаб после триумфа
         window.location.href = 'hub.html?t=' + Date.now();
     } else if (combatData.squad.every(hero => hero.hp <= 0)) {
         let id = window.setTimeout(function() {}, 0);
         while (id--) { window.clearTimeout(id); }
-        alert("ОТРЯД ПАЛ В БИТВЕ! Соберитесь с силами в Хабе.");
+        alert("ОТРЯД ПАЛ В БИТВЕ! Соберитесь с силами в меню.");
         window.location.href = 'hub.html?t=' + Date.now();
     }
 }
