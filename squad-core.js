@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ УПРАВЛЕНИЯ И СТРОИТЕЛЬСТВА В ОКНЕ ЦИТАДЕЛИ (v6.0.5-STABLE)
+   КХАМАЧ — МОДУЛЬ УПРАВЛЕНИЯ И СТРОИТЕЛЬСТВА В ОКНЕ ЦИТАДЕЛИ (v6.1.0)
    ========================================================================== */
 
 function setupSquadInterfaceListeners() {
@@ -25,9 +25,8 @@ function setupSquadInterfaceListeners() {
             const container = document.getElementById('squad-help-popup-text');
             if (container && typeof TOWN_BUILDING_PRICES !== 'undefined') {
                 let html = '<div style="display:flex; flex-direction:column; gap:3px;">';
-                // Корректный вывод тарифов в справочнике Цитадели со 2 уровня
                 for(let i=2; i<=15; i++) {
-                    html += `<div style="display:flex; justify-content:space-between; border-bottom:1px dashed #3a3025; padding-bottom:1px;"><span>До уровня ${i}:</span><strong style="color:#ffd700;">🪙 ${TOWN_BUILDING_PRICES[i].toLocaleString('ru-RU')}</strong></div>`;
+                    html += `<div style="display:flex; justify-content:space-between; border-bottom:1px dashed #3a3025; padding-bottom:1px;"><span>До уровня ${i}:</span><strong style="color:#ffd700;">🪙 ${TOWN_BUILDING_PRICES[i].toLocaleString('ru-RU')} монет</strong></div>`;
                 }
                 html += '</div>';
                 container.innerHTML = html;
@@ -59,11 +58,12 @@ function executeUnifiedBuildingTransaction() {
     if (currentBldLvl >= 15) return;
 
     const nextLvl = currentBldLvl + 1;
-    const cost = TOWN_BUILDING_PRICES[nextLvl]; // Подтягиваем честную сдвинутую цену
+    const cost = TOWN_BUILDING_PRICES[nextLvl]; 
     const currentGold = typeof getPlayerGold === 'function' ? getPlayerGold() : 0;
 
     if (currentGold < cost) {
-        alert(`Недостаточно средств в казне! Требуется 🪙 ${cost.toLocaleString('ru-RU')}.`);
+        // ТЕКСТ ВАЛИДАЦИИ МОНЕТ
+        alert(`Недостаточно средств в казне! Требуется 🪙 ${cost.toLocaleString('ru-RU')} монет.`);
         return;
     }
 
@@ -71,14 +71,10 @@ function executeUnifiedBuildingTransaction() {
     localStorage.setItem(`khamach_build_${bldId}`, nextLvl);
 
     if (typeof updateTownGoldDisplay === 'function') updateTownGoldDisplay();
-    
-    // Перерисовываем интерфейс Цитадели мгновенно
     if (typeof injectSquadInterfaceDOM === 'function') injectSquadInterfaceDOM();
     
     alert(`Модернизация строения успешно завершена! Достигнут ${nextLvl} уровень.`);
     if (typeof openModeDescription === 'function') openModeDescription(currentOpenedModeKey);
 }
 
-function updateSquadVisualStyles() {
-    // Метод оставлен для обратной совместимости, стилизация перенесена в DOM-генератор
-}
+function updateSquadVisualStyles() {}
