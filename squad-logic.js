@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ВЕРТИКАЛЬНЫЙ СПОРТЗАЛ И ИНФРАСТРУКТУРА ЦИТАДЕЛИ (v6.0.3-STABLE)
+   КХАМАЧ — ГОТИЧЕСКАЯ ЗЕЛЕНАЯ ЦИТАДЕЛЬ И СЕРЫЙ СПОРТЗАЛ РУДЫ (v6.0.4-STABLE)
    ========================================================================== */
 
 const SQUAD_HERO_LORE = {
@@ -10,7 +10,7 @@ const SQUAD_HERO_LORE = {
 };
 
 window.getHeroLevel = function(id) { return parseInt(localStorage.getItem(`khamach_hero_lvl_${id}`) || '1'); };
-window.getBuildingLevel = function(id) { return parseInt(localStorage.getItem(`khamach_build_${id}`) || '0'); };
+window.getBuildingLevel = function(id) { return parseInt(localStorage.getItem(`khamach_build_${id}`) || '1'); };
 
 window.updateSquadHeroesSpecScreenDOM = function() {
     const container = document.getElementById('heroes-upgrade-list-container');
@@ -34,17 +34,15 @@ window.updateSquadHeroesSpecScreenDOM = function() {
         
         let actionBtnHTML = '';
         
-        // До 2 уровня качаемся без зданий. С 2 на 3 уровень и выше проверяем (heroLvl >= buildLvl + 1)
         const needsBuildingUpgrade = heroLvl >= (buildLvl + 1) && heroLvl >= 2;
         const hasEnoughOre = currentOre >= 2;
         
         if (heroLvl >= 15) {
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:10px; font-size:12px; width:140px; height:44px;" disabled>МАКС УР</button>`;
         } else if (needsBuildingUpgrade) {
-            // ФИКС ТАНКА: Выдаем строгое предупреждение о необходимости расширения постройки
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:8px 6px; font-size:10px; width:140px; height:44px; line-height:1.1; color:#ffb3ba;" disabled>Нужно здание ${heroLvl + 1} ур.</button>`;
         } else if (!hasEnoughOre) {
-            // Для остальных воинов 1 уровня, у которых здания 0 уровня, упирается именно в нехватку руды
+            // ЖЕСТКАЯ РЕФОРМА: У ВСЕХ на старте пишется, что не хватает руды!
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:8px 6px; font-size:10px; width:140px; height:44px; line-height:1.1; color:#cca3a3;" disabled>Не хватает руды 🪨</button>`;
         } else {
             actionBtnHTML = `<button class="menu-btn" style="padding:10px; font-size:12px; background:linear-gradient(to bottom, #1d3a1e, #0f2110); border-color:#316e34; width:140px; height:44px;" onclick="window.triggerHeroLevelUpgrade('${h.id}')">Тренировать</button>`;
@@ -98,19 +96,18 @@ function injectSquadInterfaceDOM() {
     const aBld = window.getBuildingLevel('archer');
     const mBld = window.getBuildingLevel('mage');
     
-    // ВСЕ ЗДАНЬЯ ДОСТУПНЫ ДЛЯ ПОКУПКИ И МОДЕРНИЗАЦИИ (Цена проверится при клике)
+    // ЧИСТЫЙ ЗЕЛЕНЫЙ ДИЗАЙН: Кнопки получили строгое форматирование Название [Ур. Х] и изумрудную рамку
     screen.innerHTML = `
         <h2>Цитадель</h2>
         <span class="subtitle">Инфраструктура строений Замка</span>
         <div style="display: flex; flex-direction: column; width: 100%; box-sizing: border-box; gap: 8px;">
-            <div class="menu-row"><button id="upgrade-tank-btn" class="menu-btn">⚒️ Улучшить Гарнизон Защитника [Ур. ${tBld}]</button></div>
-            <div class="menu-row"><button id="upgrade-damage-btn" class="menu-btn">⚒️ Построить Казармы Воинов [Ур. ${dBld}]</button></div>
-            <div class="menu-row"><button id="upgrade-archer-btn" class="menu-btn">⚒️ Построить Стрельбище Лучника [Ур. ${aBld}]</button></div>
-            <div class="menu-row"><button id="upgrade-mage-btn" class="menu-btn">⚒️ Построить Обитель Магов [Ур. ${mBld}]</button></div>
+            <div class="menu-row"><button id="upgrade-tank-btn" class="menu-btn" style="background:linear-gradient(to bottom, #1d3a1e, #0f2110); border-color:#316e34; color:#fff;">🛡️ Гарнизон [Ур. ${tBld}]</button></div>
+            <div class="menu-row"><button id="upgrade-damage-btn" class="menu-btn" style="background:linear-gradient(to bottom, #1d3a1e, #0f2110); border-color:#316e34; color:#fff;">🔥 Казармы [Ур. ${dBld}]</button></div>
+            <div class="menu-row"><button id="upgrade-archer-btn" class="menu-btn" style="background:linear-gradient(to bottom, #1d3a1e, #0f2110); border-color:#316e34; color:#fff;">⚡ Стрельбище [Ур. ${aBld}]</button></div>
+            <div class="menu-row"><button id="upgrade-mage-btn" class="menu-btn" style="background:linear-gradient(to bottom, #1d3a1e, #0f2110); border-color:#316e34; color:#fff;">💚 Обитель [Ур. ${mBld}]</button></div>
         </div>
         <button id="close-squad-btn" class="menu-btn back-btn" style="width: 100%; margin-top: 15px;">Назад в меню</button>
     `;
     
     if (typeof setupSquadInterfaceListeners === 'function') setupSquadInterfaceListeners();
-    if (typeof updateSquadVisualStyles === 'function') updateSquadVisualStyles();
 }
