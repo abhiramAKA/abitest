@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ ИСХОДОВ БИТВЫ (ИСПРАВЛЕН ПОД ХАБ - v5.7.69-FIX)
+   КХАМАЧ — МОДУЛЬ ИСХОДОВ БИТВЫ (НАЧИСЛЕНИЕ ГОРНОЙ РУДЫ - v6.0.2-STABLE)
    ========================================================================== */
 
 function activateHeroSuperpower(heroId) {
@@ -35,32 +35,18 @@ function checkBattleResolution() {
         let id = window.setTimeout(function() {}, 0);
         while (id--) { window.clearTimeout(id); }
 
-        // ЭКОНОМИКА ХАРИЗМЫ: +1 Харизма за победу
-        const currentEssence = parseInt(localStorage.getItem('khamach_dragon_essence') || '0');
-        localStorage.setItem('khamach_dragon_essence', (currentEssence + 1).toString());
+        // ЭКОНОМИКА РУДЫ: Начисляем +1 Горную руду на склад Цитадели за победу!
+        const currentOre = parseInt(localStorage.getItem('khamach_dragon_ore') || '0');
+        localStorage.setItem('khamach_dragon_ore', (currentOre + 1).toString());
 
         if (typeof checkSeasonBountyResolution === 'function') checkSeasonBountyResolution();
 
-        const firstBattleDone = localStorage.getItem('khamach_combat_tutorial_done') === 'true';
-        const mDone = localStorage.getItem('khamach_missions_tutorial_done') === 'true';
-
-        // ЖЕСТКАЯ ФИКСАЦИЯ ОЧЕРЕДИ ОНБОРДИНГА
-        if (!firstBattleDone) {
-            localStorage.setItem('khamach_combat_tutorial_done', 'true');
-            localStorage.setItem('khamach_gold', '100');
-            // 1 стартовая Харизма новичка + 1 за победу = 2 Харизмы для Спортзала
-            localStorage.setItem('khamach_dragon_essence', '2'); 
-            window.location.href = 'gate.html?t=' + Date.now();
-        } else if (!mDone) {
-            window.location.href = 'gate.html?t=' + Date.now();
-        } else {
-            localStorage.setItem('khamach_full_onboarding_complete', 'true');
-            window.location.href = 'hub.html?t=' + Date.now();
-        }
+        // Бесшовно возвращаемся в Хаб после триумфа
+        window.location.href = 'hub.html?t=' + Date.now();
     } else if (combatData.squad.every(hero => hero.hp <= 0)) {
         let id = window.setTimeout(function() {}, 0);
         while (id--) { window.clearTimeout(id); }
-        alert("ОТРЯД ПАЛ В БИТВЕ! Попробуйте еще раз.");
-        window.location.href = 'gate.html?t=' + Date.now();
+        alert("ОТРЯД ПАЛ В БИТВЕ! Соберитесь с силами в Хабе.");
+        window.location.href = 'hub.html?t=' + Date.now();
     }
 }
