@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (СТАБИЛЬНЫЙ - v6.0.6-STABLE)
+   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (РЕБРЕНДИНГ - v6.1.0)
    ========================================================================== */
 
 const BOARD_ROWS = 8;
@@ -31,7 +31,6 @@ function sanitizeAndMigrateStorage() {
     if (!localStorage.getItem('khamach_hub_initialized')) {
         localStorage.setItem('khamach_hub_initialized', 'true');
         
-        // ЖЕСТКИЙ СТАРТ: 0 золота и 0 горной руды во взрослом мире!
         localStorage.setItem('khamach_gold', '0');                 
         localStorage.setItem('khamach_dragon_ore', '0');             
         localStorage.setItem('khamach_max_tier', '2');               
@@ -47,7 +46,6 @@ function sanitizeAndMigrateStorage() {
         localStorage.setItem('khamach_hero_lvl_archer', '1');
         localStorage.setItem('khamach_hero_lvl_mage', '1');
         
-        // Танк уходит на поручение Ратуши, чтобы принести первые деньги
         localStorage.setItem('khamach_hero_busy_tank', 'true');       
         localStorage.setItem('khamach_mission_active_m_t1', 'true');  
         localStorage.setItem('khamach_mission_start_m_t1', Date.now().toString()); 
@@ -55,7 +53,7 @@ function sanitizeAndMigrateStorage() {
         localStorage.setItem('khamach_fatigue_tank', '15');           
         
         if (typeof addChronicleLog === 'function') {
-            addChronicleLog("ЦИТАДЕЛЬ: Казна и склады полностью опустошены. Защитник выдвинулся на заработки.");
+            addChronicleLog("ЦИТАДЕЛЬ: Здания Цитадели успешно развернуты. Защитник отбыл в Ратушу за монетами.");
         }
     }
 }
@@ -99,6 +97,7 @@ function initDispatcherModule() {
     try { if (!isHubPage && typeof injectCombatInterfaceBaseDOM === 'function') injectCombatInterfaceBaseDOM(); } catch(e) { console.error(e); }
     try { if (typeof injectSquadInterfaceDOM === 'function') injectSquadInterfaceDOM(); } catch(e) { console.error(e); }
     
+    updateTownGoldDisplay();
     updateMenuOnboardingVisibility();
 
     if (typeof updateTownGoldDisplay === 'function') updateTownGoldDisplay();
