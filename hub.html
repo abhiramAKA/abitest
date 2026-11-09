@@ -13,68 +13,36 @@
             background: rgba(5, 4, 3, 0.65) !important; z-index: 35000; align-items: center; justify-content: center; flex-direction: column;
             backdrop-filter: blur(3px);
         }
-        .loader-hourglass {
-            font-size: 64px; animation: spinHourglass 1.8s ease-in-out infinite; line-height: 1; margin-bottom: 15px;
-            filter: drop-shadow(0 0 15px #e6c280);
-        }
+        .loader-hourglass { font-size: 64px; animation: spinHourglass 1.8s ease-in-out infinite; line-height: 1; margin-bottom: 15px; filter: drop-shadow(0 0 15px #e6c280); }
         .loader-text { font-size: 13px; color: #cdb38c; letter-spacing: 2px; text-transform: uppercase; font-weight: bold; text-shadow: 1px 1px 2px #000; }
-        @keyframes spinHourglass {
-            0% { transform: rotate(0deg); }
-            45% { transform: rotate(180deg); }
-            50% { transform: rotate(180deg); }
-            95% { transform: rotate(360deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spinHourglass { 0% { transform: rotate(0deg); } 45% { transform: rotate(180deg); } 50% { transform: rotate(180deg); } 95% { transform: rotate(360deg); } 100% { transform: rotate(360deg); } }
     </style>
     <script>
         (function() {
-            // АВТОМАТИЧЕСКИЙ СБРОС КЭША: Генерация версии на лету
             window.GAME_VERSION = "AUTO_" + Date.now();
-            
             if (localStorage.getItem('khamach_sys_version') !== window.GAME_VERSION) {
                 localStorage.setItem('khamach_sys_version', window.GAME_VERSION);
             }
-
             const enforceBuster = Date.now() + '_' + Math.floor(Math.random() * 999999);
-            
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = 'styles.css?t=' + enforceBuster;
-            document.head.appendChild(link);
+            const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = 'styles.css?t=' + enforceBuster; document.head.appendChild(link);
 
             const scripts = [
-                'game.js', 'background.js', 'audio-engine.js', 'match3-fx.js',
-                'match3-input.js', 'match3.js', 'match3-logic.js', 'match3-data.js',
-                'campaign.js', 'town-engine.js', 'town-chronicle.js',
-                'missions-pool.js', 'missions-engine.js', 'town-dom.js',
-                'squad-dom.js', 'combat-dom.js', 'missions-board.js',
-                'squad-logic.js', 'squad-core.js', 'combat-actions.js', 
-                'combat.js', 'game-listeners.js'
+                'game.js', 'background.js', 'audio-engine.js', 'match3-fx.js', 'match3-input.js', 'match3.js', 'match3-logic.js', 'match3-data.js',
+                'campaign.js', 'town-engine.js', 'town-chronicle.js', 'missions-pool.js', 'missions-engine.js', 'town-dom.js', 'squad-dom.js',
+                'combat-dom.js', 'missions-board.js', 'squad-logic.js', 'squad-core.js', 'combat-actions.js', 'combat.js', 'game-listeners.js'
             ];
-
             function injectScript(index) {
                 if (index >= scripts.length) {
-                    console.log("КХАМАЧ: Модули успешно загружены.");
                     if (typeof initDispatcherModule === 'function') initDispatcherModule();
                     if (typeof setupAllGameListeners === 'function') setupAllGameListeners();
-                    const spinner = document.getElementById('hub-loading-screen');
-                    if (spinner) spinner.style.display = 'none';
-                    const menu = document.getElementById('main-menu');
-                    if (menu) menu.style.display = 'flex';
+                    const spinner = document.getElementById('hub-loading-screen'); if (spinner) spinner.style.display = 'none';
+                    const menu = document.getElementById('main-menu'); if (menu) menu.style.display = 'flex';
                     return;
                 }
-                
-                const script = document.createElement('script');
-                script.src = scripts[index] + '?v=' + window.GAME_VERSION + '&t=' + enforceBuster;
-                script.async = false; 
-                script.onerror = function() { injectScript(index + 1); };
-                script.onload = function() { injectScript(index + 1); };
-                document.head.appendChild(script);
+                const script = document.createElement('script'); script.src = scripts[index] + '?v=' + window.GAME_VERSION + '&t=' + enforceBuster;
+                script.async = false; script.onload = function() { injectScript(index + 1); }; document.head.appendChild(script);
             }
-
-            document.addEventListener("DOMContentLoaded", function() {
-                injectScript(0);
-            });
+            document.addEventListener("DOMContentLoaded", function() { injectScript(0); });
         })();
     </script>
 </head>
@@ -87,23 +55,29 @@
     </div>
 
     <div id="game-interface">
+        <!-- ================= ГЛАВНОЕ МЕНЮ ИГРЫ ================= -->
         <div id="main-menu" class="game-window" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 2px; padding: 0 4px; background: rgba(20, 15, 12, 0.5); border-bottom: 1px double #544432; box-sizing: border-box;">
-                <span id="main-gold-display" class="gold-counter-display" style="color: #ffd700; cursor: pointer; font-size: 14px; font-weight: bold; transition: color 0.2s;">🪙 0</span>
-                <h1 style="font-size: 24px; margin: 0; letter-spacing: 2px; padding: 4px 0;">КХАМАЧ</h1>
-                <span id="team-fatigue-display" style="color: #ffb3ba; cursor: pointer; font-size: 14px; font-weight: bold; transition: color 0.2s;">🥱 0%</span>
+            <!-- ФИКС ВЕРХНЕЙ ПАНЕЛИ: Чистая строка без полосок. Настройки заняли место усталости -->
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 2px 4px; box-sizing: border-box; margin-bottom: 6px;">
+                <span id="main-gold-display" class="gold-counter-display" style="color: #ffd700; cursor: pointer; font-size: 15px; font-weight: bold; text-shadow: 1px 1px 2px #000;">🪙 0</span>
+                <h1 style="font-size: 24px; margin: 0; letter-spacing: 2px; padding: 2px 0;">КХАМАЧ</h1>
+                <span id="to-settings-btn" style="color: #cdb38c; cursor: pointer; font-size: 16px; font-weight: bold; transition: transform 0.15s; text-shadow: 1px 1px 2px #000;" title="Настройки звука">⚙️</span>
             </div>
             
-            <span class="subtitle" style="font-size: 11px; margin-bottom: 10px; padding-bottom: 4px; letter-spacing: 1px;">Легенды Абхирамбурга</span>
+            <span class="subtitle" style="font-size: 10px; margin-bottom: 8px; padding-bottom: 4px; letter-spacing: 1px;">Легенды Абхирамбурга</span>
             
-            <div style="display: flex; gap: 8px; justify-content: center; width: 100%; margin-bottom: 14px; box-sizing: border-box;">
-                <button id="to-settings-btn" class="info-btn" style="flex: 1; height: 38px; font-size: 14px;">⚙️ Настройки</button>
-                <button id="info-btn" class="info-btn" style="flex: 1; height: 38px; font-size: 14px;">❓ Справка</button>
+            <!-- НОВАЯ СБОРКА: Горизонтальный ряд из 4-х информационных кнопок показателей -->
+            <div style="display: flex; gap: 4px; justify-content: space-between; width: 100%; margin-bottom: 12px; box-sizing: border-box;">
+                <button id="indicator-gold-btn" class="info-btn" style="flex: 1; height: 38px; font-size: 11px; padding: 0;" title="Открыть Склад">🪙 Казна</button>
+                <button id="team-fatigue-display" class="info-btn" style="flex: 1; height: 38px; font-size: 11px; padding: 0;" title="Показать Усталость">🥱 0%</button>
+                <button id="indicator-level-btn" class="info-btn" style="flex: 1; height: 38px; font-size: 11px; padding: 0; color: #ffd700;" title="Уровень отряда">👑 Ур. 2</button>
+                <button id="info-btn" class="info-btn" style="flex: 1; height: 38px; font-size: 12px; padding: 0;" title="История и Лор">❓</button>
             </div>
 
             <div id="main-menu-grid" class="menu-emoji-grid"></div>
         </div>
 
+        <!-- АВТОНОМНЫЕ СЛОТЫ ОКОН -->
         <div id="dynamic-town-screens"></div>
         <div id="squad-screen" class="game-window" style="display: none;"></div>
         <div id="dynamic-combat-screen"></div>
