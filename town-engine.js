@@ -1,12 +1,11 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНАЯ ЭКОНОМИКА ЦИТАДЕЛИ И ХРАНИЛИЩЕ РЕСУРСОВ (v6.0.5-STABLE)
+   КХАМАЧ — ЦЕНТРАЛЬНАЯ ЭКОНОМИКА ЦИТАДЕЛИ И ХРАНИЛИЩЕ РЕСУРСОВ (v6.1.0)
    ========================================================================== */
 
-// ФИКС ТАРИФОВ: Индекс означает уровень, ДО КОТОРОГО мы улучшаем здание
 const TOWN_BUILDING_PRICES = {
-    2: 100,     // С 1 на 2 уровень = 100 монет
-    3: 300,     // Со 2 на 3 уровень = 300 монет
-    4: 900,     // С 3 на 4 уровень = 900 монет
+    2: 100,     
+    3: 300,     
+    4: 900,     
     5: 2700,    
     6: 11000,   
     7: 30000,   
@@ -18,7 +17,7 @@ const TOWN_BUILDING_PRICES = {
     13: 850000,
     14: 1385000, 
     15: 2300000, 
-    16: 3590500  // Максимальный потолок модернизации
+    16: 3590500  
 };
 
 const INLINE_TOWN_TEXTS = {
@@ -26,7 +25,7 @@ const INLINE_TOWN_TEXTS = {
 };
 
 const INLINE_MODE_DESCRIPTIONS = {
-    clans: { title: "🛡️ ОРДЕН КХАМАЧА (КЛАНЫ)", reqText: "⚠️ Доступ заблокирован. Клановый шлюз открывается на 12-м уровень развития отряда!", isLocked: true },
+    clans: { title: "🛡️ ОРДЕН КХАМАЧА (КЛАНЫ)", reqText: "⚠️ Доступ заблокирован. Клановый шлюз открывается на 12-м уровне развития отряда!", isLocked: true },
     tank: { title: "🛡️ ГАРНИЗОН", isLocked: false, isHero: true, heroId: "tank", lore: "Здесь тренируются ваши верные Защитники. Модернизация увеличивает здоровье танка." },
     damage: { title: "🔥 КАЗАРМЫ", isLocked: false, isHero: true, heroId: "damage", lore: "Казармы свирепых Воинов. Увеличивают чистый урон ультимейта." },
     archer: { title: "⚡ СТРУКТУРА СТРЕЛЬБИЩА", isLocked: false, isHero: true, heroId: "archer", lore: "Полигон Стрелков. Повышает урон от стихийных молний." },
@@ -45,11 +44,12 @@ window.updateTownGoldDisplay = function() {
         el.innerText = `🪙 ${goldVal.toLocaleString('ru-RU')}`; 
     });
     
+    // ЛИНГВИСТИЧЕСКИЙ РЕБРЕНДИНГ ХРАНИЛИЩА
     const storageList = document.getElementById('storage-resources-list');
     if (storageList) {
         storageList.innerHTML = `
             <div style="display:flex; justify-content:space-between; border-bottom:1px dashed #4a3f2c; padding-bottom:4px; font-size:14px; color:#ffd700;">
-                <span>🪙 Казна Цитадели (Золото):</span>
+                <span>🪙 Казна Цитадели (Монеты):</span>
                 <strong>${goldVal.toLocaleString('ru-RU')}</strong>
             </div>
             <div style="display:flex; justify-content:space-between; font-size:14px; color:#cdb38c;">
@@ -96,7 +96,6 @@ window.openModeDescription = function(id) {
             textEl.innerHTML = `${loreText}<br><br>Максимальный уровень строения достигнут!`;
             if (buyBtn) buyBtn.style.display = 'none';
         } else {
-            // Исправленный расчет: Следующий уровень = текущий + 1
             const nextLvl = bldLvl + 1;
             let nextPrice = TOWN_BUILDING_PRICES[nextLvl] || 999999;
             
@@ -104,7 +103,8 @@ window.openModeDescription = function(id) {
             
             if (buyBtn) { 
                 buyBtn.style.display = 'block'; 
-                buyBtn.innerText = `⚒️ УЛУЧШИТЬ ДО УР. ${nextLvl} (🪙 ${nextPrice.toLocaleString('ru-RU')})`; 
+                // ТЕКСТ ПОДПИСИ МОНЕТ
+                buyBtn.innerText = `⚒️ УЛУЧШИТЬ ДО УР. ${nextLvl} (🪙 ${nextPrice.toLocaleString('ru-RU')} монет)`; 
             }
         }
     }
