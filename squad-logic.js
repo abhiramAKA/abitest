@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ВЫЧИСЛИТЕЛЬНЫЙ МОДУЛЬ ТРЕНИРОВОК (ИСПРАВЛЕН - v5.8.2-BETA)
+   КХАМАЧ — ВЕРТИКАЛЬНЫЙ СПОРТЗАЛ И ГОТИЧЕСКАЯ ЦИТАДЕЛЬ (ИСПРАВЛЕН - v6.0.0)
    ========================================================================== */
 
 const SQUAD_HERO_LORE = {
@@ -17,16 +17,13 @@ window.updateSquadHeroesSpecScreenDOM = function() {
     if (!container) return;
     container.innerHTML = '';
     
-    container.style.display = "grid";
-    container.style.gridTemplateColumns = "1fr 1fr";
+    // СТРОГАЯ UX-СЕТКА: Карточки выстроены в один ровный вертикальный ряд сверху вниз
+    container.style.display = "flex";
+    container.style.flexDirection = "column";
     container.style.gap = "6px";
+    container.style.width = "100%";
     
     const heroesData = [{ id: "tank" }, { id: "damage" }, { id: "archer" }, { id: "mage" }];
-    const isTrainingPhase = localStorage.getItem('khamach_training_tutorial_done') !== 'true';
-    
-    const closeBtn = document.getElementById('close-heroes-spec-btn');
-    if (closeBtn) closeBtn.style.display = isTrainingPhase ? 'none' : 'block';
-    
     const currentCharisma = parseInt(localStorage.getItem('khamach_dragon_essence') || '0');
     
     heroesData.forEach(h => {
@@ -41,30 +38,29 @@ window.updateSquadHeroesSpecScreenDOM = function() {
         const needsBuildingUpgrade = heroLvl >= (buildLvl + 1) && heroLvl >= 2;
         const hasEnoughCharisma = currentCharisma >= 2;
         
-        if (isTrainingPhase && h.id !== 'tank') {
-            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:10px; background:#221a1a; border-color:#3a2525; color:#665555; cursor:not-allowed;" disabled>Тренировать</button>`;
-        } else if (heroLvl >= 15) {
-            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:10px;" disabled>МАКС УР</button>`;
+        if (heroLvl >= 15) {
+            actionBtnHTML = `<button class="menu-btn disabled" style="padding:10px; font-size:12px; width:140px; height:44px;" disabled>МАКС УР</button>`;
         } else if (needsBuildingUpgrade) {
-            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:9px; background:#421e1e; border-color:#6e3131; line-height:1.1; color:#ffb3ba;" disabled>Нужно здание ${heroLvl} ур.</button>`;
+            actionBtnHTML = `<button class="menu-btn disabled" style="padding:8px 6px; font-size:10px; width:140px; height:44px; line-height:1.1; color:#ffb3ba;" disabled>Нужно здание ${heroLvl} ур.</button>`;
         } else if (!hasEnoughCharisma) {
-            actionBtnHTML = `<button class="menu-btn disabled" style="padding:2px; font-size:9px; background:#2d2621; border-color:#544432; line-height:1.1; color:#cca3a3;" disabled>Не хватает харизмы 👑</button>`;
+            actionBtnHTML = `<button class="menu-btn disabled" style="padding:8px 6px; font-size:10px; width:140px; height:44px; line-height:1.1; color:#cca3a3;" disabled>Нет харизмы 👑</button>`;
         } else {
-            actionBtnHTML = `<button class="menu-btn" style="padding:2px; font-size:10px; background:#1d3a1e; height:22px; line-height:1;" onclick="window.triggerHeroLevelUpgrade('${h.id}')">Тренировать</button>`;
+            actionBtnHTML = `<button class="menu-btn" style="padding:10px; font-size:12px; background:linear-gradient(to bottom, #1d3a1e, #0f2110); border-color:#316e34; width:140px; height:44px;" onclick="window.triggerHeroLevelUpgrade('${h.id}')">Тренировать</button>`;
         }
         
         let cardInner = `
-            <div style="display:flex; justify-content:space-between; font-weight:bold; color:#e6c280; font-size:11px;">
-                <span>${lore.title}</span>
-                <span style="color:#ffd700;">Ур. ${heroLvl}</span>
+            <div style="flex:1; text-align:left;">
+                <div style="font-weight:bold; color:#e6c280; font-size:13px; letter-spacing:0.5px;">
+                    ${lore.title} <span style="color:#ffd700; font-size:11px; margin-left:6px;">Ур. ${heroLvl}</span>
+                </div>
+                <div style="font-size:11px; color:#2ecc71; margin-top:2px;">Развитие: ${lore.statBonus}</div>
+                <div style="font-size:11px; color:#bfae96; font-weight: bold; margin-top:2px;">Цена: 2 👑 Харизмы</div>
             </div>
-            <div style="font-size:10px; color:#2ecc71; line-height:1.1; margin-top:2px;">Бонус: ${lore.statBonus}</div>
-            <div style="font-size:10px; color:#e6c280; margin: 6px 0 4px 0; font-weight: bold;">Цена: 2 👑</div>
-            <div style="margin-top:auto;">${actionBtnHTML}</div>
+            <div style="display:flex; align-items:center;">${actionBtnHTML}</div>
         `;
         
         const card = document.createElement('div');
-        card.style = "background: rgba(25, 20, 18, 0.95); border: 1px solid #544432; padding: 6px 8px; border-radius: 3px; display: flex; flex-direction: column; justify-content: space-between; gap: 2px; box-sizing: border-box;";
+        card.style = "background: rgba(20, 16, 14, 0.95); border: 1px solid #544432; padding: 10px 12px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; width:100%; gap:10px;";
         card.innerHTML = cardInner;
         container.appendChild(card);
     });
@@ -88,13 +84,5 @@ window.triggerHeroLevelUpgrade = function(heroId) {
     localStorage.setItem('khamach_dragon_essence', (currentCharisma - 2).toString());
     localStorage.setItem(`khamach_hero_lvl_${heroId}`, heroLvl + 1);
     
-    const isTrainingPhase = localStorage.getItem('khamach_training_tutorial_done') !== 'true';
-    if (isTrainingPhase) {
-        localStorage.setItem('khamach_training_tutorial_done', 'true');
-        document.getElementById('squad-heroes-spec-screen').style.display = 'none';
-        window.location.href = 'gate.html?t=' + Date.now();
-        return;
-    }
-
     window.updateSquadHeroesSpecScreenDOM();
 };
