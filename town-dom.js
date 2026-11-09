@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ ИНЪЕКЦИЙ ГОРОДСКИХ ИНТЕРФЕЙСОВ И НАСТРОЕК (v6.1.0-STABLE)
+   КХАМАЧ — МОДУЛЬ ИНЪЕКЦИЙ ГОРОДСКИХ ИНТЕРФЕЙСОВ И НАСТРОЕК (v6.1.2-STABLE)
    ========================================================================== */
 
 function injectTownScreensDOM() {
@@ -8,7 +8,7 @@ function injectTownScreensDOM() {
         infoScr.innerHTML = `
             <h2>Справка Мира</h2>
             <div id="info-screen-text" style="text-align: left; font-size: 13px; max-height: 50vh; overflow-y: auto; margin-bottom: 15px;"></div>
-            <button id="from-info-to-menu-btn" class="menu-btn back-btn" style="width: 100%;">Закрыть</button>
+            <button id="from-info-to-menu-btn" class="menu-btn back-btn" style="width: 100%;">Вернуться в меню</button>
         `;
     }
 
@@ -28,7 +28,7 @@ function injectTownScreensDOM() {
             <h2 id="mode-desc-title">Строение</h2>
             <div id="mode-desc-text" style="text-align: left; font-size: 13px; margin-bottom: 15px; color: #bfae96;"></div>
             <button id="mode-buy-btn" class="menu-btn" style="width: 100%; background: linear-gradient(to bottom, #1d3a1e, #0f2110); border-color: #316e34; margin-bottom: 8px; display: none;">Действие</button>
-            <button class="menu-btn back-btn" style="width: 100%; margin-top: 0;" onclick="window.closeModeDescriptionUnified()">Назад</button>
+            <button class="menu-btn back-btn" style="width: 100%; margin-top: 0;" onclick="window.closeModeDescriptionUnified()">Назад в меню</button>
         `;
     }
 
@@ -48,24 +48,19 @@ function injectTownScreensDOM() {
             <h2>⚙️ Звуковой Пульт</h2>
             <span class="subtitle">Настройка частот и громкости движка</span>
             <div style="display: flex; flex-direction: column; gap: 12px; text-align: left; color: #cdb38c; font-size: 13px; margin-bottom: 20px;">
-                <div>
-                    <label>Громкость Эмбиента:</label>
-                    <input type="range" id="volume-music-slider" min="0" max="100" style="width: 100%; accent-color: #e6c280;">
-                </div>
-                <div>
-                    <label>Громкость Эффектов Рун:</label>
-                    <input type="range" id="volume-fx-slider" min="0" max="100" style="width: 100%; accent-color: #e6c280;">
-                </div>
+                <div><label>Громкость Эмбиента:</label><input type="range" id="volume-music-slider" min="0" max="100" style="width: 100%; accent-color: #e6c280;"></div>
+                <div><label>Громкость Эффектов Рун:</label><input type="range" id="volume-fx-slider" min="0" max="100" style="width: 100%; accent-color: #e6c280;"></div>
             </div>
-            <button id="close-settings-btn" class="menu-btn back-btn" style="width: 100%; margin-top: 0;">Сохранить настройки</button>
+            <button id="close-settings-btn" class="menu-btn back-btn" style="width: 100%; margin-top: 0;">Сохранить и выйти</button>
         `;
     }
 
+    // РЕБРЕНДИНГ ОКНА: Военный лагерь намертво переименован в Спортзал
     const specScr = document.getElementById('squad-heroes-spec-screen');
     if (specScr) {
         specScr.innerHTML = `
-            <h2>Военный Лагерь</h2>
-            <span class="subtitle">Тренировка и развитие характеристик отряда</span>
+            <h2>Спортзал</h2>
+            <span class="subtitle">Развитие характеристик отряда</span>
             <div id="heroes-upgrade-list-container" style="margin-bottom: 15px;"></div>
             <button id="close-heroes-spec-btn" class="menu-btn back-btn" style="width: 100%;">Назад в меню</button>
         `;
@@ -78,7 +73,6 @@ function injectTownScreensDOM() {
         const aFat = Math.round(parseFloat(localStorage.getItem('khamach_fatigue_archer') || '0'));
         const mFat = Math.round(parseFloat(localStorage.getItem('khamach_fatigue_mage') || '0'));
         
-        // ФИКС ОКНА: Упрощен заголовок и добавлена точная скорость восстановления
         fatigueScr.innerHTML = `
             <div class="combat-help-content" style="max-width: 380px; padding: 20px;">
                 <h2>Уровень усталости героев</h2>
