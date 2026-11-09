@@ -9,38 +9,68 @@
     <title>КХАМАЧ — Вход в Чертоги</title>
     <style>
         body, html { margin:0; padding:0; width:100%; height:100%; background:#050508; display:flex; justify-content:center; align-items:center; font-family:'Georgia', serif; user-select:none; -webkit-user-select:none; }
-        .gate-window { width:92vw; max-width:400px; background:radial-gradient(circle, #1a1512 0%, #0d0a08 100%); border:4px solid #1a1613; outline:2px solid #8a7350; outline-offset:-3px; padding:25px 20px; text-align:center; box-sizing:border-box; box-shadow:0 0 30px rgba(0,0,0,0.95); }
-        h1 { font-size:36px; color:#e6c280; letter-spacing:5px; margin:0 0 15px 0; text-shadow:0 2px 4px #000; font-weight:900; }
-        .play-btn { width:100%; padding:16px; font-size:18px; font-family:'Georgia', serif; font-weight:bold; letter-spacing:2px; color:#cdb38c; background:linear-gradient(to bottom, #2d2621 0%, #171311 100%); border:1px solid #544432; box-shadow:0 5px 10px rgba(0,0,0,0.6); cursor:pointer; transition:all 0.2s ease; border-radius:4px; text-shadow:2px 2px 2px #000; }
-        .play-btn:hover { color:#fff; border-color:#cbb281; box-shadow:0 0 15px rgba(203,178,129,0.5); letter-spacing:3px; }
+        .gate-window { width:92vw; max-width:400px; background:radial-gradient(circle, #1a1512 0%, #0d0a08 100%); border:4px solid #1a1613; outline:2px solid #8a7350; outline-offset:-3px; padding:25px 20px; text-align:center; box-sizing:border-box; box-shadow:0 0 30px rgba(0,0,0,0.95); display: flex; flex-direction: column; gap: 12px; }
+        h1 { font-size:36px; color:#e6c280; letter-spacing:5px; margin:0 0 5px 0; text-shadow:0 2px 4px #000; font-weight:900; }
+        .subtitle { font-size: 11px; color: #8a7350; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; display: block; border-bottom: 1px dashed #4a3f2c; padding-bottom: 8px; }
+        .play-btn { width:100%; padding:14px; font-size:16px; font-family:'Georgia', serif; font-weight:bold; letter-spacing:1px; color:#cdb38c; background:linear-gradient(to bottom, #2d2621 0%, #171311 100%); border:1px solid #544432; box-shadow:0 5px 10px rgba(0,0,0,0.6); cursor:pointer; transition:all 0.2s ease; border-radius:4px; text-shadow:2px 2px 2px #000; box-sizing: border-box; }
+        .play-btn:hover { color:#fff; border-color:#cbb281; box-shadow:0 0 15px rgba(203,178,129,0.5); letter-spacing:1.5px; }
         .play-btn:active { transform:scale(0.98); }
-        .changelog { margin-top:18px; text-align:left; background:rgba(0,0,0,0.5); border:1px solid #3a3025; padding:10px; max-height:120px; overflow-y:auto; font-size:11px; color:#bfae96; line-height:1.45; border-radius:2px; }
+        
+        /* СТИЛЬ ЗАБЛОКИРОВАННОЙ КНОПКИ ПРОДОЛЖЕНИЯ */
+        .play-btn.disabled { color:#4a453f !important; background:#0f0d0b !important; border-color:#26211c !important; cursor:not-allowed !important; box-shadow:none !important; text-shadow:none !important; opacity: 0.6; }
+        
+        .changelog { text-align:left; background:rgba(0,0,0,0.5); border:1px solid #3a3025; padding:10px; max-height:100px; overflow-y:auto; font-size:11px; color:#bfae96; line-height:1.45; border-radius:2px; margin-top: 5px; }
         .changelog h3 { margin:0 0 4px 0; color:#e6c280; font-size:12px; text-transform:uppercase; letter-spacing:1px; }
-        .ver { margin-top:15px; font-size:11px; color:#4a453f; letter-spacing:1px; font-weight:bold; }
+        .ver { font-size:11px; color:#4a453f; letter-spacing:1px; font-weight:bold; }
     </style>
-    <script>
-        function handlePlayClick() {
-            if (localStorage.getItem('khamach_combat_tutorial_done') !== 'true') {
-                localStorage.removeItem('khamach_full_onboarding_complete');
-            }
-
-            if (localStorage.getItem('khamach_full_onboarding_complete') === 'true') {
-                window.location.href = 'hub.html?t=' + Date.now();
-            } else {
-                window.location.href = 'gate.html?t=' + Date.now();
-            }
-        }
-    </script>
 </head>
 <body>
     <div class="gate-window">
         <h1>КХАМАЧ</h1>
-        <button class="play-btn" onclick="handlePlayClick()">ИГРАТЬ</button>
+        <span class="subtitle">Управление Доступом</span>
+
+        <!-- КНОПКА 1: ДЛЯ ПЕРЕХОДА В РЕПОЗИТОРИЙ ОБУЧЕНИЯ -->
+        <button class="play-btn" onclick="redirectToOnboardingSandbox()">ПРОЙТИ ОБУЧЕНИЕ</button>
+        
+        <!-- КНОПКА 2: АКТИВИРУЕТСЯ СТРОГО ПОСЛЕ ФЛАГА ИЗ ОБУЧЕНИЯ -->
+        <button id="continue-game-btn" class="play-btn disabled" onclick="handleContinueClick()" disabled>ПРОДОЛЖИТЬ ИГРУ</button>
+        
         <div class="changelog">
-            <h3>📜 ЖУРНАЛ СБОРКИ v5.8.5-BETA:</h3>
-            • Сквозная синхронизация Ратуши: активный контракт обучения теперь принудительно переносится в Хаб, блокируя кнопку сброса доски и запуск других экспедиций.
+            <h3>📜 ЦЕНТРАЛЬНЫЙ ШЛЮЗ v6.0.0:</h3>
+            • Полная декомпозиция: Обучение полностью изолировано в отдельный домен репозитория.<br>
+            • Паттерн Двойного Замка: кнопка продолжения блокируется до прохождения онбординга.
         </div>
-        <div class="ver">ТЕКУЩАЯ СБОРКА: v5.8.5-BETA</div>
+        <div class="ver">ВЕРСИЯ СЕРВЕРА: v6.0.0-STABLE</div>
     </div>
+
+    <script>
+        // ЖЕСТКАЯ ПРОВЕРКА ФЛАГА «ВЫПУСКНИКА» ОБУЧЕНИЯ ИЗ ОБЩЕГО LOCALSTORAGE
+        document.addEventListener("DOMContentLoaded", function() {
+            const onboardingComplete = localStorage.getItem('khamach_full_onboarding_complete') === 'true';
+            const continueBtn = document.getElementById('continue-game-btn');
+            
+            if (onboardingComplete && continueBtn) {
+                // Если обучение пройдено, срываем замок, кнопка сияет золотом!
+                continueBtn.classList.remove('disabled');
+                continueBtn.removeAttribute('disabled');
+                continueBtn.style.background = "linear-gradient(to bottom, #3a2a18, #1c130a)";
+                continueBtn.style.borderColor = "#8a7350";
+            }
+        });
+
+        function redirectToOnboardingSandbox() {
+            // Очищаем старые флаги, чтобы запустить обучение с чистого листа
+            localStorage.removeItem('khamach_full_onboarding_complete');
+            sessionStorage.removeItem('khamach_session_fresh_start');
+            
+            // РЕДИРЕКТ НА ПЕРВЫЙ РЕПОЗИТОРИЙ ОБУЧЕНИЯ (Замени URL на адрес своего онбординга!)
+            window.location.href = 'https://ТВОЙ_АККАУНТ.github.io/khamach-onboarding/index.html';
+        }
+
+        function handleContinueClick() {
+            // Бесшовно пускаем в полноценный Хаб Цитадели взрослой игры
+            window.location.href = 'hub.html?t=' + Date.now();
+        }
+    </script>
 </body>
 </html>
