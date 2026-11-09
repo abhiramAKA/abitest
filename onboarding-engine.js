@@ -1,46 +1,6 @@
 /* ==========================================================================
-   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ (ГОТИЧЕСКИЕ КВАДРАТНЫЕ КНОПКИ - v1.0.5)
+   КХАМАЧ — ДВИЖОК ШАГОВ ОБУЧЕНИЯ И ЭКСПЕДИЦИЙ (ИСПРАВЛЕН - v5.8.4-BETA)
    ========================================================================== */
-
-window.reloadOnboardingCoreState = function() {
-    const gothicWin = document.getElementById('onboarding-gothic-window');
-    if (gothicWin) gothicWin.style.display = 'flex';
-    if (typeof window.checkAndRenderOnboardingMainButton === 'function') {
-        window.checkAndRenderOnboardingMainButton();
-    }
-};
-
-window.executeOnboardingCitadelBuild = function() {
-    localStorage.setItem('khamach_gold', '0'); 
-    localStorage.setItem('khamach_build_tank', '2'); 
-    localStorage.setItem('khamach_citadel_tutorial_done', 'true');
-    document.getElementById('squad-screen').style.display = 'none';
-    
-    // МЕШОЧЕК С ДЕНЬГАМИ: Окно зеркально повторяет дизайн стартового Вулкана
-    let goldPopup = document.createElement('div');
-    goldPopup.className = 'combat-help-popup'; 
-    goldPopup.style.zIndex = '25000';
-    
-    goldPopup.innerHTML = `
-        <div class="combat-help-content" style="max-width: 380px; text-align: center;">
-            <h2>КАЗНА СТРОИТЕЛЬСТВА</h2>
-            <span class="subtitle">Экономика Цитадели</span>
-            <p style="font-size: 13px; color: #cdb38c; text-align: left; line-height: 1.5; background:rgba(0,0,0,0.4); padding:12px; border:1px solid #544432; margin-bottom: 20px;">
-                Гарнизон успешно возведен! Лимит развития Защитника повышен. Однако золото в казне Абхирамбурга иссякло. Чтобы продолжить обеспечение армии, откройте Ратушу и отправьте Защитника на городские контракты.
-            </p>
-            <!-- КВАДРАТНАЯ КНОПКА С МЕШОЧКОМ ДЕНЕГ С ЭФФЕКТОМ СИЯНИЯ -->
-            <div style="display: flex; justify-content: center; width: 100%;">
-                <button id="confirm-to-missions-btn" class="emoji-grid-btn" style="width: 100px; height: 100px; font-size: 54px; margin: 0 auto;">💰</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(goldPopup);
-    
-    document.getElementById('confirm-to-missions-btn').onclick = function() {
-        goldPopup.remove();
-        window.launchOnboardingStep('missions');
-    };
-};
 
 window.launchOnboardingStep = function(modeType) {
     const gothicWin = document.getElementById('onboarding-gothic-window');
@@ -48,89 +8,146 @@ window.launchOnboardingStep = function(modeType) {
 
     if (modeType === 'battle') {
         const isSecondBattlePhase = localStorage.getItem('khamach_missions_tutorial_done') === 'true';
-        if (!isSecondBattlePhase) {
-            if (typeof injectCombatInterfaceBaseDOM === 'function') injectCombatInterfaceBaseDOM();
-            if (typeof startCombatSession === 'function') startCombatSession(1); 
-        } else {
-            if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
-            if (typeof showScreen === 'function') showScreen('dragon-select-screen');
-            if (typeof renderDragonSelectionGrid === 'function') renderDragonSelectionGrid();
-        }
+        
+        setTimeout(() => {
+            if (!isSecondBattlePhase) {
+                if (typeof injectCombatInterfaceBaseDOM === 'function') injectCombatInterfaceBaseDOM();
+                if (typeof startBackgroundMusic === 'function') startBackgroundMusic();
+                if (typeof showScreen === 'function') showScreen('combat-screen');
+                if (typeof startCombatSession === 'function') startCombatSession(1); 
+            } else {
+                if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
+                if (typeof showScreen === 'function') showScreen('dragon-select-screen');
+                if (typeof renderDragonSelectionGrid === 'function') renderDragonSelectionGrid();
+            }
+        }, 50);
     } 
     else if (modeType === 'camp') {
         if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
+        if (typeof updateSquadHeroesSpecScreenDOM === 'function') updateSquadHeroesSpecScreenDOM();
         const specScr = document.getElementById('squad-heroes-spec-screen');
-        if (specScr) {
-            if (typeof updateSquadHeroesSpecScreenDOM === 'function') updateSquadHeroesSpecScreenDOM();
-            specScr.style.display = 'flex';
-        }
+        if (specScr) specScr.style.display = 'flex';
     } 
     else if (modeType === 'citadel') {
-        localStorage.setItem('khamach_gold', '100');
         if (typeof injectSquadInterfaceDOM === 'function') injectSquadInterfaceDOM();
-        document.getElementById('squad-screen').style.display = 'flex';
+        
+        const closeBtn = document.getElementById('close-squad-btn');
+        if (closeBtn) closeBtn.style.display = 'none';
+        
+        const squadScr = document.getElementById('squad-screen');
+        if (squadScr) squadScr.style.display = 'flex';
+
+        ['damage', 'archer', 'mage'].forEach(id => {
+            const btn = document.getElementById(`upgrade-${id}-btn`);
+            if (btn) {
+                btn.classList.add('disabled');
+                btn.style.opacity = "0.3";
+                btn.style.cursor = "not-allowed";
+                btn.onclick = function(e) { e.preventDefault(); return false; };
+            }
+        });
+
+        const tankBtn = document.getElementById('upgrade-tank-btn');
+        if (tankBtn) {
+            tankBtn.onclick = function() {
+                let existingPopup = document.getElementById('onboarding-tank-popup');
+                if (existingPopup) existingPopup.remove();
+
+                const popup = document.createElement('div');
+                popup.id = 'onboarding-tank-popup';
+                popup.className = 'game-window combat-help-popup';
+                popup.style.display = 'flex';
+                popup.style.zIndex = '20000';
+                
+                popup.innerHTML = `
+                    <div class="combat-help-content" style="max-width: 380px; padding: 20px;">
+                        <h2>🛡️ ГАРНИЗОН ЗАЩИТНИКА</h2>
+                        <span class="subtitle">Оборонительное сооружение</span>
+                        <p style="font-size: 13px; color: #cdb38c; text-align: left; line-height: 1.5; background:rgba(0,0,0,0.4); padding:10px; border:1px solid #544432;">
+                            Здесь тренируются ваши тяжелые Защитники. Модернизация этого здания увеличит максимальный запас здоровья Танка и поднимет лимит его прокачки.
+                        </p>
+                        <div style="font-size: 14px; color: #ffd700; font-weight: bold; margin-bottom: 15px;">Стоимость: 🪙 100 золотых</div>
+                        <button id="onboarding-build-tank-confirm" class="menu-btn" style="width: 100%; background: linear-gradient(to bottom, #1d3a1e, #0f2110); border-color: #316e34; padding: 12px;">⚒️ УЛУЧШИТЬ</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(popup);
+
+                document.getElementById('onboarding-build-tank-confirm').onclick = function() {
+                    localStorage.setItem('khamach_gold', '0'); 
+                    localStorage.setItem('khamach_build_tank', '2'); 
+                    localStorage.setItem('khamach_squad_build_tank', 'true');
+                    localStorage.setItem('khamach_citadel_tutorial_done', 'true');
+
+                    popup.remove();
+                    if (squadScr) squadScr.style.display = 'none';
+                    
+                    window.location.href = 'gate.html?t=' + Date.now();
+                };
+            };
+        }
     } 
     else if (modeType === 'missions') {
         if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
+        
         const container = document.getElementById('missions-list-container');
-        if (container && window.ONBOARDING_MISSIONS_LOCAL_POOL) {
+        if (container) {
             container.innerHTML = '';
-            window.ONBOARDING_MISSIONS_LOCAL_POOL.forEach(mission => {
-                const card = document.createElement('div');
-                card.style = "background: rgba(25, 20, 18, 0.9); border: 1px solid #544432; padding: 8px 10px; border-radius: 3px; display: flex; flex-direction: column; gap: 4px; width:100%; box-sizing:border-box;";
-                card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; font-weight: bold; color: #e6c280; font-size: 12px;">
-                        <span>${mission.title}</span>
-                        <span style="color: #ffd700;">🪙 133</span>
-                    </div>
-                    <div style="font-size: 11px; color: #bfae96; line-height: 1.3; text-align: left;">${mission.text}</div>
-                    <button class="menu-btn" style="padding:10px; font-size:13px; background:#1d3a1e; height:38px; margin-top: 4px; font-weight:bold;" onclick="window.triggerFinalOnboardingTransfer()">Отправить 🛡️</button>
-                `;
-                container.appendChild(card);
-            });
+            if (window.ONBOARDING_MISSIONS_LOCAL_POOL) {
+                window.ONBOARDING_MISSIONS_LOCAL_POOL.forEach(mission => {
+                    const card = document.createElement('div');
+                    card.style = "background: rgba(25, 20, 18, 0.9); border: 1px solid #544432; padding: 8px 10px; border-radius: 3px; display: flex; flex-direction: column; gap: 4px;";
+                    card.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; font-weight: bold; color: #e6c280; font-size: 12px;">
+                            <span>${mission.title}</span>
+                            <span style="color: #ffd700;">🪙 133</span>
+                        </div>
+                        <div style="font-size: 11px; color: #bfae96; line-height: 1.3; margin: 2px 0; text-align: left;">${mission.text}</div>
+                        <button class="menu-btn" style="padding:4px; font-size:13px; background:#1d3a1e; height:28px; margin-top: 4px;" onclick="executeOnboardingMission('${mission.id}', '${mission.allowedHero}', 133)">Отправить ${mission.heroIcon}</button>
+                    `;
+                    container.appendChild(card);
+                });
+            }
         }
-        document.getElementById('missions-screen').style.display = 'flex';
+        const misScr = document.getElementById('missions-screen');
+        if (misScr) misScr.style.display = 'flex';
     }
 };
 
-window.triggerFinalOnboardingTransfer = function() {
-    localStorage.setItem('khamach_gold', '133');                 
-    localStorage.setItem('khamach_dragon_essence', '2');         
-    localStorage.setItem('khamach_build_tank', '2');             
-    localStorage.setItem('khamach_hero_lvl_tank', '2');          
-    localStorage.setItem('khamach_max_tier', '1');               
-    
-    localStorage.setItem('khamach_combat_tutorial_done', 'true');
-    localStorage.setItem('khamach_training_tutorial_done', 'true');
-    localStorage.setItem('khamach_citadel_tutorial_done', 'true');
+function executeOnboardingMission(missionId, heroId, rewardGold) {
+    localStorage.setItem(`khamach_hero_busy_${heroId}`, 'true');
+    localStorage.setItem(`khamach_mission_active_${missionId}`, 'true');
+    localStorage.setItem(`khamach_mission_start_${missionId}`, Date.now().toString());
+    localStorage.setItem('khamach_gold', rewardGold.toString()); // Записываем честные 133 золотых
     localStorage.setItem('khamach_missions_tutorial_done', 'true');
+    
     localStorage.setItem('khamach_full_onboarding_complete', 'true');
-
+    
     const misScr = document.getElementById('missions-screen');
     if (misScr) misScr.style.display = 'none';
-
-    // ФИНАЛЬНЫЙ ВУЛКАН: Окно с квадратной сияющей кнопкой Вулкана
+    
     let finishPopup = document.createElement('div');
-    finishPopup.className = 'combat-help-popup'; 
+    finishPopup.className = 'game-window combat-help-popup';
+    finishPopup.style.display = 'flex';
     finishPopup.style.zIndex = '25000';
     
     finishPopup.innerHTML = `
         <div class="combat-help-content" style="max-width: 390px; padding: 20px; text-align: center;">
-            <h2>🌋 СИЛЫ БЕСТИАРИЯ</h2>
-            <span class="subtitle">Карта Великих Глав</span>
+            <h2>📜 ОБУЧЕНИЕ ЗАВЕРШЕНО</h2>
+            <span class="subtitle">Свобода Чертогов Кхамача</span>
             <p style="font-size: 13px; color: #cdb38c; text-align: left; line-height: 1.5; background:rgba(0,0,0,0.4); padding:12px; border:1px solid #544432; margin-bottom: 20px;">
-                Ваш верный Защитник успешно выдвинулся на охрану южных рубежей Ратуши и временно покинул отряд. Пока он находится в пути, оставшееся воинство готово продолжить тактические рейды в Горниле. Нажмите на Вулкан ниже, чтобы открыть врата полноценного Бестиария Цитадели!
+                Ваш боец успешно выдвинулся на контракт Ратуши. Цикл базового обучения пройден! Нажмите на иконку Вулкана ниже, чтобы открыть Карту Глав Бестиария и вступить в финальное сражение.
             </p>
-            <div style="display: flex; justify-content: center; width: 100%;">
-                <button id="onboarding-ultimate-redirect-btn" class="emoji-grid-btn" style="width: 100px; height: 100px; font-size: 50px; margin: 0 auto;">🌋</button>
-            </div>
+            <button id="onboarding-ultimate-finish-btn" class="emoji-grid-btn" style="width: 100px; height: 100px; font-size: 50px; margin: 0 auto; border-radius: 4px;">🌋</button>
         </div>
     `;
+    
     document.body.appendChild(finishPopup);
     
-    document.getElementById('onboarding-ultimate-redirect-btn').onclick = function() {
+    document.getElementById('onboarding-ultimate-finish-btn').onclick = function() {
         finishPopup.remove();
-        // ВНИМАНИЕ: Здесь будет переход к полноценному Хабу взрослой игры
-        window.location.href = 'https://ТВОЙ_АККАУНТ.github.io/khamach-game/hub.html';
+        if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
+        if (typeof showScreen === 'function') showScreen('dragon-select-screen');
+        if (typeof renderDragonSelectionGrid === 'function') renderDragonSelectionGrid();
     };
-};
+}
