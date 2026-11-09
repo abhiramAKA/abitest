@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (СТАБИЛЬНЫЙ - v6.0.0-STABLE)
+   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И ТАЙМЕРОВ (СТАБИЛЬНЫЙ - v6.0.2-STABLE)
    ========================================================================== */
 
 const BOARD_ROWS = 8;
@@ -24,35 +24,34 @@ let combatData = {
 
 let match3BoardData = null;
 let selectedCell = null;
-let selectedDragonLevel = 2; // По умолчанию выбран Тир 2
+let selectedDragonLevel = 2; 
 window.currentOpenedModeKey = null;
 
 function sanitizeAndMigrateStorage() {
-    // ЕСЛИ ПЕРВЫЙ ЗАПУСК ХАБА ВЗРОСЛОЙ ИГРЫ — ИНИЦИАЛИЗИРУЕМ СТАРТОВЫЙ СУПЕР-СТЕЙТ ВЫПУСКНИКА
+    // ИНИЦИАЛИЗАЦИЯ ХАБА ВЗРОСЛОЙ ИГРЫ С НУЛЕВОЙ ГОРНОЙ РУДОЙ
     if (!localStorage.getItem('khamach_hub_initialized')) {
         localStorage.setItem('khamach_hub_initialized', 'true');
         
-        localStorage.setItem('khamach_gold', '133');                 // 133 монеты на счету
-        localStorage.setItem('khamach_dragon_essence', '2');         // 2 Харизмы
-        localStorage.setItem('khamach_max_tier', '2');               // Открыт и выбран Тир 2 драконов
+        localStorage.setItem('khamach_gold', '133');                 
+        localStorage.setItem('khamach_dragon_ore', '0');             // ЖЕСТКО: На старте 0 горной руды!
+        localStorage.setItem('khamach_max_tier', '2');               
         
-        localStorage.setItem('khamach_build_tank', '2');             // Построен Гарнизон 2 уровня
-        localStorage.setItem('khamach_hero_lvl_tank', '2');          // Танк прокачан до 2 уровня
+        localStorage.setItem('khamach_build_tank', '2');             
+        localStorage.setItem('khamach_hero_lvl_tank', '2');          
         
-        // АВТОМАТИЧЕСКИЙ СТАРТ КОНТРАКТА РАТУШИ НА 60 МИНУТ ПРИ СТАРТЕ ИГРЫ
-        localStorage.setItem('khamach_hero_busy_tank', 'true');       // Танк уходит на задание
-        localStorage.setItem('khamach_mission_active_m_t1', 'true');  // Миссия m_t1 активирована
-        localStorage.setItem('khamach_mission_start_m_t1', Date.now().toString()); // Запуск счетчика времени
+        // Автоматический часовой уход Танка в экспедицию
+        localStorage.setItem('khamach_hero_busy_tank', 'true');       
+        localStorage.setItem('khamach_mission_active_m_t1', 'true');  
+        localStorage.setItem('khamach_mission_start_m_t1', Date.now().toString()); 
         localStorage.setItem('khamach_mission_reward_frozen_m_t1', '133');
-        localStorage.setItem('khamach_fatigue_tank', '15');           // Начисляем стартовую усталость за поход
+        localStorage.setItem('khamach_fatigue_tank', '15');           
         
-        // Все остальные постройки сброшены на 0 уровень по умолчанию
         localStorage.setItem('khamach_build_damage', '0');
         localStorage.setItem('khamach_build_archer', '0');
         localStorage.setItem('khamach_build_mage', '0');
         
         if (typeof addChronicleLog === 'function') {
-            addChronicleLog("ЦИТАДЕЛЬ ВОЗВЕДЕНА: Выпускник онбординга прибыл в Хаб. Защитник отправлен на часовое поручение Ратуши.");
+            addChronicleLog("ЦИТАДЕЛЬ: Казначейство инициализировано с 0 шт Горной руды. Защитник отбыл в Ратушу.");
         }
     }
 }
