@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНАЯ ЭКОНОМИКА ЦИТАДЕЛИ И ХРАНИЛИЩЕ РЕСУРСОВ (v5.7.67-FIX)
+   КХАМАЧ — ЦЕНТРАЛЬНАЯ ЭКОНОМИКА ЦИТАДЕЛИ И ХРАНИЛИЩЕ РЕСУРСОВ (v6.0.2-STABLE)
    ========================================================================== */
 
 const TOWN_BUILDING_PRICES = {
@@ -26,7 +26,9 @@ window.addPlayerGold = function(amount) { localStorage.setItem('khamach_gold', w
 
 window.updateTownGoldDisplay = function() {
     const goldVal = window.getPlayerGold();
-    const charismaVal = parseInt(localStorage.getItem('khamach_dragon_essence') || '0');
+    
+    // Считываем Горную руду из памяти
+    const oreVal = parseInt(localStorage.getItem('khamach_dragon_ore') || '0');
 
     document.querySelectorAll('.gold-counter-display').forEach(el => { 
         el.innerText = `🪙 ${goldVal.toLocaleString('ru-RU')}`; 
@@ -39,9 +41,9 @@ window.updateTownGoldDisplay = function() {
                 <span>🪙 Казна Цитадели (Золото):</span>
                 <strong>${goldVal.toLocaleString('ru-RU')}</strong>
             </div>
-            <div style="display:flex; justify-content:space-between; font-size:14px; color:#e6c280;">
-                <span>👑 Харизма Древних:</span>
-                <strong>${charismaVal} шт</strong>
+            <div style="display:flex; justify-content:space-between; font-size:14px; color:#cdb38c;">
+                <span>🪨 Запасы Горной руды:</span>
+                <strong>${oreVal} шт</strong>
             </div>
         `;
     }
@@ -83,7 +85,6 @@ window.openModeDescription = function(id) {
             textEl.innerHTML = `${loreText}<br><br>Максимальный уровень строения достигнут!`;
             if (buyBtn) buyBtn.style.display = 'none';
         } else {
-            // ИСПРАВЛЕНО: Сдвигаем индекс тарифов. Первое улучшение (с 1 на 2 ур) теперь берет цену TOWN_BUILDING_PRICES[1] = 100 монет!
             let nextPrice = TOWN_BUILDING_PRICES[bldLvl];
             textEl.innerHTML = `${loreText}<br><br>Текущий уровень: ${bldLvl}`;
             
