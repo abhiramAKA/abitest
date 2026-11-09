@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ВЕРТИКАЛЬНЫЙ СПОРТЗАЛ И ВАЛИДАЦИЯ ГОРНОЙ РУДЫ (v6.0.2-STABLE)
+   КХАМАЧ — ВЕРТИКАЛЬНЫЙ СПОРТЗАЛ И ИНФРАСТРУКТУРА ЦИТАДЕЛИ (v6.0.3-STABLE)
    ========================================================================== */
 
 const SQUAD_HERO_LORE = {
@@ -23,8 +23,6 @@ window.updateSquadHeroesSpecScreenDOM = function() {
     container.style.width = "100%";
     
     const heroesData = [{ id: "tank" }, { id: "damage" }, { id: "archer" }, { id: "mage" }];
-    
-    // Считываем баланс Горной руды вместо харизмы
     const currentOre = parseInt(localStorage.getItem('khamach_dragon_ore') || '0');
     
     heroesData.forEach(h => {
@@ -36,15 +34,17 @@ window.updateSquadHeroesSpecScreenDOM = function() {
         
         let actionBtnHTML = '';
         
+        // До 2 уровня качаемся без зданий. С 2 на 3 уровень и выше проверяем (heroLvl >= buildLvl + 1)
         const needsBuildingUpgrade = heroLvl >= (buildLvl + 1) && heroLvl >= 2;
-        const hasEnoughOre = currentOre >= 2; // Цена: 2 единицы руды
+        const hasEnoughOre = currentOre >= 2;
         
         if (heroLvl >= 15) {
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:10px; font-size:12px; width:140px; height:44px;" disabled>МАКС УР</button>`;
         } else if (needsBuildingUpgrade) {
-            actionBtnHTML = `<button class="menu-btn disabled" style="padding:8px 6px; font-size:10px; width:140px; height:44px; line-height:1.1; color:#ffb3ba;" disabled>Нужно здание ${heroLvl} ур.</button>`;
+            // ФИКС ТАНКА: Выдаем строгое предупреждение о необходимости расширения постройки
+            actionBtnHTML = `<button class="menu-btn disabled" style="padding:8px 6px; font-size:10px; width:140px; height:44px; line-height:1.1; color:#ffb3ba;" disabled>Нужно здание ${heroLvl + 1} ур.</button>`;
         } else if (!hasEnoughOre) {
-            // ЖЕСТКАЯ БЛОКИРОВКА ПРИ СТАРТЕ: На кнопке горит ошибка нехватки руды!
+            // Для остальных воинов 1 уровня, у которых здания 0 уровня, упирается именно в нехватку руды
             actionBtnHTML = `<button class="menu-btn disabled" style="padding:8px 6px; font-size:10px; width:140px; height:44px; line-height:1.1; color:#cca3a3;" disabled>Не хватает руды 🪨</button>`;
         } else {
             actionBtnHTML = `<button class="menu-btn" style="padding:10px; font-size:12px; background:linear-gradient(to bottom, #1d3a1e, #0f2110); border-color:#316e34; width:140px; height:44px;" onclick="window.triggerHeroLevelUpgrade('${h.id}')">Тренировать</button>`;
@@ -79,7 +79,7 @@ window.triggerHeroLevelUpgrade = function(heroId) {
     }
     
     if (heroLvl >= (buildLvl + 1) && heroLvl >= 2) {
-        alert(`Для прокачки выше требуется улучшить соответствующее здание до ${heroLvl} уровня!`);
+        alert(`Для прокачки выше требуется улучшить соответствующее здание до ${heroLvl + 1} уровня!`);
         return;
     }
 
@@ -93,19 +93,24 @@ function injectSquadInterfaceDOM() {
     const screen = document.getElementById('squad-screen'); 
     if(!screen) return;
     
+    const tBld = window.getBuildingLevel('tank');
+    const dBld = window.getBuildingLevel('damage');
+    const aBld = window.getBuildingLevel('archer');
+    const mBld = window.getBuildingLevel('mage');
+    
+    // ВСЕ ЗДАНЬЯ ДОСТУПНЫ ДЛЯ ПОКУПКИ И МОДЕРНИЗАЦИИ (Цена проверится при клике)
     screen.innerHTML = `
         <h2>Цитадель</h2>
-        <span class="subtitle">Инфраструктура строений</span>
+        <span class="subtitle">Инфраструктура строений Замка</span>
         <div style="display: flex; flex-direction: column; width: 100%; box-sizing: border-box; gap: 8px;">
-            <div class="menu-row"><button id="upgrade-tank-btn" class="menu-btn" style="width:100%;">⚒️ Построить Гарнизон Защитника (Цена: 🪙 100)</button></div>
-            <div class="menu-row"><button class="menu-btn disabled" disabled>⚒️ Построить Казармы Воинов (Заблокировано)</button></div>
-            <div class="menu-row"><button class="menu-btn disabled" disabled>⚒️ Построить Стрельбище Лучника (Заблокировано)</button></div>
-            <div class="menu-row"><button class="menu-btn disabled" disabled>⚒️ Построить Обитель Maгов (Заблокировано)</button></div>
+            <div class="menu-row"><button id="upgrade-tank-btn" class="menu-btn">⚒️ Улучшить Гарнизон Защитника [Ур. ${tBld}]</button></div>
+            <div class="menu-row"><button id="upgrade-damage-btn" class="menu-btn">⚒️ Построить Казармы Воинов [Ур. ${dBld}]</button></div>
+            <div class="menu-row"><button id="upgrade-archer-btn" class="menu-btn">⚒️ Построить Стрельбище Лучника [Ур. ${aBld}]</button></div>
+            <div class="menu-row"><button id="upgrade-mage-btn" class="menu-btn">⚒️ Построить Обитель Магов [Ур. ${mBld}]</button></div>
         </div>
+        <button id="close-squad-btn" class="menu-btn back-btn" style="width: 100%; margin-top: 15px;">Назад в меню</button>
     `;
     
-    const btn = document.getElementById('upgrade-tank-btn');
-    if (btn && typeof window.executeOnboardingCitadelBuild === 'function') {
-        btn.onclick = window.executeOnboardingCitadelBuild;
-    }
+    if (typeof setupSquadInterfaceListeners === 'function') setupSquadInterfaceListeners();
+    if (typeof updateSquadVisualStyles === 'function') updateSquadVisualStyles();
 }
