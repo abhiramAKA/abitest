@@ -1,27 +1,31 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ УПРАВЛЕНИЯ И ОТРИСОВКИ РЕЖИМА ПРИКЛЮЧЕНИЙ (v6.1.2-STABLE)
+   КХАМАЧ — КАМПАНИЯ ПРИКЛЮЧЕНИЙ С ПОРОГАМИ МОЩНОСТИ ОТРЯДА (v6.2.0-STABLE)
    ========================================================================== */
 
 window.currentActiveChapterView = null;
 
+// Таблица требуемой Мощности Отряда (МО) для каждого тира боссов (1-24)
+const BOSS_REQUIRED_MO = {
+    1: 1, 2: 1, 3: 2, 4: 2, 5: 3, 6: 3,
+    7: 4, 8: 4, 9: 5, 10: 5, 11: 6, 12: 6,
+    13: 7, 14: 7, 15: 8, 16: 8, 17: 9, 18: 9,
+    19: 10, 20: 11, 21: 12, 22: 13, 23: 14, 24: 15
+};
+
 function getMaxUnlockedTier() {
     const saved = localStorage.getItem('khamach_max_tier');
-    return saved ? parseInt(saved) : 1;
+    return saved ? parseInt(saved) : 2;
 }
 
 function saveCompletedTier(tier) {
     const currentMax = getMaxUnlockedTier();
-    if (tier >= currentMax && tier < 30) {
+    if (tier >= currentMax && tier < 24) {
         localStorage.setItem('khamach_max_tier', tier + 1);
     }
 }
 
 function handleAdventureBackNavigation() {
-    if (window.location.pathname.includes('gate.html')) {
-        window.location.href = 'hub.html?t=' + Date.now();
-    } else {
-        if (typeof showScreen === 'function') showScreen('main-menu');
-    }
+    if (typeof showScreen === 'function') showScreen('main-menu');
 }
 
 function renderDragonSelectionGrid() {
@@ -31,43 +35,44 @@ function renderDragonSelectionGrid() {
     
     gridContainer.innerHTML = '';
     const maxUnlocked = getMaxUnlockedTier();
+    const currentMO = typeof window.getSquadPower === 'function' ? window.getSquadPower() : 1;
     
-    // ЭКРАН 1: Выбор художественной главы кампании
+    // ЭКРАН 1: Выбор главы
     if (window.currentActiveChapterView === null) {
         if (backBtn) {
-            if (window.location.pathname.includes('gate.html')) {
-                backBtn.style.display = 'none';
-            } else {
-                backBtn.style.display = 'block';
-                backBtn.innerText = "Назад в меню";
-                backBtn.onclick = handleAdventureBackNavigation;
-            }
+            backBtn.style.display = 'block';
+            backBtn.innerText = "Назад в меню";
+            backBtn.onclick = handleAdventureBackNavigation;
         }
         
         const scrTitle = document.getElementById('adventure-screen-title');
         const scrSubtitle = document.getElementById('adventure-screen-subtitle');
         if (scrTitle) scrTitle.innerText = "РЕЖИМ ПРИКЛЮЧЕНИЯ";
-        if (scrSubtitle) scrSubtitle.innerText = "Выберите Пространство или Бестиарий";
+        if (scrSubtitle) scrSubtitle.innerText = `Ваша Мощность Отряда: 👑 МО ${currentMO}`;
 
         window.ADVENTURE_CHAPTERS.forEach((ch, idx) => {
             const card = document.createElement('div');
             card.className = "chapter-gothic-card";
             
-            let isChapterLocked = true;
-            if (ch.bosses && ch.bosses.length > 0) {
-                const firstBossTier = ch.bosses[0].tier;
-                isChapterLocked = firstBossTier > maxUnlocked;
-            }
+            let firstBossTier = (ch.bosses && ch.bosses.length > 0) ? ch.bosses[0].tier : 1;
+            let reqChapterMO = BOSS_REQUIRED_MO[firstBossTier] || 1;
             
-            if (isChapterLocked) {
-                card.style.opacity = "0.4";
+            let isTierLocked = firstBossTier > maxUnlocked;
+            let isPowerLocked = currentMO < reqChapterMO;
+            
+            if (isTierLocked || isPowerLocked) {
+                card.style.opacity = "0.45";
                 card.style.filter = "grayscale(1)";
                 card.style.cursor = "not-allowed";
+                const lockReason = isPowerLocked 
+                    ? `Требуется Мощность Отряда: 👑 МО ${reqChapterMO}` 
+                    : `Победите предыдущих боссов для открытия доступа.`;
+
                 card.innerHTML = `
                     <div class="chapter-card-icon">🔒</div>
                     <div style="flex:1;">
                         <div style="color:#6a5335; font-weight:bold; font-size:14px; text-transform:uppercase;">${ch.title}</div>
-                        <div style="color:#4a3f2c; font-size:11px; margin-top:4px;">Победите предыдущие тиры для открытия доступа.</div>
+                        <div style="color:#8a7350; font-size:11px; margin-top:4px;">${lockReason}</div>
                     </div>
                 `;
             } else {
@@ -88,9 +93,9 @@ function renderDragonSelectionGrid() {
         return;
     }
     
-    // ЭКРАН 2: Список конкретных боссов внутри выбранной главы
+    // ЭКРАН 2: Список боссов внутри главы
     const activeChapter = window.ADVENTURE_CHAPTERS[window.currentActiveChapterView];
-    const isFirstChapter = activeChapter.id === "ch_1"; // Флаг Гнилых Топей
+    const isFirstChapter = activeChapter.id === "ch_1";
     
     if (backBtn) {
         backBtn.style.display = 'block';
@@ -101,16 +106,17 @@ function renderDragonSelectionGrid() {
         };
     }
     
-    // ФИКС ЗАГОЛОВКА: Выводится только чистое лорное название главы
     const scrTitle = document.getElementById('adventure-screen-title');
     const scrSubtitle = document.getElementById('adventure-screen-subtitle');
     if (scrTitle) scrTitle.innerText = `${activeChapter.icon} ${activeChapter.title.toUpperCase()}`;
-    if (scrSubtitle) scrSubtitle.innerText = isFirstChapter ? "Обычные монстры болот" : "Силы и стихии главы";
+    if (scrSubtitle) scrSubtitle.innerText = `Ваша Мощность Отряда: 👑 МО ${currentMO}`;
 
     const elements = ["Огонь", "Лед", "Тьма", "Свет"];
     
     activeChapter.bosses.forEach(boss => {
-        const isLocked = boss.tier > maxUnlocked;
+        const reqMO = BOSS_REQUIRED_MO[boss.tier] || 1;
+        const isTierLocked = boss.tier > maxUnlocked;
+        const isPowerLocked = currentMO < reqMO;
         
         const row = document.createElement('div');
         row.className = 'menu-row';
@@ -122,21 +128,21 @@ function renderDragonSelectionGrid() {
         btn.style.padding = "12px 10px";
         btn.style.fontSize = "13px";
         
-        if (isLocked) {
+        if (isPowerLocked) {
             btn.classList.add('disabled');
-            btn.innerHTML = `🔒 Заблокировано текущим прогрессом`;
+            btn.innerHTML = `🔒 ${boss.name} (Требуется МО: ${reqMO})`;
+        } else if (isTierLocked) {
+            btn.classList.add('disabled');
+            btn.innerHTML = `🔒 Победите предыдущего врага`;
         } else {
-            // ФИКС ВЫВОДА СТРОКИ БОССОВ ДЛЯ ГЛАВЫ 1
             if (isFirstChapter) {
-                // Убираем приписки "Тир", "Стихия" и красим в классический серый готический цвет
                 btn.innerHTML = `${boss.icon} ${boss.name.toUpperCase()} — ${boss.baseHP} HP`;
                 btn.style.background = "linear-gradient(to bottom, #2d2621 0%, #171311 100%)";
                 btn.style.borderColor = "#544432";
                 btn.style.color = "#cdb38c";
             } else {
-                // Для остальных глав сохраняем стихийную цветовую разметку
                 const element = elements[(boss.tier - 1) % elements.length];
-                btn.innerHTML = `${boss.icon} Тир ${boss.tier} : ${boss.name} [${element}] — ${boss.baseHP} HP`;
+                btn.innerHTML = `${boss.icon} ${boss.name} [${element}] — ${boss.baseHP} HP`;
                 btn.dataset.level = boss.tier;
                 
                 if (element === "Огонь") {
