@@ -1,12 +1,12 @@
 /* ==========================================================================
-   КХАМАЧ — ИСХОДЫ БИТВЫ И ВЕРОЯТНОСТНЫЙ ГЕНЕРАТОР ДРОПА (v6.2.1-STABLE)
+   КХАМАЧ — ИСХОДЫ БИТВЫ И ВЕРОЯТНОСТНЫЙ ГЕНЕРАТОР ДРОПА (v6.2.2-STABLE)
    ========================================================================== */
 
 const HERO_POWER_TABLE = {
-    tank:,
-    damage:,
-    archer:,
-    mage:  
+    tank:   new Array(0, 20, 40, 75, 110, 145, 205, 265, 325, 425, 525, 625, 785, 945, 1105),
+    damage: new Array(0, 15, 30, 55, 80, 105, 145, 185, 225, 295, 365, 435, 555, 675, 795),
+    archer: new Array(0, 10, 20, 38, 56, 74, 104, 134, 164, 214, 264, 314, 399, 484, 569),
+    mage:   new Array(0, 5, 10, 20, 30, 40, 58, 76, 94, 124, 154, 184, 234, 284, 334)
 };
 
 function activateHeroSuperpower(heroId) {
@@ -38,12 +38,12 @@ function activateHeroSuperpower(heroId) {
 }
 
 function rollBattleLootByTier(tier) {
-    const RARE_POOL = [
+    const RARE_POOL = new Array(
         { key: 'khamach_res_coal', icon: '🔥', name: 'Уголь пламени' },
         { key: 'khamach_res_ice',  icon: '❄️', name: 'Ледяной осколок' },
         { key: 'khamach_res_dark', icon: '🔮', name: 'Сфера Тьмы' },
         { key: 'khamach_res_dust', icon: '✨', name: 'Звёздная пыль' }
-    ];
+    );
     const COMMON_RES = { key: 'khamach_dragon_ore', icon: '🪨', name: 'Горная руда' };
 
     function rollSingleSlot() {
@@ -55,7 +55,7 @@ function rollBattleLootByTier(tier) {
         return COMMON_RES;
     }
 
-    const droppedItems = [];
+    const droppedItems = new Array();
     droppedItems.push(rollSingleSlot());
 
     const doubleChance = (tier - 1) * 2.5;
