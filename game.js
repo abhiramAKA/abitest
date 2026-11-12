@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И МОЩНОСТИ ОТРЯДА (v6.2.0-STABLE)
+   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И УРОВНЯ ОТРЯДА (v6.2.1-STABLE)
    ========================================================================== */
 
 const BOARD_ROWS = 8;
@@ -21,7 +21,6 @@ let selectedCell = null;
 let selectedDragonLevel = 2;
 window.currentOpenedModeKey = null;
 
-// ФОРМУЛА МОЩНОСТИ ОТРЯДА (МО): Среднее уровней 4 зданий с округлением вниз
 window.getSquadPower = function() {
     const t = parseInt(localStorage.getItem('khamach_build_tank') || '1');
     const d = parseInt(localStorage.getItem('khamach_build_damage') || '1');
@@ -33,18 +32,14 @@ window.getSquadPower = function() {
 function sanitizeAndMigrateStorage() {
     if (!localStorage.getItem('khamach_hub_initialized')) {
         localStorage.setItem('khamach_hub_initialized', 'true');
-        
         localStorage.setItem('khamach_gold', '0');
         localStorage.setItem('khamach_max_tier', '2');
+        localStorage.setItem('khamach_dragon_ore', '0');
+        localStorage.setItem('khamach_res_coal', '0');
+        localStorage.setItem('khamach_res_ice', '0');
+        localStorage.setItem('khamach_res_dark', '0');
+        localStorage.setItem('khamach_res_dust', '0');
         
-        // Инициализация всех 5 ресурсов Цитадели
-        localStorage.setItem('khamach_dragon_ore', '0');  // 🪨 Горная руда
-        localStorage.setItem('khamach_res_coal', '0');    // 🔥 Уголь пламени
-        localStorage.setItem('khamach_res_ice', '0');     // ❄️ Ледяной осколок
-        localStorage.setItem('khamach_res_dark', '0');    // 🔮 Сфера Тьмы
-        localStorage.setItem('khamach_res_dust', '0');    // ✨ Звёздная пыль
-        
-        // Стартовые уровни после обучения
         localStorage.setItem('khamach_build_tank', '2');
         localStorage.setItem('khamach_hero_lvl_tank', '2');
         localStorage.setItem('khamach_build_damage', '1');
@@ -54,7 +49,6 @@ function sanitizeAndMigrateStorage() {
         localStorage.setItem('khamach_hero_lvl_archer', '1');
         localStorage.setItem('khamach_hero_lvl_mage', '1');
         
-        // Стартовое поручение Ратуши
         localStorage.setItem('khamach_hero_busy_tank', 'true');
         localStorage.setItem('khamach_mission_active_m_t1', 'true');
         localStorage.setItem('khamach_mission_start_m_t1', Date.now().toString());
@@ -71,8 +65,8 @@ function updateMenuOnboardingVisibility() {
     const gridContainer = document.getElementById('main-menu-grid');
     if (!gridContainer) return;
 
-    const currentMO = window.getSquadPower();
-    const clanLockedStyle = currentMO < 4 ? 'opacity: 0.45; filter: grayscale(0.8);' : '';
+    const currentLvl = window.getSquadPower();
+    const clanLockedStyle = currentLvl < 4 ? 'opacity: 0.45; filter: grayscale(0.8);' : '';
 
     gridContainer.style.gridTemplateColumns = "repeat(2, 1fr)";
     gridContainer.innerHTML = `
@@ -84,11 +78,8 @@ function updateMenuOnboardingVisibility() {
         <button id="to-clans-btn" class="emoji-grid-btn" style="${clanLockedStyle}">👥</button>
     `;
 
-    // Обновляем индикатор Мощности Отряда (МО) на верхней панели
     const moBtn = document.getElementById('indicator-level-btn');
-    if (moBtn) {
-        moBtn.innerText = `👑 МО: ${currentMO}`;
-    }
+    if (moBtn) moBtn.innerText = `👑 ${currentLvl}`;
     
     if (typeof setupAllGameListeners === 'function') setupAllGameListeners();
 }
@@ -120,7 +111,7 @@ function initDispatcherModule() {
 }
 
 function showScreen(screenId) {
-    const screens = ['main-menu', 'dragon-select-screen', 'info-screen', 'mode-desc-screen', 'squad-screen', 'combat-screen', 'storage-screen', 'missions-screen', 'chronicle-screen', 'squad-heroes-spec-screen'];
+    const screens = ['main-menu', 'dragon-select-screen', 'info-screen', 'mode-desc-screen', 'squad-screen', 'combat-screen', 'storage-screen', 'missions-screen', 'chronicle-screen', 'squad-heroes-spec-screen', 'settings-screen'];
     screens.forEach(id => {
         const screenEl = document.getElementById(id);
         if (screenEl) screenEl.style.display = (id === screenId) ? 'flex' : 'none';
