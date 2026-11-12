@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — КАМПАНИЯ ПРИКЛЮЧЕНИЙ (ЧИСТЫЕ ЗАГОЛОВКИ - v6.2.1-STABLE)
+   КХАМАЧ — КАМПАНИЯ ПРИКЛЮЧЕНИЙ И ИНДИКАТОР СВЕЖЕСТИ РЕЙДА (v6.2.3-STABLE)
    ========================================================================== */
 
 window.currentActiveChapterView = null;
@@ -25,6 +25,20 @@ function saveCompletedTier(tier) {
 
 function handleAdventureBackNavigation() {
     if (typeof showScreen === 'function') showScreen('main-menu');
+}
+
+function getPreviewRaidFreshnessPct() {
+    const heroes = new Array('tank', 'damage', 'archer', 'mage');
+    let sum = 0;
+    let count = 0;
+    heroes.forEach(id => {
+        if (localStorage.getItem(`khamach_hero_busy_${id}`) !== 'true') {
+            sum += parseFloat(localStorage.getItem(`khamach_fatigue_${id}`) || '0');
+            count++;
+        }
+    });
+    const avgFat = count > 0 ? (sum / count) : 0;
+    return Math.round(Math.max(0.10, 1 - (avgFat / 100)) * 100);
 }
 
 function renderDragonSelectionGrid() {
@@ -94,6 +108,7 @@ function renderDragonSelectionGrid() {
     
     const activeChapter = window.ADVENTURE_CHAPTERS[window.currentActiveChapterView];
     const isFirstChapter = activeChapter.id === "ch_1";
+    const freshnessPct = getPreviewRaidFreshnessPct();
     
     if (backBtn) {
         backBtn.style.display = 'block';
@@ -107,9 +122,13 @@ function renderDragonSelectionGrid() {
     const scrTitle = document.getElementById('adventure-screen-title');
     const scrSubtitle = document.getElementById('adventure-screen-subtitle');
     if (scrTitle) scrTitle.innerText = `${activeChapter.icon} ${activeChapter.title.toUpperCase()}`;
-    if (scrSubtitle) scrSubtitle.innerText = isFirstChapter ? "Обычные монстры болот" : "Силы и стихии главы";
+    if (scrSubtitle) {
+        scrSubtitle.innerText = freshnessPct < 100 
+            ? `⚡ Свежесть добычи рейда: ${freshnessPct}%` 
+            : (isFirstChapter ? "Обычные монстры болот" : "Силы и стихии главы");
+    }
 
-    const elements = ["Огонь", "Лед", "Тьма", "Свет"];
+    const elements = new Array("Огонь", "Лед", "Тьма", "Свет");
     
     activeChapter.bosses.forEach(boss => {
         const reqMO = BOSS_REQUIRED_MO[boss.tier] || 1;
