@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ ОБРАБОТЧИКОВ, НАСТРОЕК ЗВУКА И ОКНА УРОВНЯ (v6.2.1)
+   КХАМАЧ — МОДУЛЬ ОБРАБОТЧИКОВ И ЗВУКОВОГО ОТКЛИКА НАСТРОЕК (v6.2.2)
    ========================================================================== */
 
 window.closeModeDescriptionUnified = function() {
@@ -33,7 +33,6 @@ function setupAllGameListeners() {
     safeBindElementClick('to-chronicle-btn', function() { showScreen('chronicle-screen'); });
     safeBindElementClick('indicator-gold-btn', function() { showScreen('storage-screen'); });
 
-    // Починка открытия Настроек звука и живых ползунков громкости
     safeBindElementClick('to-settings-btn', function() {
         if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
         const musicSlider = document.getElementById('volume-music-slider');
@@ -53,6 +52,13 @@ function setupAllGameListeners() {
                 const val = this.value / 100;
                 localStorage.setItem('khamach_vol_fx', val.toString());
                 if (typeof setEffectsVolume === 'function') setEffectsVolume(val);
+            };
+            // Проигрываем тестовый звук при отпускании ползунка эффектов
+            fxSlider.onchange = function() {
+                const val = this.value / 100;
+                localStorage.setItem('khamach_vol_fx', val.toString());
+                if (typeof setEffectsVolume === 'function') setEffectsVolume(val);
+                if (typeof playMatch3Sound === 'function') playMatch3Sound('swap');
             };
         }
         showScreen('settings-screen');
@@ -86,7 +92,6 @@ function setupAllGameListeners() {
         if (scr) scr.style.display = 'none';
     });
 
-    // Открытие окна справки Уровня отряда при клике на кнопку с короной
     safeBindElementClick('indicator-level-btn', function() {
         if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
         const scr = document.getElementById('squad-level-info-screen');
@@ -100,7 +105,7 @@ function setupAllGameListeners() {
 
     safeBindElementClick('clear-chronicle-btn', function() {
         if (confirm("Очистить все записи в Летописи Цитадели?")) {
-            localStorage.setItem('khamach_chronicle_logs', JSON.stringify([]));
+            localStorage.setItem('khamach_chronicle_logs', JSON.stringify(new Array()));
             if (typeof renderChronicleDOM === 'function') renderChronicleDOM();
         }
     });
