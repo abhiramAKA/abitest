@@ -1,23 +1,25 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ ОБРАБОТЧИКОВ И НАВИГАЦИОННОЙ UX-ПЕТЛИ (v6.1.3-STABLE)
+   КХАМАЧ — МОДУЛЬ ОБРАБОТЧИКОВ, НАСТРОЕК ЗВУКА И ОКНА УРОВНЯ (v6.2.1)
    ========================================================================== */
 
 window.closeModeDescriptionUnified = function() {
-    // UX-ФИКС: Кнопка назад внутри описания здания теперь возвращает в Цитадель, а не в меню города!
     showScreen('squad-screen');
 };
 
 function safeBindElementClick(id, callback, checkLock = false) {
-    const el = document.getElementById(id); if (!el) return;
+    const el = document.getElementById(id);
+    if (!el) return;
     el.onclick = function(e) {
-        e.preventDefault(); e.stopPropagation();
+        e.preventDefault();
+        e.stopPropagation();
         if (checkLock && el.classList.contains('progression-locked')) return false;
         callback();
     };
 }
 
 function setupAllGameListeners() {
-    document.onclick = null; document.body.onclick = null;
+    document.onclick = null;
+    document.body.onclick = null;
 
     document.addEventListener('click', function initAudioOnFirstClick() {
         if (typeof startBackgroundMusic === 'function') startBackgroundMusic();
@@ -29,14 +31,32 @@ function setupAllGameListeners() {
     safeBindElementClick('to-squad-btn', function() { showScreen('squad-screen'); });
     safeBindElementClick('to-storage-btn', function() { showScreen('squad-heroes-spec-screen'); });
     safeBindElementClick('to-chronicle-btn', function() { showScreen('chronicle-screen'); });
-    
-    // ПРИВЯЗКА КНОПОК НОВОЙ ПОДПАНЕЛИ МЕНЮ
     safeBindElementClick('indicator-gold-btn', function() { showScreen('storage-screen'); });
+
+    // Починка открытия Настроек звука и живых ползунков громкости
     safeBindElementClick('to-settings-btn', function() {
-        const musicSlider = document.getElementById('volume-music-slider'); const fxSlider = document.getElementById('volume-fx-slider');
-        if (musicSlider) musicSlider.value = (parseFloat(localStorage.getItem('khamach_vol_music') || '0.5') * 100);
-        if (fxSlider) fxSlider.value = (parseFloat(localStorage.getItem('khamach_vol_fx') || '0.7') * 100);
+        if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
+        const musicSlider = document.getElementById('volume-music-slider');
+        const fxSlider = document.getElementById('volume-fx-slider');
+        
+        if (musicSlider) {
+            musicSlider.value = Math.round(parseFloat(localStorage.getItem('khamach_vol_music') || '0.5') * 100);
+            musicSlider.oninput = function() {
+                const val = this.value / 100;
+                localStorage.setItem('khamach_vol_music', val.toString());
+                if (typeof setMusicVolume === 'function') setMusicVolume(val);
+            };
+        }
+        if (fxSlider) {
+            fxSlider.value = Math.round(parseFloat(localStorage.getItem('khamach_vol_fx') || '0.7') * 100);
+            fxSlider.oninput = function() {
+                const val = this.value / 100;
+                localStorage.setItem('khamach_vol_fx', val.toString());
+                if (typeof setEffectsVolume === 'function') setEffectsVolume(val);
+            };
+        }
         showScreen('settings-screen');
+        setupAllGameListeners();
     });
 
     safeBindElementClick('info-btn', function() {
@@ -55,12 +75,33 @@ function setupAllGameListeners() {
     safeBindElementClick('close-chronicle-btn', function() { showScreen('main-menu'); });
     safeBindElementClick('close-squad-btn', function() { showScreen('main-menu'); });
 
-    safeBindElementClick('close-fatigue-screen-btn', function() { document.getElementById('squad-fatigue-screen').style.display = 'none'; });
-    safeBindElementClick('team-fatigue-display', function() { document.getElementById('squad-fatigue-screen').style.display = 'flex'; });
+    safeBindElementClick('team-fatigue-display', function() {
+        if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
+        const scr = document.getElementById('squad-fatigue-screen');
+        if (scr) scr.style.display = 'flex';
+        setupAllGameListeners();
+    });
+    safeBindElementClick('close-fatigue-screen-btn', function() {
+        const scr = document.getElementById('squad-fatigue-screen');
+        if (scr) scr.style.display = 'none';
+    });
+
+    // Открытие окна справки Уровня отряда при клике на кнопку с короной
+    safeBindElementClick('indicator-level-btn', function() {
+        if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM();
+        const scr = document.getElementById('squad-level-info-screen');
+        if (scr) scr.style.display = 'flex';
+        setupAllGameListeners();
+    });
+    safeBindElementClick('close-level-info-btn', function() {
+        const scr = document.getElementById('squad-level-info-screen');
+        if (scr) scr.style.display = 'none';
+    });
 
     safeBindElementClick('clear-chronicle-btn', function() {
         if (confirm("Очистить все записи в Летописи Цитадели?")) {
-            localStorage.setItem('khamach_chronicle_logs', JSON.stringify([])); if (typeof renderChronicleDOM === 'function') renderChronicleDOM();
+            localStorage.setItem('khamach_chronicle_logs', JSON.stringify([]));
+            if (typeof renderChronicleDOM === 'function') renderChronicleDOM();
         }
     });
 }
