@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР И РЕБРЕНДИНГ РАТУШИ (v6.1.2)
+   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И МОЩНОСТИ ОТРЯДА (v6.2.0-STABLE)
    ========================================================================== */
 
 const BOARD_ROWS = 8;
@@ -16,30 +16,80 @@ let combatData = {
     ]
 };
 
-let match3BoardData = null; selectedCell = null; selectedDragonLevel = 2; window.currentOpenedModeKey = null;
+let match3BoardData = null;
+let selectedCell = null;
+let selectedDragonLevel = 2;
+window.currentOpenedModeKey = null;
+
+// ФОРМУЛА МОЩНОСТИ ОТРЯДА (МО): Среднее уровней 4 зданий с округлением вниз
+window.getSquadPower = function() {
+    const t = parseInt(localStorage.getItem('khamach_build_tank') || '1');
+    const d = parseInt(localStorage.getItem('khamach_build_damage') || '1');
+    const a = parseInt(localStorage.getItem('khamach_build_archer') || '1');
+    const m = parseInt(localStorage.getItem('khamach_build_mage') || '1');
+    return Math.floor((t + d + a + m) / 4);
+};
 
 function sanitizeAndMigrateStorage() {
     if (!localStorage.getItem('khamach_hub_initialized')) {
         localStorage.setItem('khamach_hub_initialized', 'true');
-        localStorage.setItem('khamach_gold', '0'); localStorage.setItem('khamach_dragon_ore', '0'); localStorage.setItem('khamach_max_tier', '2');               
-        localStorage.setItem('khamach_build_tank', '2'); localStorage.setItem('khamach_hero_lvl_tank', '2');          
-        localStorage.setItem('khamach_build_damage', '1'); localStorage.setItem('khamach_build_archer', '1'); localStorage.setItem('khamach_build_mage', '1');
-        localStorage.setItem('khamach_hero_lvl_damage', '1'); localStorage.setItem('khamach_hero_lvl_archer', '1'); localStorage.setItem('khamach_hero_lvl_mage', '1');
         
-        localStorage.setItem('khamach_hero_busy_tank', 'true'); localStorage.setItem('khamach_mission_active_m_t1', 'true');  
-        localStorage.setItem('khamach_mission_start_m_t1', Date.now().toString()); localStorage.setItem('khamach_mission_reward_frozen_m_t1', '133');
-        localStorage.setItem('khamach_fatigue_tank', '15');           
+        localStorage.setItem('khamach_gold', '0');
+        localStorage.setItem('khamach_max_tier', '2');
+        
+        // Инициализация всех 5 ресурсов Цитадели
+        localStorage.setItem('khamach_dragon_ore', '0');  // 🪨 Горная руда
+        localStorage.setItem('khamach_res_coal', '0');    // 🔥 Уголь пламени
+        localStorage.setItem('khamach_res_ice', '0');     // ❄️ Ледяной осколок
+        localStorage.setItem('khamach_res_dark', '0');    // 🔮 Сфера Тьмы
+        localStorage.setItem('khamach_res_dust', '0');    // ✨ Звёздная пыль
+        
+        // Стартовые уровни после обучения
+        localStorage.setItem('khamach_build_tank', '2');
+        localStorage.setItem('khamach_hero_lvl_tank', '2');
+        localStorage.setItem('khamach_build_damage', '1');
+        localStorage.setItem('khamach_build_archer', '1');
+        localStorage.setItem('khamach_build_mage', '1');
+        localStorage.setItem('khamach_hero_lvl_damage', '1');
+        localStorage.setItem('khamach_hero_lvl_archer', '1');
+        localStorage.setItem('khamach_hero_lvl_mage', '1');
+        
+        // Стартовое поручение Ратуши
+        localStorage.setItem('khamach_hero_busy_tank', 'true');
+        localStorage.setItem('khamach_mission_active_m_t1', 'true');
+        localStorage.setItem('khamach_mission_start_m_t1', Date.now().toString());
+        localStorage.setItem('khamach_mission_reward_frozen_m_t1', '133');
+        localStorage.setItem('khamach_fatigue_tank', '15');
         
         if (typeof addChronicleLog === 'function') {
-            addChronicleLog("ЦИТАДЕЛЬ: Здания Цитадели развернуты. Защитник отбыл в Ратушу за монетами.");
+            addChronicleLog("ЦИТАДЕЛЬ: Строения развернуты. Защитник отбыл в Ратушу за монетами.");
         }
     }
 }
 
 function updateMenuOnboardingVisibility() {
-    const gridContainer = document.getElementById('main-menu-grid'); if (!gridContainer) return;
+    const gridContainer = document.getElementById('main-menu-grid');
+    if (!gridContainer) return;
+
+    const currentMO = window.getSquadPower();
+    const clanLockedStyle = currentMO < 4 ? 'opacity: 0.45; filter: grayscale(0.8);' : '';
+
     gridContainer.style.gridTemplateColumns = "repeat(2, 1fr)";
-    gridContainer.innerHTML = `<button id="to-combat-btn" class="emoji-grid-btn">🌋</button><button id="to-missions-btn" class="emoji-grid-btn">💰</button><button id="to-squad-btn" class="emoji-grid-btn">🏰</button><button id="to-storage-btn" class="emoji-grid-btn">🏋️</button><button id="to-chronicle-btn" class="emoji-grid-btn">📜</button><button id="to-clans-btn" class="emoji-grid-btn">👥</button>`;
+    gridContainer.innerHTML = `
+        <button id="to-combat-btn" class="emoji-grid-btn">🌋</button>
+        <button id="to-missions-btn" class="emoji-grid-btn">💰</button>
+        <button id="to-squad-btn" class="emoji-grid-btn">🏰</button>
+        <button id="to-storage-btn" class="emoji-grid-btn">🏋️</button>
+        <button id="to-chronicle-btn" class="emoji-grid-btn">📜</button>
+        <button id="to-clans-btn" class="emoji-grid-btn" style="${clanLockedStyle}">👥</button>
+    `;
+
+    // Обновляем индикатор Мощности Отряда (МО) на верхней панели
+    const moBtn = document.getElementById('indicator-level-btn');
+    if (moBtn) {
+        moBtn.innerText = `👑 МО: ${currentMO}`;
+    }
+    
     if (typeof setupAllGameListeners === 'function') setupAllGameListeners();
 }
 
@@ -50,7 +100,6 @@ function initDispatcherModule() {
     if (isHubPage) {
         const mScreen = document.getElementById('missions-screen');
         if (mScreen && mScreen.innerHTML.trim() === '') {
-            // ФИКС НАЗВАНИЯ: Выводится Ратуша вместо Доски поручений
             mScreen.innerHTML = `<h2>Ратуша</h2><span class="subtitle">Городские Контракты</span><div id="missions-list-container" style="display:flex; flex-direction:column; gap:8px; max-height:55vh; overflow-y:auto; margin-bottom:10px; width:100%;"></div><button id="close-missions-btn" class="menu-btn back-btn" style="width:100%;">Назад в меню</button>`;
         }
         const cScreen = document.getElementById('chronicle-screen');
@@ -61,19 +110,29 @@ function initDispatcherModule() {
 
     try { if (typeof injectTownScreensDOM === 'function') injectTownScreensDOM(); } catch(e) { console.error(e); }
     try { if (typeof injectSquadInterfaceDOM === 'function') injectSquadInterfaceDOM(); } catch(e) { console.error(e); }
+    
     updateMenuOnboardingVisibility();
     if (typeof updateTownGoldDisplay === 'function') updateTownGoldDisplay();
-    setInterval(() => { if (typeof checkAndProcessMissionsBackground === 'function') checkAndProcessMissionsBackground(); }, 1000);
+
+    setInterval(() => {
+        if (typeof checkAndProcessMissionsBackground === 'function') checkAndProcessMissionsBackground();
+    }, 1000);
 }
 
 function showScreen(screenId) {
     const screens = ['main-menu', 'dragon-select-screen', 'info-screen', 'mode-desc-screen', 'squad-screen', 'combat-screen', 'storage-screen', 'missions-screen', 'chronicle-screen', 'squad-heroes-spec-screen'];
-    screens.forEach(id => { const screenEl = document.getElementById(id); if (screenEl) screenEl.style.display = (id === screenId) ? 'flex' : 'none'; });
+    screens.forEach(id => {
+        const screenEl = document.getElementById(id);
+        if (screenEl) screenEl.style.display = (id === screenId) ? 'flex' : 'none';
+    });
+    
     if (screenId === 'main-menu') updateMenuOnboardingVisibility();
     if (screenId === 'dragon-select-screen' && typeof renderDragonSelectionGrid === 'function') renderDragonSelectionGrid();
     if (screenId === 'squad-screen' && typeof injectSquadInterfaceDOM === 'function') injectSquadInterfaceDOM();
     if (screenId === 'squad-heroes-spec-screen' && typeof updateSquadHeroesSpecScreenDOM === 'function') updateSquadHeroesSpecScreenDOM();
     if (screenId === 'missions-screen' && typeof renderMissionsDOM === 'function') renderMissionsDOM();
     if (screenId === 'chronicle-screen' && typeof renderChronicleDOM === 'function') renderChronicleDOM();
-    if (screenId === 'main-menu' || screenId === 'squad-screen' || screenId === 'storage-screen') if (typeof updateTownGoldDisplay === 'function') updateTownGoldDisplay();
+    if (screenId === 'main-menu' || screenId === 'squad-screen' || screenId === 'storage-screen') {
+        if (typeof updateTownGoldDisplay === 'function') updateTownGoldDisplay();
+    }
 }
