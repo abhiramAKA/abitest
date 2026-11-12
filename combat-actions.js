@@ -1,12 +1,12 @@
 /* ==========================================================================
-   КХАМАЧ — ИСХОДЫ БИТВЫ И ВЕРОЯТНОСТНЫЙ ГЕНЕРАТОР ДРОПА (v6.2.0-STABLE)
+   КХАМАЧ — ИСХОДЫ БИТВЫ И ВЕРОЯТНОСТНЫЙ ГЕНЕРАТОР ДРОПА (v6.2.1-STABLE)
    ========================================================================== */
 
 const HERO_POWER_TABLE = {
     tank:,
     damage:,
     archer:,
-    mage:   [0, 5,  10, 20, 30,  40,  58,  76,  94,  124, 154, 184, 234, 284, 334]
+    mage:  
 };
 
 function activateHeroSuperpower(heroId) {
@@ -20,9 +20,9 @@ function activateHeroSuperpower(heroId) {
     const arcLvl = typeof getHeroLevel === 'function' ? Math.min(15, getHeroLevel('archer')) : 1;
     const magLvl = typeof getHeroLevel === 'function' ? Math.min(15, getHeroLevel('mage')) : 1;
 
-    let dmgUnyielding = 120 + HERO_POWER_TABLE.damage[dmgLvl - 1];
-    let archerUnyielding = 25 + HERO_POWER_TABLE.archer[arcLvl - 1];
-    let mageHealAmount = 25 + HERO_POWER_TABLE.mage[magLvl - 1];
+    let dmgUnyielding = 120 + (HERO_POWER_TABLE.damage[dmgLvl - 1] || 0);
+    let archerUnyielding = 25 + (HERO_POWER_TABLE.archer[arcLvl - 1] || 0);
+    let mageHealAmount = 25 + (HERO_POWER_TABLE.mage[magLvl - 1] || 0);
     
     switch(heroId) {
         case "tank": combatData.tankTaunting = true; combatData.dragonHP = Math.max(0, combatData.dragonHP - 25); break;
@@ -88,7 +88,8 @@ function checkBattleResolution() {
         const lootList = rollBattleLootByTier(tier);
         const lootHTML = lootList.map(l => `<div style="font-size:15px; color:#ffd700; font-weight:bold; margin:4px 0;">+ ${l.count} ${l.icon} ${l.name}</div>`).join('');
         const isDouble = lootList.reduce((acc, item) => acc + item.count, 0) > 1;
-        const mainIcon = lootList[0] ? lootList[0].icon : '🪨';
+        const firstItem = lootList.at(0);
+        const mainIcon = firstItem ? firstItem.icon : '🪨';
 
         let rewardsPopup = document.createElement('div');
         rewardsPopup.className = 'combat-help-popup';
