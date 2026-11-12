@@ -54,7 +54,8 @@ function renderDragonSelectionGrid() {
             const card = document.createElement('div');
             card.className = "chapter-gothic-card";
             
-            let firstBossTier = (ch.bosses && ch.bosses.length > 0) ? ch.bosses[0].tier : 1;
+            const firstBoss = (ch.bosses && ch.bosses.length > 0) ? ch.bosses.at(0) : null;
+            let firstBossTier = firstBoss ? firstBoss.tier : 1;
             let reqChapterMO = BOSS_REQUIRED_MO[firstBossTier] || 1;
             
             let isTierLocked = firstBossTier > maxUnlocked;
