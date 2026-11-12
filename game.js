@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И УРОВНЯ ОТРЯДА (v6.2.1-STABLE)
+   КХАМАЧ — ЦЕНТРАЛЬНЫЙ ДИСПЕТЧЕР СТЭЙТА И УРОВНЯ ОТРЯДА (v6.2.2-STABLE)
    ========================================================================== */
 
 const BOARD_ROWS = 8;
@@ -21,11 +21,12 @@ let selectedCell = null;
 let selectedDragonLevel = 2;
 window.currentOpenedModeKey = null;
 
+// НОВАЯ ФОРМУЛА: Среднее арифметическое уровней прокачки 4 героев
 window.getSquadPower = function() {
-    const t = parseInt(localStorage.getItem('khamach_build_tank') || '1');
-    const d = parseInt(localStorage.getItem('khamach_build_damage') || '1');
-    const a = parseInt(localStorage.getItem('khamach_build_archer') || '1');
-    const m = parseInt(localStorage.getItem('khamach_build_mage') || '1');
+    const t = parseInt(localStorage.getItem('khamach_hero_lvl_tank') || '1');
+    const d = parseInt(localStorage.getItem('khamach_hero_lvl_damage') || '1');
+    const a = parseInt(localStorage.getItem('khamach_hero_lvl_archer') || '1');
+    const m = parseInt(localStorage.getItem('khamach_hero_lvl_mage') || '1');
     return Math.floor((t + d + a + m) / 4);
 };
 
@@ -78,8 +79,8 @@ function updateMenuOnboardingVisibility() {
         <button id="to-clans-btn" class="emoji-grid-btn" style="${clanLockedStyle}">👥</button>
     `;
 
-    const moBtn = document.getElementById('indicator-level-btn');
-    if (moBtn) moBtn.innerText = `👑 ${currentLvl}`;
+    const lvlBtn = document.getElementById('indicator-level-btn');
+    if (lvlBtn) lvlBtn.innerText = `👑 ${currentLvl}`;
     
     if (typeof setupAllGameListeners === 'function') setupAllGameListeners();
 }
