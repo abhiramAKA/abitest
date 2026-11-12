@@ -1,10 +1,9 @@
 /* ==========================================================================
-   КХАМАЧ — КАМПАНИЯ ПРИКЛЮЧЕНИЙ С ПОРОГАМИ МОЩНОСТИ ОТРЯДА (v6.2.0-STABLE)
+   КХАМАЧ — КАМПАНИЯ ПРИКЛЮЧЕНИЙ (ЧИСТЫЕ ЗАГОЛОВКИ - v6.2.1-STABLE)
    ========================================================================== */
 
 window.currentActiveChapterView = null;
 
-// Таблица требуемой Мощности Отряда (МО) для каждого тира боссов (1-24)
 const BOSS_REQUIRED_MO = {
     1: 1, 2: 1, 3: 2, 4: 2, 5: 3, 6: 3,
     7: 4, 8: 4, 9: 5, 10: 5, 11: 6, 12: 6,
@@ -37,7 +36,6 @@ function renderDragonSelectionGrid() {
     const maxUnlocked = getMaxUnlockedTier();
     const currentMO = typeof window.getSquadPower === 'function' ? window.getSquadPower() : 1;
     
-    // ЭКРАН 1: Выбор главы
     if (window.currentActiveChapterView === null) {
         if (backBtn) {
             backBtn.style.display = 'block';
@@ -48,7 +46,7 @@ function renderDragonSelectionGrid() {
         const scrTitle = document.getElementById('adventure-screen-title');
         const scrSubtitle = document.getElementById('adventure-screen-subtitle');
         if (scrTitle) scrTitle.innerText = "РЕЖИМ ПРИКЛЮЧЕНИЯ";
-        if (scrSubtitle) scrSubtitle.innerText = `Ваша Мощность Отряда: 👑 МО ${currentMO}`;
+        if (scrSubtitle) scrSubtitle.innerText = "Выберите пространство или бестиарий";
 
         window.ADVENTURE_CHAPTERS.forEach((ch, idx) => {
             const card = document.createElement('div');
@@ -66,7 +64,7 @@ function renderDragonSelectionGrid() {
                 card.style.filter = "grayscale(1)";
                 card.style.cursor = "not-allowed";
                 const lockReason = isPowerLocked 
-                    ? `Требуется Мощность Отряда: 👑 МО ${reqChapterMO}` 
+                    ? `Требуется уровень отряда: 👑 ${reqChapterMO}` 
                     : `Победите предыдущих боссов для открытия доступа.`;
 
                 card.innerHTML = `
@@ -94,7 +92,6 @@ function renderDragonSelectionGrid() {
         return;
     }
     
-    // ЭКРАН 2: Список боссов внутри главы
     const activeChapter = window.ADVENTURE_CHAPTERS[window.currentActiveChapterView];
     const isFirstChapter = activeChapter.id === "ch_1";
     
@@ -110,7 +107,7 @@ function renderDragonSelectionGrid() {
     const scrTitle = document.getElementById('adventure-screen-title');
     const scrSubtitle = document.getElementById('adventure-screen-subtitle');
     if (scrTitle) scrTitle.innerText = `${activeChapter.icon} ${activeChapter.title.toUpperCase()}`;
-    if (scrSubtitle) scrSubtitle.innerText = `Ваша Мощность Отряда: 👑 МО ${currentMO}`;
+    if (scrSubtitle) scrSubtitle.innerText = isFirstChapter ? "Обычные монстры болот" : "Силы и стихии главы";
 
     const elements = ["Огонь", "Лед", "Тьма", "Свет"];
     
@@ -131,7 +128,7 @@ function renderDragonSelectionGrid() {
         
         if (isPowerLocked) {
             btn.classList.add('disabled');
-            btn.innerHTML = `🔒 ${boss.name} (Требуется МО: ${reqMO})`;
+            btn.innerHTML = `🔒 ${boss.name} (Требуется уровень: ${reqMO})`;
         } else if (isTierLocked) {
             btn.classList.add('disabled');
             btn.innerHTML = `🔒 Победите предыдущего врага`;
@@ -144,21 +141,10 @@ function renderDragonSelectionGrid() {
             } else {
                 const element = elements[(boss.tier - 1) % elements.length];
                 btn.innerHTML = `${boss.icon} ${boss.name} [${element}] — ${boss.baseHP} HP`;
-                btn.dataset.level = boss.tier;
-                
-                if (element === "Огонь") {
-                    btn.style.background = "linear-gradient(to bottom, #3b1717, #1c0a0a)";
-                    btn.style.borderColor = "#9c2a2a"; btn.style.color = "#ff8c8c";
-                } else if (element === "Лед") {
-                    btn.style.background = "linear-gradient(to bottom, #162436, #0b121c)";
-                    btn.style.borderColor = "#2a629c"; btn.style.color = "#8cd1ff";
-                } else if (element === "Тьма") {
-                    btn.style.background = "linear-gradient(to bottom, #28173b, #130a1c)";
-                    btn.style.borderColor = "#6d2a9c"; btn.style.color = "#e58cff";
-                } else if (element === "Свет") {
-                    btn.style.background = "linear-gradient(to bottom, #362e19, #1a160c)";
-                    btn.style.borderColor = "#9c7f2a"; btn.style.color = "#ffe88c";
-                }
+                if (element === "Огонь") { btn.style.background = "linear-gradient(to bottom, #3b1717, #1c0a0a)"; btn.style.borderColor = "#9c2a2a"; btn.style.color = "#ff8c8c"; }
+                else if (element === "Лед") { btn.style.background = "linear-gradient(to bottom, #162436, #0b121c)"; btn.style.borderColor = "#2a629c"; btn.style.color = "#8cd1ff"; }
+                else if (element === "Тьма") { btn.style.background = "linear-gradient(to bottom, #28173b, #130a1c)"; btn.style.borderColor = "#6d2a9c"; btn.style.color = "#e58cff"; }
+                else if (element === "Свет") { btn.style.background = "linear-gradient(to bottom, #362e19, #1a160c)"; btn.style.borderColor = "#9c7f2a"; btn.style.color = "#ffe88c"; }
             }
             
             btn.dataset.level = boss.tier;
@@ -166,9 +152,7 @@ function renderDragonSelectionGrid() {
                 selectedDragonLevel = parseInt(e.currentTarget.dataset.level);
                 if (typeof startBackgroundMusic === 'function') startBackgroundMusic();
                 showScreen('combat-screen');
-                if (typeof startCombatSession === 'function') {
-                    startCombatSession(selectedDragonLevel);
-                }
+                if (typeof startCombatSession === 'function') startCombatSession(selectedDragonLevel);
             });
         }
         
