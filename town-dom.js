@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ ИНЪЕКЦИЙ ГОРОДСКИХ ИНТЕРФЕЙСОВ И ОКНА УРОВНЯ (v6.2.1)
+   КХАМАЧ — МОДУЛЬ ИНЪЕКЦИЙ ГОРОДСКИХ ИНТЕРФЕЙСОВ И ОКНА УРОВНЯ (v6.2.2)
    ========================================================================== */
 
 function injectTownScreensDOM() {
@@ -98,10 +98,10 @@ function injectTownScreensDOM() {
 
     const lvlInfoScr = document.getElementById('squad-level-info-screen');
     if (lvlInfoScr) {
-        const tBld = parseInt(localStorage.getItem('khamach_build_tank') || '1');
-        const dBld = parseInt(localStorage.getItem('khamach_build_damage') || '1');
-        const aBld = parseInt(localStorage.getItem('khamach_build_archer') || '1');
-        const mBld = parseInt(localStorage.getItem('khamach_build_mage') || '1');
+        const tLvl = parseInt(localStorage.getItem('khamach_hero_lvl_tank') || '1');
+        const dLvl = parseInt(localStorage.getItem('khamach_hero_lvl_damage') || '1');
+        const aLvl = parseInt(localStorage.getItem('khamach_hero_lvl_archer') || '1');
+        const mLvl = parseInt(localStorage.getItem('khamach_hero_lvl_mage') || '1');
         const curLvl = typeof window.getSquadPower === 'function' ? window.getSquadPower() : 1;
 
         lvlInfoScr.innerHTML = `
@@ -109,15 +109,15 @@ function injectTownScreensDOM() {
                 <h2>👑 Уровень Отряда: ${curLvl}</h2>
                 <span class="subtitle">Как рассчитывается показатель</span>
                 <p style="font-size:12px; color:#cdb38c; line-height:1.45; text-align:left; margin-bottom:10px;">
-                    Уровень отряда — это среднее значение уровней всех четырёх построек вашей Цитадели (округлённое в меньшую сторону). Чтобы повысить общий уровень, равномерно улучшайте все здания.
+                    Уровень отряда — это среднее значение уровней прокачки всех четырёх героев вашей команды (округлённое в меньшую сторону). Тренируйте бойцов в Спортзале, чтобы открывать новые главы.
                 </p>
                 <div style="display:flex; flex-direction:column; gap:6px; text-align:left; background:rgba(0,0,0,0.5); padding:10px; border:1px solid #544432; border-radius:4px; font-size:12px; color:#e6c280;">
-                    <div style="display:flex; justify-content:space-between;"><span>🛡️ Гарнизон:</span><strong>Ур. ${tBld}</strong></div>
-                    <div style="display:flex; justify-content:space-between;"><span>🔥 Казармы:</span><strong>Ур. ${dBld}</strong></div>
-                    <div style="display:flex; justify-content:space-between;"><span>⚡ Стрельбище:</span><strong>Ур. ${aBld}</strong></div>
-                    <div style="display:flex; justify-content:space-between;"><span>💚 Обитель:</span><strong>Ур. ${mBld}</strong></div>
+                    <div style="display:flex; justify-content:space-between;"><span>🛡️ Защитник:</span><strong>Ур. ${tLvl}</strong></div>
+                    <div style="display:flex; justify-content:space-between;"><span>🔥 Воин:</span><strong>Ур. ${dLvl}</strong></div>
+                    <div style="display:flex; justify-content:space-between;"><span>⚡ Стрелок:</span><strong>Ур. ${aLvl}</strong></div>
+                    <div style="display:flex; justify-content:space-between;"><span>💚 Маг:</span><strong>Ур. ${mLvl}</strong></div>
                     <div style="border-top:1px dashed #544432; padding-top:4px; margin-top:2px; display:flex; justify-content:space-between; color:#ffd700;">
-                        <span>Формула: (${tBld}+${dBld}+${aBld}+${mBld}) ÷ 4</span><strong>Уровень ${curLvl}</strong>
+                        <span>Формула: (${tLvl}+${dLvl}+${aLvl}+${mLvl}) ÷ 4</span><strong>Уровень ${curLvl}</strong>
                     </div>
                 </div>
                 <button id="close-level-info-btn" class="menu-btn back-btn" style="width: 100%; margin-top: 12px; padding: 8px;">Понятно</button>
