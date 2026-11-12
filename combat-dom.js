@@ -1,50 +1,81 @@
 /* ==========================================================================
-   КХАМАЧ — МОДУЛЬ ДИНАМИЧЕСКОГО БОЕВОГО ИНТЕРФЕЙСА (v6.1.3-STABLE)
+   КХАМАЧ — МОДУЛЬ ДИНАМИЧЕСКОГО БОЕВОГО ИНТЕРФЕЙСА (v6.2.1-STABLE)
    ========================================================================== */
 
 function injectCombatInterfaceBaseDOM() {
     const container = document.getElementById('dynamic-combat-screen');
-    if (!container || container.innerHTML.trim() !== '') return;
+    if (!container) return;
 
-    container.innerHTML = `
-        <div id="combat-screen" class="game-window" style="display: flex; max-width: 460px; padding: 8px 12px;">
-            <div id="dragon-raid-zone" style="position: relative;"></div>
+    if (container.innerHTML.trim() === '') {
+        container.innerHTML = `
+            <div id="combat-screen" class="game-window" style="display: flex; max-width: 460px; padding: 8px 12px;">
+                <div id="dragon-raid-zone" style="position: relative;"></div>
 
-            <div id="boss-panel" style="margin-bottom: 4px; padding: 4px; position: relative;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-                    <div id="boss-name" style="font-size: 12px; margin: 0;">ЗАГРУЗКА БЕСТИАРИЯ...</div>
-                    <div style="display: flex; gap: 4px;">
-                        <button id="combat-help-btn" class="info-btn" style="width: 26px; height: 26px; font-size: 12px; padding: 0;">❓</button>
-                        <button id="combat-escape-top-btn" class="info-btn back-btn" style="width: 26px; height: 26px; font-size: 11px; padding: 0;" title="Отступить в Цитадель">❌</button>
+                <div id="boss-panel" style="margin-bottom: 4px; padding: 6px; position: relative;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; width: 100%;">
+                        <div id="boss-name" style="font-size: 13px; font-weight: bold; color: #e6c280; margin: 0; text-align: left;">ЗАГРУЗКА...</div>
+                        <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                            <button id="combat-help-btn" class="info-btn" style="width: 28px; height: 28px; font-size: 13px; padding: 0; display: flex; align-items: center; justify-content: center;">❓</button>
+                            <button id="combat-escape-top-btn" class="info-btn back-btn" style="width: 28px; height: 28px; font-size: 12px; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center;" title="Отступить">❌</button>
+                        </div>
+                    </div>
+                    <div class="hp-bar-container" style="height: 12px;">
+                        <div id="boss-hp-bar" class="hp-bar" style="width: 100%;"></div>
+                        <div id="boss-hp-text" style="font-size: 9px; line-height: 12px;">120 / 120</div>
                     </div>
                 </div>
-                <div class="hp-bar-container" style="height: 10px;">
-                    <div id="boss-hp-bar" class="hp-bar" style="width: 100%;"></div>
-                    <div id="boss-hp-text" style="font-size: 9px; line-height: 10px;">120 / 120</div>
+
+                <div id="battle-status-panel" style="margin-bottom: 4px; padding: 4px; font-size: 11px; flex-direction: column; align-items: stretch; gap: 2px;">
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <div id="combat-round-display">Раунд: 1</div>
+                        <div id="combat-ap-display" style="color: #ffd700; font-weight: bold;">Сделайте ход на поле!</div>
+                    </div>
+                    <div id="combat-shield-display" style="display: none; text-align: center; color: #4a90e2; font-weight: bold; font-size: 11px; border-top: 1px dashed #3a3025; padding-top: 2px;">🛡️ Танк спровоцировал врага!</div>
+                </div>
+
+                <div id="squad-matrix" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 4px;"></div>
+                <div id="match3-board-container" class="match3-board"></div>
+            </div>
+            
+            <div id="combat-help-popup-screen" class="combat-help-popup" style="display: none; z-index: 32000;">
+                <div class="combat-help-content" style="max-width: 380px;">
+                    <h2>ПРАВИЛА БОЯ</h2>
+                    <span class="subtitle">Тактика Горнила Рун</span>
+                    <div style="font-size:12px; color:#cdb38c; text-align:left; display:flex; flex-direction:column; gap:8px; background:rgba(0,0,0,0.4); padding:12px; border:1px solid #544432; border-radius:4px;">
+                        <div><strong>1. Сбор рун (🔥 🛡️ ⚡ 💚):</strong> Собирайте 3 и более рун в ряд, чтобы заряжать энергию (SP) героев соответствующей стихии.</div>
+                        <div><strong>2. Суперспособности:</strong> Когда шкала SP героя доходит до 100% и карточка начинает сиять — нажмите на неё для удара или лечения.</div>
+                        <div><strong>3. Ход врага:</strong> После исчерпания ваших очков действий (AP) враг наносит ответный удар.</div>
+                    </div>
+                    <button id="close-combat-help-btn" class="menu-btn" style="width:100%; margin-top:12px; padding:10px;">Вернуться в бой</button>
                 </div>
             </div>
+        `;
+    }
 
-            <div id="battle-status-panel" style="margin-bottom: 4px; padding: 4px; font-size: 11px; flex-direction: column; align-items: stretch; gap: 2px;">
-                <div style="display: flex; justify-content: space-between; width: 100%;">
-                    <div id="combat-round-display">Раунд: 1</div>
-                    <div id="combat-ap-display" style="color: #ffd700; font-weight: bold;">Сделайте ход на поле!</div>
-                </div>
-                <div id="combat-shield-display" style="display: none; text-align: center; color: #4a90e2; font-weight: bold; font-size: 11px; border-top: 1px dashed #3a3025; padding-top: 2px;">🛡️ Танк спровоцировал врага!</div>
-            </div>
+    const helpBtn = document.getElementById('combat-help-btn');
+    if (helpBtn) {
+        helpBtn.onclick = function() {
+            const p = document.getElementById('combat-help-popup-screen');
+            if (p) p.style.display = 'flex';
+        };
+    }
 
-            <div id="squad-matrix" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 4px;"></div>
-            <div id="match3-board-container" class="match3-board"></div>
-        </div>
-        <div id="dynamic-combat-popups"></div>
-    `;
+    const closeHelpBtn = document.getElementById('close-combat-help-btn');
+    if (closeHelpBtn) {
+        closeHelpBtn.onclick = function() {
+            const p = document.getElementById('combat-help-popup-screen');
+            if (p) p.style.display = 'none';
+        };
+    }
 
-    if (typeof injectCombatPopupsDOM === 'function') injectCombatPopupsDOM();
-
-    document.getElementById('combat-escape-top-btn').onclick = function() {
-        if (confirm("Вы уверены, что хотите трусливо сбежать с поля боя?")) {
-            window.location.href = 'hub.html?t=' + Date.now();
-        }
-    };
+    const escBtn = document.getElementById('combat-escape-top-btn');
+    if (escBtn) {
+        escBtn.onclick = function() {
+            if (confirm("Вы уверены, что хотите отступить с поля боя?")) {
+                window.location.href = 'hub.html?t=' + Date.now();
+            }
+        };
+    }
 }
 
 function buildDragonDOM() {
@@ -52,7 +83,6 @@ function buildDragonDOM() {
     if (!raidZone || !window.ADVENTURE_CHAPTERS) return;
     raidZone.innerHTML = '';
     
-    // ДИНАМИЧЕСКИЙ АВАТАР: Ищем иконку босса по активному уровню сессии в базе
     let bossIcon = '🐉';
     for (let ch of window.ADVENTURE_CHAPTERS) {
         let found = ch.bosses.find(b => b.tier === activeSessionLevel);
@@ -61,7 +91,7 @@ function buildDragonDOM() {
 
     const container = document.createElement('div'); container.className = 'dragon-container';
     const model = document.createElement('div'); model.id = 'dragon-model'; model.className = 'dragon-idle';
-    model.innerText = bossIcon; // Отрисовываем честный эмодзи босса
+    model.innerText = bossIcon;
     model.style.fontSize = '70px'; model.style.display = 'flex'; model.style.alignItems = 'center'; model.style.justifyContent = 'center';
     
     container.appendChild(model); raidZone.appendChild(container);
