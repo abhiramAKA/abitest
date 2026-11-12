@@ -1,5 +1,5 @@
 /* ==========================================================================
-   КХАМАЧ — ИСХОДЫ БИТВЫ И ВЕРОЯТНОСТНЫЙ ГЕНЕРАТОР ДРОПА (v6.2.2-STABLE)
+   КХАМАЧ — ИСХОДЫ БИТВЫ, УСТАЛОСТЬ РЕЙДА И КОЭФФИЦИЕНТ СВЕЖЕСТИ (v6.2.3-STABLE)
    ========================================================================== */
 
 const HERO_POWER_TABLE = {
@@ -37,7 +37,32 @@ function activateHeroSuperpower(heroId) {
     checkBattleResolution();
 }
 
-function rollBattleLootByTier(tier) {
+// Вычисляем среднюю усталость ТОЛЬКО тех бойцов, которые реально вышли на бой
+function getActiveRaidAverageFatigue() {
+    if (!combatData || !combatData.squad) return 0;
+    let sum = 0;
+    let activeCount = 0;
+    combatData.squad.forEach(h => {
+        if (localStorage.getItem(`khamach_hero_busy_${h.id}`) !== 'true') {
+            sum += parseFloat(localStorage.getItem(`khamach_fatigue_${h.id}`) || '0');
+            activeCount++;
+        }
+    });
+    return activeCount > 0 ? (sum / activeCount) : 0;
+}
+
+// Начисляем +3% усталости активным участникам строго за победу
+function applyVictoryFatigue() {
+    if (!combatData || !combatData.squad) return;
+    combatData.squad.forEach(h => {
+        if (localStorage.getItem(`khamach_hero_busy_${h.id}`) !== 'true') {
+            const cur = parseFloat(localStorage.getItem(`khamach_fatigue_${h.id}`) || '0');
+            localStorage.setItem(`khamach_fatigue_${h.id}`, Math.min(100, cur + 3).toString());
+        }
+    });
+}
+
+function rollBattleLootByTier(tier, freshnessFactor) {
     const RARE_POOL = new Array(
         { key: 'khamach_res_coal', icon: '🔥', name: 'Уголь пламени' },
         { key: 'khamach_res_ice',  icon: '❄️', name: 'Ледяной осколок' },
@@ -46,6 +71,7 @@ function rollBattleLootByTier(tier) {
     );
     const COMMON_RES = { key: 'khamach_dragon_ore', icon: '🪨', name: 'Горная руда' };
 
+    // Качество породы зависит ТОЛЬКО от тира босса (без штрафа усталости)
     function rollSingleSlot() {
         if (tier <= 6) return COMMON_RES;
         const rareChance = 15 + (tier - 7) * 3.5;
@@ -56,10 +82,15 @@ function rollBattleLootByTier(tier) {
     }
 
     const droppedItems = new Array();
-    droppedItems.push(rollSingleSlot());
+    
+    // 1-й слот: 100% * Коэффициент Свежести (минимум 10%)
+    if (Math.random() < freshnessFactor) {
+        droppedItems.push(rollSingleSlot());
+    }
 
-    const doubleChance = (tier - 1) * 2.5;
-    if (Math.random() * 100 < doubleChance) {
+    // 2-й слот: ((Тир - 1) * 2.5%) * Коэффициент Свежести
+    const baseDoubleChance = ((tier - 1) * 2.5) / 100;
+    if (Math.random() < (baseDoubleChance * freshnessFactor)) {
         droppedItems.push(rollSingleSlot());
     }
 
@@ -82,14 +113,38 @@ function checkBattleResolution() {
         let id = window.setTimeout(function() {}, 0); while (id--) { window.clearTimeout(id); }
 
         const tier = typeof activeSessionLevel !== 'undefined' ? activeSessionLevel : 1;
+        
+        // Фиксируем усталость рейда ДО начисления +3% за текущий бой
+        const avgFatigue = getActiveRaidAverageFatigue();
+        const freshnessFactor = Math.max(0.10, 1 - (avgFatigue / 100));
+        const freshnessPct = Math.round(freshnessFactor * 100);
+
+        applyVictoryFatigue();
         if (typeof saveCompletedTier === 'function') saveCompletedTier(tier);
         if (typeof checkSeasonBountyResolution === 'function') checkSeasonBountyResolution();
 
-        const lootList = rollBattleLootByTier(tier);
-        const lootHTML = lootList.map(l => `<div style="font-size:15px; color:#ffd700; font-weight:bold; margin:4px 0;">+ ${l.count} ${l.icon} ${l.name}</div>`).join('');
-        const isDouble = lootList.reduce((acc, item) => acc + item.count, 0) > 1;
-        const firstItem = lootList.at(0);
-        const mainIcon = firstItem ? firstItem.icon : '🪨';
+        const lootList = rollBattleLootByTier(tier, freshnessFactor);
+        const totalDropped = lootList.reduce((acc, item) => acc + item.count, 0);
+        
+        let lootHTML = '';
+        let mainIcon = '🪨';
+        let subTitleText = 'Трофеи Горнила Рун';
+
+        if (totalDropped === 0) {
+            mainIcon = '🥱';
+            subTitleText = 'УТОМЛЁННЫЙ ОТРЯД';
+            lootHTML = `<div style="font-size:13px; color:#ffb3ba; line-height:1.4;">Из-за высокой усталости (Свежесть: ${freshnessPct}%) бойцы не смогли унести добычу из шахты. Дайте героям отдохнуть!</div>`;
+        } else {
+            const firstItem = lootList.at(0);
+            mainIcon = firstItem ? firstItem.icon : '🪨';
+            if (totalDropped > 1) subTitleText = '✨ ДВОЙНАЯ ДОБЫЧА! ✨';
+            lootHTML = `<div style="font-size:12px; color:#cdb38c; margin-bottom:6px;">На склады Цитадели доставлено:</div>` +
+                lootList.map(l => `<div style="font-size:15px; color:#ffd700; font-weight:bold; margin:4px 0;">+ ${l.count} ${l.icon} ${l.name}</div>`).join('');
+        }
+
+        const fatigueNote = avgFatigue > 0 
+            ? `<div style="font-size:11px; color:#8a7350; margin-top:8px;">Свежесть отряда в бою: ${freshnessPct}% (+3% усталости за победу)</div>` 
+            : `<div style="font-size:11px; color:#2ecc71; margin-top:8px;">Свежесть отряда: 100% (+3% усталости за победу)</div>`;
 
         let rewardsPopup = document.createElement('div');
         rewardsPopup.className = 'combat-help-popup';
@@ -98,10 +153,10 @@ function checkBattleResolution() {
             <div class="combat-help-content" style="max-width:380px; text-align:center;">
                 <div style="font-size:50px; line-height:1; margin-bottom:8px;">${mainIcon}</div>
                 <h2 style="color:#2ecc71;">ВЕЛИКАЯ ПОБЕДА!</h2>
-                <span class="subtitle">${isDouble ? '✨ ДВОЙНАЯ ДОБЫЧА! ✨' : 'Трофеи Горнила Рун'}</span>
+                <span class="subtitle">${subTitleText}</span>
                 <div style="background:rgba(0,0,0,0.5); padding:12px; border:1px solid #544432; border-radius:4px; margin-bottom:15px;">
-                    <div style="font-size:12px; color:#cdb38c; margin-bottom:6px;">На склады Цитадели доставлено:</div>
                     ${lootHTML}
+                    ${fatigueNote}
                 </div>
                 <button id="close-rewards-battle-btn" class="menu-btn" style="width:100%; background:linear-gradient(to bottom, #1d3a1e, #0f2110); border-color:#316e34; padding:12px; font-weight:bold;">ВЕРНУТЬСЯ В МЕНЮ ↩️</button>
             </div>
@@ -112,8 +167,9 @@ function checkBattleResolution() {
             window.location.href = 'hub.html?t=' + Date.now();
         };
     } else if (combatData.squad.every(hero => hero.hp <= 0)) {
+        // При поражении усталость НЕ начисляется
         let id = window.setTimeout(function() {}, 0); while (id--) { window.clearTimeout(id); }
-        alert("ОТРЯД ПАЛ В БИТВЕ! Соберитесь с силами в меню.");
+        alert("ОТРЯД ПАЛ В БИТВЕ! Силы не потрачены — соберитесь с духом в меню.");
         window.location.href = 'hub.html?t=' + Date.now();
     }
 }
